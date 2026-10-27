@@ -75,7 +75,17 @@
     causas.forEach(function (k) {
       (exMap[k] || []).forEach(function (e) { if (examenes.indexOf(e) === -1) examenes.push(e); });
     });
-    return { nivel: nivel, esp: esp, causas: causas, otc: otc, embarazo: embarazo, examenes: examenes };
+    // Con fórmula médica: solo nombre + uso (sin dosis); el CTA es la consulta.
+    // En embarazo/lactancia no se listan (muchos están contraindicados).
+    var rx = [];
+    if (!embarazo) {
+      Object.keys(cat.rx || {}).forEach(function (k) {
+        var prod = (D.rx || {})[k];
+        if (!prod) return;
+        if (cat.rx[k].some(function (c) { return causas.indexOf(c) !== -1; })) rx.push(prod);
+      });
+    }
+    return { nivel: nivel, esp: esp, causas: causas, otc: otc, rx: rx, embarazo: embarazo, examenes: examenes };
   }
   function espInfo(key) {
     var e = D.especialidades[key] || D.especialidades.general;
@@ -88,6 +98,16 @@
       modalidades: (cfg && cfg.modalidades) || e.modalidades || ['presencial'],
       precios: (cfg && cfg.precios) || {}
     };
+  }
+  function farmaciaUrl(term) {
+    var f = D.farmacia || {};
+    var base = (f.url || 'https://farminova24.com').replace(/\/+$/, '');
+    var utm = f.utm || 'utm_source=rogansya&utm_medium=orientacion&utm_campaign=sintomas';
+    if (f.buscar && term) return base + f.buscar + encodeURIComponent(term) + '&' + utm;
+    return base + '/?' + utm;
+  }
+  function farmaciaNombre() {
+    return (D.farmacia && D.farmacia.nombre) || 'la farmacia';
   }
   function fmtCop(n) {
     return '$' + Number(n).toLocaleString('es-CO') + ' COP';
@@ -146,7 +166,31 @@
     var shell = document.getElementById('os-shell');
     if (!shell) return;
     if (on) shell.classList.add('is-result');
-    else shell.classList.remove('is-result');
+    else {
+      shell.classList.remove('is-result');
+      removeSticky();
+    }
+  }
+
+  // Barra fija inferior (solo móvil, vía CSS) con el CTA de agendar en el resultado.
+  function removeSticky() {
+    var s = document.getElementById('os-sticky-book');
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+    document.body.classList.remove('os-has-sticky');
+  }
+  function mountSticky() {
+    removeSticky();
+    var pr = precioPromo();
+    var el = document.createElement('div');
+    el.id = 'os-sticky-book';
+    el.className = 'os-sticky-book';
+    el.setAttribute('role', 'region');
+    el.setAttribute('aria-label', 'Agendar consulta de seguimiento');
+    el.innerHTML = '<div class="os-sticky-price"><s>' + esc(pr.regularCop) + '</s> <strong>' + esc(pr.promoCop) + '</strong>' +
+      '<span class="os-sticky-code">código ' + esc(pr.code) + '</span></div>' +
+      '<button type="button" class="os-sticky-cta" data-os="agendar" data-src="sticky" id="OS_CTA_AGENDAR_STICKY">Agendar consulta de seguimiento</button>';
+    root.appendChild(el);
+    document.body.classList.add('os-has-sticky');
   }
 
   function refreshIcons() {
@@ -943,13 +987,14 @@
         ', si es de venta libre y te resulta seguro según la etiqueta, puedes continuar usándolo respetando dosis y tiempo máximo.</p>';
     } else if (S.tratResultado === 'efectos') {
       html += '<p class="os-card-lead">Por los efectos adversos que mencionaste con <strong>' + esc(S.tratamientos) + '</strong>, no sugerimos repetirlo. Revisa opciones de venta libre abajo o consulta al médico.</p>';
-    } else if (S.tratResultado === 'no' || S.tratResultado === 'parcial') {
-      html += '<p class="os-card-lead">Como lo anterior no resolvió del todo tu molestia, aquí van alternativas de venta libre (si aplican):</p>';
+    } else if ((S.tratResultado === 'no' || S.tratResultado === 'parcial') && !r.embarazo && r.otc.length) {
+      html += '<p class="os-card-lead">Como lo anterior no resolvió del todo tu molestia, aquí van alternativas de venta libre:</p>';
     }
 
     if (r.embarazo) {
       html += '<p class="os-card-lead">En embarazo o lactancia no sugerimos automedicación: tu médico te orientará.</p>';
     } else if (r.otc.length) {
+      html += '<h4 class="os-med-sub">De venta libre</h4>';
       html += '<div class="os-med-grid">';
       r.otc.forEach(function (p) {
         var avisos = p.advertencias || p.avisos || [];
@@ -961,6 +1006,8 @@
           avisos.forEach(function (a) { html += '<li>' + esc(a) + '</li>'; });
           html += '</ul>';
         }
+        html += '<a class="os-pharm-link" data-os-farmacia="otc" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '">' +
+          '<i data-lucide="shopping-bag" class="w-3.5 h-3.5" aria-hidden="true"></i> Comprar en farmacia</a>';
         html += '</article>';
       });
       html += '</div>';
@@ -972,7 +1019,25 @@
       html += '<p class="os-card-lead">No hay una sugerencia clara de venta libre para tu combinación de respuestas.</p>';
     }
 
-    html += '<div class="os-rx-note"><strong>Con fórmula médica</strong> — requiere fórmula: el médico puede formularla en la consulta de seguimiento (también incapacidad y órdenes).</div>';
+    if (r.rx && r.rx.length) {
+      html += '<h4 class="os-med-sub">Con fórmula médica</h4>';
+      html += '<p class="os-rx-lead">Solo un médico puede indicarlos y definir la dosis. En la consulta de seguimiento te los formula si aplican.</p>';
+      html += '<div class="os-med-grid">';
+      r.rx.forEach(function (p) {
+        html += '<article class="os-rx" data-os-rx="1"><p class="os-otc-name">' + esc(p.nombre) + '</p>';
+        html += '<span class="os-badge-rx"><i data-lucide="file-signature" class="w-3 h-3" aria-hidden="true"></i> Requiere fórmula médica</span>';
+        if (p.uso) html += '<p class="os-otc-uso">' + esc(p.uso) + '</p>';
+        html += '<button type="button" class="os-rx-cta" data-os="agendar" data-src="rx">Obtener fórmula en consulta de seguimiento</button>';
+        html += '<a class="os-pharm-link is-secondary" data-os-farmacia="rx" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '">Ver en farmacia (con fórmula)</a>';
+        html += '</article>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="os-rx-note"><strong>Con fórmula médica</strong> — si necesitas un medicamento formulado, el médico lo indica en la consulta de seguimiento (también incapacidad y órdenes).</div>';
+    }
+    if (!r.embarazo && (r.otc.length || (r.rx && r.rx.length))) {
+      html += '<p class="os-card-note">Enlaces a ' + esc(farmaciaNombre()) + ', farmacia externa. Los medicamentos con fórmula solo se dispensan presentando la fórmula médica. No es publicidad de medicamentos de venta bajo fórmula.</p>';
+    }
     html += '</section>';
     return html;
   }
@@ -1016,34 +1081,70 @@
     return html;
   }
 
-  function bookingCardHtml(e) {
+  function precioPromo() {
     var p = C.precio || D.precio || {};
     var pct = p.cupon_pct != null ? Number(p.cupon_pct) : 50;
     var copPromo = p.cop_promo != null ? p.cop_promo : (p.cop != null ? Math.round(Number(p.cop) * (100 - pct) / 100) : null);
     var usdPromo = p.usd_promo != null ? p.usd_promo : (p.usd != null ? Math.round(Number(p.usd) * (100 - pct)) / 100 : null);
-    var regular = precioParts(p.cop, p.usd);
-    var promo = precioParts(copPromo, usdPromo);
-    var code = p.cupon || C.cupon || '50%';
-    var mods = e.modalidades || [];
-    var modTxt = [];
-    if (mods.indexOf('telemedicina') !== -1) modTxt.push('Virtual');
-    if (mods.indexOf('presencial') !== -1) modTxt.push('Presencial en Bogotá');
-    if (!modTxt.length) modTxt = ['Presencial en Bogotá'];
+    return {
+      regular: precioParts(p.cop, p.usd) || '$50.000 COP · USD 15',
+      promo: precioParts(copPromo, usdPromo) || '$25.000 COP · USD 7,50',
+      regularCop: p.cop != null ? fmtCop(p.cop) : '$50.000 COP',
+      promoCop: copPromo != null ? fmtCop(copPromo) : '$25.000 COP',
+      code: p.cupon || C.cupon || '50%'
+    };
+  }
 
-    var html = '<section class="os-card os-card-book" id="os-booking">';
-    html += '<header class="os-card-head">' + iconHtml('calendar-check') + '<div><p class="os-card-kicker">Siguiente paso</p><h3 class="os-card-title">Agenda tu consulta de seguimiento</h3></div></header>';
-    html += '<p class="os-book-esp">Con <strong>' + esc(e.nombre) + '</strong> · ' + esc(modTxt.join(' · ')) + '</p>';
-    html += '<div class="os-book-price"><s class="os-precio-old">' + esc(regular || '$50.000 COP · USD 15') + '</s>';
-    html += '<span class="os-precio-promo">' + esc(promo || '$25.000 COP · USD 7,50') + '</span>';
-    html += '<span class="os-book-code">código <strong>' + esc(code) + '</strong></span></div>';
+  function modDefault(e) {
+    var mods = e.modalidades || [];
+    if (S.modalidad && mods.indexOf(S.modalidad) !== -1) return S.modalidad;
+    if (mods.indexOf('telemedicina') !== -1) return 'telemedicina';
+    return mods[0] || 'presencial';
+  }
+
+  // Tarjeta principal de agendamiento: arriba del resultado.
+  function bookingHeroHtml(e) {
+    var pr = precioPromo();
+    var mods = e.modalidades && e.modalidades.length ? e.modalidades : ['presencial'];
+    S.modalidad = modDefault(e);
+    var labels = { telemedicina: 'Virtual', presencial: 'Presencial (Bogotá)' };
+
+    var html = '<section class="os-card os-card-book os-book-hero" id="os-booking">';
+    html += '<header class="os-card-head">' + iconHtml('calendar-check') + '<div><p class="os-card-kicker">Siguiente paso recomendado</p><h3 class="os-card-title">Que un médico revise tu caso y te formule</h3></div></header>';
+    html += '<p class="os-book-esp">Consulta de seguimiento con <strong>' + esc(e.nombre) + '</strong></p>';
+    html += '<div class="os-book-toggle" role="group" aria-label="Modalidad de la consulta">';
+    mods.forEach(function (m) {
+      var on = S.modalidad === m;
+      html += '<button type="button" class="os-book-mod' + (on ? ' is-on' : '') + '" data-os="mod-hero" data-v="' + esc(m) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        '<i data-lucide="' + (m === 'telemedicina' ? 'video' : 'map-pin') + '" class="w-3.5 h-3.5" aria-hidden="true"></i> ' + esc(labels[m] || m) + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="os-book-price"><s class="os-precio-old">' + esc(pr.regular) + '</s>';
+    html += '<span class="os-precio-promo">' + esc(pr.promo) + '</span>';
+    html += '<span class="os-book-code">código <strong>' + esc(pr.code) + '</strong></span></div>';
     html += '<ul class="os-book-perks">';
-    html += '<li><i data-lucide="badge-check" class="w-3.5 h-3.5" aria-hidden="true"></i> Diagnóstico con aval profesional</li>';
-    html += '<li><i data-lucide="pill" class="w-3.5 h-3.5" aria-hidden="true"></i> Fórmula médica si aplica</li>';
-    html += '<li><i data-lucide="file-text" class="w-3.5 h-3.5" aria-hidden="true"></i> Incapacidad y órdenes de exámenes</li>';
-    html += '<li><i data-lucide="folder-heart" class="w-3.5 h-3.5" aria-hidden="true"></i> Reutiliza tu orientación (si autorizas)</li>';
+    html += '<li><i data-lucide="stethoscope" class="w-3.5 h-3.5" aria-hidden="true"></i> Diagnóstico médico</li>';
+    html += '<li><i data-lucide="pill" class="w-3.5 h-3.5" aria-hidden="true"></i> Fórmula para tus medicamentos</li>';
+    html += '<li><i data-lucide="flask-conical" class="w-3.5 h-3.5" aria-hidden="true"></i> Órdenes de exámenes</li>';
+    html += '<li><i data-lucide="file-text" class="w-3.5 h-3.5" aria-hidden="true"></i> Incapacidad si aplica</li>';
+    html += '<li><i data-lucide="message-square-text" class="w-3.5 h-3.5" aria-hidden="true"></i> Usa lo que ya respondiste</li>';
     html += '</ul>';
+    html += '<button type="button" class="os-book-cta os-book-cta-xl" data-os="agendar" data-src="hero" id="OS_CTA_AGENDAR">Agendar consulta de seguimiento <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i></button>';
+    html += '<p class="os-book-trust"><i data-lucide="shield-check" class="w-3.5 h-3.5" aria-hidden="true"></i> Médicos colombianos registrados · fórmula válida en Colombia</p>';
+    html += '</section>';
+    return html;
+  }
+
+  // Repetición compacta al final del resultado.
+  function bookingCardHtml(e) {
+    var pr = precioPromo();
+    var html = '<section class="os-card os-card-book os-book-end" id="os-booking-end">';
+    html += '<header class="os-card-head">' + iconHtml('calendar-check') + '<div><p class="os-card-kicker">¿Listo?</p><h3 class="os-card-title">Agenda tu consulta de seguimiento</h3></div></header>';
+    html += '<div class="os-book-price"><s class="os-precio-old">' + esc(pr.regular) + '</s>';
+    html += '<span class="os-precio-promo">' + esc(pr.promo) + '</span>';
+    html += '<span class="os-book-code">código <strong>' + esc(pr.code) + '</strong></span></div>';
     html += '<div class="os-book-actions">';
-    html += '<button type="button" class="os-chip os-chip-primary os-book-cta" data-os="agendar" id="OS_CTA_AGENDAR">Agendar consulta de seguimiento</button>';
+    html += '<button type="button" class="os-chip os-chip-primary os-book-cta" data-os="agendar" data-src="final" id="OS_CTA_AGENDAR_FIN">Agendar consulta de seguimiento</button>';
     if (e.url) html += '<a class="os-chip" href="' + esc(e.url) + '">Conocer el servicio</a>';
     html += '<button type="button" class="os-chip" data-os="reiniciar">Nueva orientación</button>';
     html += '</div>';
@@ -1052,16 +1153,28 @@
     return html;
   }
 
+  function briefHtml(r) {
+    var area = S.cat ? S.cat.titulo : '';
+    var top = r.causas.length ? causaLabel(r.causas[0]) : '';
+    var txt = 'Según lo que contaste' + (area ? ' sobre <strong>' + esc(area) + '</strong>' : '');
+    txt += top ? ', lo más probable es <strong>' + esc(top) + '</strong>.' : '.';
+    txt += ' Un médico puede confirmarlo y formularte en la consulta de seguimiento.';
+    return '<p class="os-result-brief">' + txt + '</p>';
+  }
+
   function buildResultHtml(r, e) {
     var html = '<div class="os-result" id="os-result-panel" data-os-result="1">';
     html += '<p class="os-result-hero-kicker">Tu orientación</p>';
     html += '<h2 class="os-result-hero-title">Recomendaciones y próximos pasos</h2>';
-    html += summaryCardHtml();
+    html += briefHtml(r);
+    if (r.nivel === 'prioritaria') html += warningCardHtml(r);
+    html += bookingHeroHtml(e);
     html += causasCardHtml(r);
     html += medsCardHtml(r);
     html += examsCardHtml(r);
+    html += summaryCardHtml();
     html += referralCardHtml(e);
-    html += warningCardHtml(r);
+    if (r.nivel !== 'prioritaria') html += warningCardHtml(r);
     html += bookingCardHtml(e);
     html += '<p class="os-result-disc">Orientación general basada en tus respuestas. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
     html += '</div>';
@@ -1080,6 +1193,7 @@
         tipo: 'result_actions',
         html: buildResultHtml(r, e)
       });
+      mountSticky();
       requestAnimationFrame(function () {
         var panel = document.getElementById('os-result-panel');
         if (panel) {
@@ -1092,6 +1206,7 @@
   function showAgendar() {
     S.fase = 'agendar';
     track('agendar');
+    removeSticky();
     setResultMode(true);
     var r = evaluar();
     var e = espInfo(r.esp);
@@ -1229,7 +1344,21 @@
 
     if (a === 'atras') { goBack(); return; }
     if (a === 'reiniciar') { reset(); start(); return; }
-    if (a === 'agendar') { showAgendar(); return; }
+    if (a === 'agendar') {
+      var src = b.getAttribute('data-src');
+      if (src) track('agendar_' + src);
+      showAgendar();
+      return;
+    }
+    if (a === 'mod-hero') {
+      S.modalidad = b.getAttribute('data-v');
+      [].forEach.call(root.querySelectorAll('[data-os="mod-hero"]'), function (x) {
+        var on = x.getAttribute('data-v') === S.modalidad;
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      return;
+    }
     if (a === 'atras-resultado') { S.fase = 'resultado'; showResultado(); return; }
     if (a === 'abrir-agenda') { abrirAgenda(); return; }
     if (a === 'skip-upload') { finishUpload(false); return; }
