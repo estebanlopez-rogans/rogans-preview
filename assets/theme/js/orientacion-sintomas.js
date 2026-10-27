@@ -1,115 +1,49 @@
 /**
- * Orientación de síntomas — chat de anamnesis (page-orientacion-de-sintomas.php).
- *
- * Conversación rule-based (sin LLM): motivo → categoría → alarmas → semiología
- * de la categoría → antecedentes clínicos → impresión orientativa.
- * Panel "Tu historia clínica preliminar" se llena en vivo.
- *
- * Nada sale del navegador salvo agendar + compartir + autorización Ley 1581.
- * Sidebar de agenda sin modificar: se escucha su submit en captura.
- *
- * dataLayer: solo nombres de paso, nunca síntomas.
+ * Orientación de síntomas — chat Perplexity-like (v3).
+ * Determinista, sin LLM. Historia clínica se recolecta para Clinova pero NO se muestra al paciente.
  */
 (function () {
   'use strict';
-
-  var D = window.ROGANS_OS_DATOS;
-  var C = window.ROGANS_OS_CFG;
+  var D = window.ROGANS_OS_DATOS || {};
+  var C = window.ROGANS_OS_CFG || {};
   var root = document.getElementById('os-app');
-  if (!D || !C || !root) return;
+  if (!root || !D.categorias) return;
 
-  var RANK = { autocuidado: 0, consulta: 1, prioritaria: 2 };
-  var COPY = D.chat || {};
-  var TYPE_MS = 450;
+  var RANK = { baja: 0, media: 1, prioritaria: 2 };
+  var T = D.chat || {};
+  var MAX_FILE = 5 * 1024 * 1024; // 5 MB
+  var OK_TYPES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'application/pdf': 1 };
 
-  var S;
-  var msgs = []; // {role:'bot'|'user', html, text}
-  var busy = false;
-  var inputMode = null; // current prompt descriptor
+  var S, msgs, inputMode, busy, focusHtml;
 
-  function uuid() {
-    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return 'os-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  function uid() {
+    return 'os-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
   }
-
   function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
-
-  function track(paso) {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'orientacion_sintomas', os_paso: paso });
-  }
-
   function catById(id) {
     for (var i = 0; i < D.categorias.length; i++) if (D.categorias[i].id === id) return D.categorias[i];
     return null;
   }
-
-  function citasCfg() { return window.ROGANS_HOME_CITAS_CFG || {}; }
-
-  function reset() {
-    S = {
-      fase: 'inicio',
-      entiende: false,
-      edad: '',
-      sexo: '',
-      relato: '',
-      alarmas: [],
-      cat: null,
-      qi: 0,
-      resp: {},
-      antecedentes: [],
-      quirurgicos: '',
-      toxicos: [],
-      gineco: [],
-      familiares: '',
-      alergias: '',
-      medicamentos: '',
-      tratamientos: '',
-      modalidad: '',
-      compartir: false,
-      consDatos: false,
-      consTele: false,
-      id: uuid(),
-      enviado: false,
-      history: [] // stack of {fase, snapshot} for back
-    };
-    msgs = [];
-    inputMode = null;
+  function citasCfg() {
+    return (window.ROGANS_CITAS_CFG && window.ROGANS_CITAS_CFG.especialidades) || {};
   }
-
-  function snapshot() {
-    return JSON.parse(JSON.stringify({
-      fase: S.fase, edad: S.edad, sexo: S.sexo, relato: S.relato, alarmas: S.alarmas,
-      catId: S.cat && S.cat.id, qi: S.qi, resp: S.resp, antecedentes: S.antecedentes,
-      quirurgicos: S.quirurgicos, toxicos: S.toxicos, gineco: S.gineco,
-      familiares: S.familiares, alergias: S.alergias, medicamentos: S.medicamentos,
-      tratamientos: S.tratamientos, entiende: S.entiende
-    }));
+  function track(paso) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'os_paso', os_paso: paso });
+    } catch (e) {}
   }
-
-  function pushHistory() {
-    S.history.push(snapshot());
-    if (S.history.length > 40) S.history.shift();
-  }
-
   function seguridadIds() {
-    // Une antecedentes + gineco para filtros OTC (embarazo/lactancia = embarazo).
     var out = S.antecedentes.filter(function (x) { return x !== 'ninguna'; });
     if (S.gineco.indexOf('embarazo') !== -1 || S.gineco.indexOf('lactancia') !== -1) {
       if (out.indexOf('embarazo') === -1) out.push('embarazo');
     }
-    // Map alcohol frecuente from toxicos to higado exclusion helper already on higado
-    if (S.toxicos.indexOf('alcohol_frecuente') !== -1 && out.indexOf('higado') === -1) {
-      // no auto-add higado; alcohol is separate — OTC excluir_si uses higado for acetaminofen
-      // Keep as-is; alcohol_frecuente alone doesn't exclude unless we want. Leave.
-    }
     return out;
   }
-
   function evaluar() {
     var cat = S.cat;
     var nivel = cat.nivel, esp = cat.especialidad, espN = -1, causas = [];
@@ -143,7 +77,6 @@
     });
     return { nivel: nivel, esp: esp, causas: causas, otc: otc, embarazo: embarazo, examenes: examenes };
   }
-
   function espInfo(key) {
     var e = D.especialidades[key] || D.especialidades.general;
     var cfg = e.especialidad ? citasCfg()[e.especialidad] : null;
@@ -156,564 +89,719 @@
       precios: (cfg && cfg.precios) || {}
     };
   }
+  function precioHtml() {
+    var p = C.precio || D.precio || {};
+    if (p.cop == null && p.usd == null) {
+      return '<p class="os-precio">Consulta de seguimiento: <em>Precio por confirmar</em> (COP / USD)</p>';
+    }
+    var parts = [];
+    if (p.cop != null) parts.push('$' + Number(p.cop).toLocaleString('es-CO') + ' COP');
+    if (p.usd != null) parts.push('USD ' + Number(p.usd).toFixed(2));
+    return '<p class="os-precio">Consulta de seguimiento: ' + esc(parts.join(' · ')) + '</p>';
+  }
+  function promoHint() {
+    var code = C.cupon || (C.precio && C.precio.cupon) || '50%';
+    return '<p class="os-legal-sm">Promo: usa el código <strong>' + esc(code) + '</strong> en el checkout y paga la mitad.</p>';
+  }
+
+  function reset() {
+    S = {
+      id: uid(), fase: 'inicio', history: [],
+      edad: '', pais: '', sexo: '', relato: '',
+      alarmas: [], qi: 0, resp: {},
+      antecedentes: [], quirurgicos: '', toxicos: [], gineco: [], familiares: '',
+      alergias: '', medicamentos: '',
+      tratamientos: '', tratResultado: '', tratDetalle: '',
+      adjuntos: [], consAdjuntos: false,
+      entiende: true, // soft disclaimer only; no blocking step
+      cat: null, modalidad: '', compartir: true, consDatos: false, consTele: false,
+      enviado: false
+    };
+    msgs = [];
+    inputMode = null;
+    busy = false;
+    focusHtml = '';
+  }
+
+  function shellHtml() {
+    return '<div class="os-chat-shell" id="os-shell">' +
+      '<div class="os-progress" aria-hidden="true"><span id="os-prog" style="width:4%"></span></div>' +
+      '<div class="os-history" id="os-history" role="log" aria-relevant="additions"></div>' +
+      '<div class="os-focus" id="os-focus"><p class="os-focus-q" id="os-focus-q">…</p><p class="os-focus-sub" id="os-focus-sub" hidden></p></div>' +
+      '<div class="os-composer" id="os-composer"></div>' +
+      '</div>';
+  }
 
   function progressPct() {
-    var order = ['inicio', 'sexo', 'motivo', 'categoria', 'alarmas', 'pregunta', 'tratamientos', 'antecedentes', 'quirurgicos', 'toxicos', 'alergias', 'medicamentos', 'gineco', 'familiares', 'resultado', 'agendar'];
-    var f = S.fase;
-    if (f === 'urgencia' || f === 'menor') return 100;
-    var i = order.indexOf(f);
+    var order = ['inicio','pais','sexo','motivo','categoria','alarmas','tratamientos','trat_resultado','trat_detalle','pregunta','antecedentes','quirurgicos','toxicos','alergias','medicamentos','gineco','familiares','evidencia','resultado','agendar'];
+    var i = order.indexOf(S.fase);
     if (i < 0) i = 0;
-    var extra = (f === 'pregunta' && S.cat) ? (S.qi / Math.max(S.cat.preguntas.length, 1)) : 0;
-    return Math.min(98, Math.round(((i + extra) / (order.length - 1)) * 100));
+    return Math.min(96, Math.round(((i + 1) / order.length) * 100));
   }
 
-  // ---------- HC panel ----------
-  function labelOf(list, id) {
-    for (var i = 0; i < list.length; i++) if (list[i].id === id || list[i].v === id) return list[i].texto || list[i].t;
-    return id;
-  }
-
-  function hcSections() {
-    var secs = [];
-    if (S.edad || S.sexo) {
-      var demo = [];
-      if (S.edad === 'adulto') demo.push('Mayor de 18 años');
-      if (S.edad === 'menor') demo.push('Menor de 18 años');
-      if (S.sexo) demo.push('Sexo: ' + labelOf(D.sexo, S.sexo));
-      secs.push({ id: 'datos', t: 'Datos clínicos básicos', items: demo });
-    }
-    if (S.relato || S.cat) {
-      var mot = [];
-      if (S.relato) mot.push(S.relato);
-      if (S.cat) mot.push('Área: ' + S.cat.titulo);
-      secs.push({ id: 'motivo', t: 'Motivo de consulta', items: mot });
-    }
-    if (S.alarmas.length && S.alarmas[0] !== 'ninguna') {
-      secs.push({ id: 'alarmas', t: 'Señales de alarma', items: S.alarmas.map(function (id) { return labelOf(D.alarmas, id); }) });
-    } else if (S.alarmas[0] === 'ninguna') {
-      secs.push({ id: 'alarmas', t: 'Señales de alarma', items: ['Ninguna reportada'] });
-    }
-    if (S.cat && Object.keys(S.resp).length) {
-      var ea = [];
-      S.cat.preguntas.forEach(function (p) {
-        var sel = [].concat(S.resp[p.id] || []);
-        if (!sel.length) return;
-        var labs = p.opciones.filter(function (o) { return sel.indexOf(o.v) !== -1; }).map(function (o) { return o.t; });
-        ea.push(p.texto + ': ' + labs.join('; '));
-      });
-      if (S.tratamientos) ea.push('Tratamientos probados: ' + S.tratamientos);
-      if (ea.length) secs.push({ id: 'ea', t: 'Enfermedad actual', items: ea });
-    }
-    if (S.antecedentes.length) {
-      var ant = S.antecedentes[0] === 'ninguna' ? ['Ninguno de la lista'] :
-        S.antecedentes.map(function (id) { return labelOf(D.antecedentes, id); });
-      secs.push({ id: 'ant', t: 'Antecedentes patológicos', items: ant });
-    }
-    if (S.quirurgicos) secs.push({ id: 'qx', t: 'Antecedentes quirúrgicos', items: [S.quirurgicos] });
-    if (S.toxicos.length) {
-      var tx = S.toxicos[0] === 'ninguna' ? ['Ninguno'] : S.toxicos.map(function (id) { return labelOf(D.toxicos, id); });
-      secs.push({ id: 'tox', t: 'Hábitos / tóxicos', items: tx });
-    }
-    if (S.alergias) secs.push({ id: 'alg', t: 'Alergias', items: [S.alergias] });
-    if (S.medicamentos) secs.push({ id: 'med', t: 'Medicamentos actuales', items: [S.medicamentos] });
-    if (S.gineco.length) {
-      var g = S.gineco[0] === 'ninguna' ? ['Ninguna'] : S.gineco.map(function (id) { return labelOf(D.gineco, id); });
-      secs.push({ id: 'gin', t: 'Gineco-obstétricos', items: g });
-    }
-    if (S.familiares) secs.push({ id: 'fam', t: 'Antecedentes familiares', items: [S.familiares] });
-    if (S.fase === 'resultado' || S.fase === 'agendar') {
-      var r = evaluar();
-      var imp = r.causas.map(function (k) { return (S.cat.causas[k] && S.cat.causas[k].t) || k; });
-      if (imp.length) secs.push({ id: 'imp', t: 'Impresión orientativa (no diagnóstico)', items: imp });
-    }
-    return secs;
-  }
-
-  function renderHc() {
-    var panel = document.getElementById('os-hc-panel');
-    var mobile = document.getElementById('os-hc-mobile-body');
-    var html = '<p class="os-hc-note">' + esc(COPY.disclaimer_hc || 'Historia clínica preliminar. Pendiente de validación médica.') + '</p>';
-    var secs = hcSections();
-    if (!secs.length) {
-      html += '<p class="os-hc-empty">Aún no hay datos. Tus respuestas irán apareciendo aquí.</p>';
-    } else {
-      secs.forEach(function (sec) {
-        html += '<div class="os-hc-sec"><h3>' + esc(sec.t) + '</h3><ul>';
-        sec.items.forEach(function (it) { html += '<li>' + esc(it) + '</li>'; });
-        html += '</ul></div>';
-      });
-    }
-    if (panel) panel.innerHTML = html;
-    if (mobile) mobile.innerHTML = html;
-    var count = document.getElementById('os-hc-count');
-    if (count) count.textContent = String(secs.length);
-  }
-
-  // ---------- Chat DOM ----------
-  function shellHtml() {
-    var pct = progressPct();
-    return '' +
-      '<div class="os-layout">' +
-        '<div class="os-chat-col">' +
-          '<div class="os-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="Avance de la anamnesis"><span style="width:' + Math.max(pct, 3) + '%"></span></div>' +
-          '<div class="os-chat" id="os-chat" role="log" aria-live="polite" aria-relevant="additions"></div>' +
-          '<div class="os-composer" id="os-composer"></div>' +
-        '</div>' +
-        '<aside class="os-hc-aside" aria-label="Historia clínica preliminar">' +
-          '<div class="os-hc-head"><i data-lucide="clipboard-list" class="w-5 h-5" aria-hidden="true"></i><div><p class="os-hc-title">Tu historia clínica preliminar</p><p class="os-hc-sub">Se llena mientras conversamos</p></div></div>' +
-          '<div class="os-hc-body" id="os-hc-panel"></div>' +
-        '</aside>' +
-      '</div>' +
-      '<details class="os-hc-mobile">' +
-        '<summary><span>Ver historia clínica preliminar (<span id="os-hc-count">0</span>)</span><i data-lucide="chevron-down" class="w-4 h-4" aria-hidden="true"></i></summary>' +
-        '<div id="os-hc-mobile-body" class="os-hc-body"></div>' +
-      '</details>';
+  function renderChrome() {
+    var prog = document.getElementById('os-prog');
+    if (prog) prog.style.width = progressPct() + '%';
   }
 
   function paintMessages() {
-    var box = document.getElementById('os-chat');
-    if (!box) return;
+    var hist = document.getElementById('os-history');
+    var fq = document.getElementById('os-focus-q');
+    var fs = document.getElementById('os-focus-sub');
+    if (!hist) return;
+
+    // Last bot message becomes focus; earlier go to history
+    var focusIdx = -1;
+    for (var i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role === 'bot' && !msgs[i].typing) { focusIdx = i; break; }
+    }
     var html = '';
-    msgs.forEach(function (m) {
-      if (m.role === 'typing') {
-        html += '<div class="os-row os-row-bot" aria-hidden="true"><div class="os-avatar">R</div><div class="os-bubble os-bubble-bot os-typing"><span></span><span></span><span></span></div></div>';
-      } else if (m.role === 'bot') {
-        html += '<div class="os-row os-row-bot"><div class="os-avatar" aria-hidden="true">R</div><div class="os-bubble os-bubble-bot">' + m.html + '</div></div>';
-      } else {
+    msgs.forEach(function (m, idx) {
+      if (idx === focusIdx && !m.typing) return; // shown in focus
+      if (m.typing) {
+        html += '<div class="os-row"><div class="os-avatar" aria-hidden="true">R</div><div class="os-bubble os-bubble-bot os-typing"><span></span><span></span><span></span></div></div>';
+        return;
+      }
+      if (m.role === 'user') {
         html += '<div class="os-row os-row-user"><div class="os-bubble os-bubble-user">' + m.html + '</div></div>';
+      } else {
+        html += '<div class="os-row"><div class="os-avatar" aria-hidden="true">R</div><div class="os-bubble os-bubble-bot">' + m.html + '</div></div>';
       }
     });
-    box.innerHTML = html;
-    box.scrollTop = box.scrollHeight;
+    hist.innerHTML = html;
+    hist.scrollTop = hist.scrollHeight;
+
+    if (fq) {
+      if (focusIdx >= 0) {
+        var plain = msgs[focusIdx].plain || stripTags(msgs[focusIdx].html);
+        fq.innerHTML = msgs[focusIdx].focusHtml || esc(plain);
+      } else {
+        fq.textContent = '…';
+      }
+    }
+    if (fs) {
+      if (focusHtml) { fs.hidden = false; fs.innerHTML = focusHtml; }
+      else { fs.hidden = true; fs.innerHTML = ''; }
+    }
+  }
+
+  function stripTags(h) {
+    var d = document.createElement('div');
+    d.innerHTML = h;
+    return (d.textContent || '').trim();
   }
 
   function paintComposer() {
     var el = document.getElementById('os-composer');
     if (!el) return;
-    if (!inputMode || busy) { el.innerHTML = ''; return; }
-    var m = inputMode;
+    if (!inputMode) { el.innerHTML = ''; return; }
     var html = '<div class="os-composer-inner">';
     if (S.history.length) {
-      html += '<button type="button" class="os-back" data-os="atras" aria-label="Corregir última respuesta"><i data-lucide="undo-2" class="w-4 h-4" aria-hidden="true"></i> Corregir</button>';
+      html += '<button type="button" class="os-back" data-os="atras">← Atrás</button>';
     }
-    if (m.tipo === 'chips' || m.tipo === 'chips_multi') {
-      html += '<div class="os-chips" role="group" aria-label="Opciones">';
-      (m.opciones || []).forEach(function (o) {
-        var on = m.tipo === 'chips_multi'
-          ? (m.selected || []).indexOf(o.v) !== -1
-          : m.selected === o.v;
-        html += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '"' + (o.exclusiva ? ' data-excl="1"' : '') + '>' + esc(o.t) + '</button>';
-      });
-      html += '</div>';
-      if (m.tipo === 'chips_multi') {
-        html += '<button type="button" class="btn-primary-500 os-send" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button>';
-      }
-    }
-    if (m.tipo === 'text' || m.tipo === 'text_optional') {
-      html += '<form class="os-text-form" data-os="text-form">' +
-        '<label class="sr-only" for="os-text">' + esc(m.label || 'Tu respuesta') + '</label>' +
-        '<textarea id="os-text" rows="2" maxlength="' + (m.max || 500) + '" placeholder="' + esc(m.placeholder || '') + '" class="os-text">' + esc(m.value || '') + '</textarea>' +
-        '<button type="submit" class="btn-primary-500 os-send">Enviar</button>' +
-        '</form>';
-    }
-    if (m.tipo === 'confirm') {
-      html += '<div class="os-chips">';
+    var m = inputMode;
+    if (m.tipo === 'chips' || m.tipo === 'confirm') {
+      html += '<div class="os-chips" role="group">';
       (m.opciones || []).forEach(function (o) {
         html += '<button type="button" class="os-chip' + (o.primary ? ' os-chip-primary' : '') + '" data-os="chip" data-v="' + esc(o.v) + '">' + esc(o.t) + '</button>';
       });
       html += '</div>';
-    }
-    if (m.tipo === 'result_actions' || m.tipo === 'agendar_ui') {
+    } else if (m.tipo === 'chips_multi') {
+      html += '<div class="os-chips" role="group">';
+      (m.opciones || []).forEach(function (o) {
+        var on = (m.selected || []).indexOf(o.v) !== -1;
+        html += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="' + (o.exclusiva ? '1' : '0') + '">' + esc(o.t) + '</button>';
+      });
+      html += '</div>';
+      html += '<div class="os-chips"><button type="button" class="os-chip os-chip-primary" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button></div>';
+    } else if (m.tipo === 'text' || m.tipo === 'text_optional') {
+      html += '<form data-os="text-form" class="os-text-form">' +
+        '<label class="sr-only" for="os-text">Tu respuesta</label>' +
+        '<textarea id="os-text" class="os-text" rows="2" maxlength="' + (m.max || 500) + '" placeholder="' + esc(m.placeholder || '') + '">' + esc(m.value || '') + '</textarea>' +
+        '<button type="submit" class="os-chip os-chip-primary os-send">' + (m.tipo === 'text_optional' ? 'Continuar' : 'Enviar') + '</button></form>';
+    } else if (m.tipo === 'upload') {
+      html += '<div class="os-upload">' +
+        '<label class="os-check' + (S.consAdjuntos ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-adj"' + (S.consAdjuntos ? ' checked' : '') + '><span>Autorizo el tratamiento de estas fotos/exámenes (datos sensibles de salud) solo para mi consulta de seguimiento. <small class="text-error-600">*</small></span></label>' +
+        '<p class="os-legal-sm mt-2">JPG, PNG, WebP o PDF · máx. 5 MB c/u · no se guardan en el sitio; solo se envían si agendas.</p>' +
+        '<input type="file" id="os-files" multiple accept="image/jpeg,image/png,image/webp,application/pdf" ' + (S.consAdjuntos ? '' : 'disabled') + '>' +
+        '<div class="os-previews" id="os-previews"></div></div>' +
+        '<div class="os-chips mt-2">' +
+        '<button type="button" class="os-chip" data-os="skip-upload">' + esc(T.evidencia_skip || 'Continuar sin adjuntos') + '</button>' +
+        '<button type="button" class="os-chip os-chip-primary" data-os="ok-upload"' + (S.adjuntos.length && S.consAdjuntos ? '' : ' disabled') + '>Adjuntar y continuar</button>' +
+        '</div>';
+    } else if (m.tipo === 'result_actions' || m.tipo === 'agendar_ui') {
       html += m.html || '';
     }
     html += '</div>';
     el.innerHTML = html;
-    if (window.lucide && lucide.createIcons) lucide.createIcons();
-    var ta = el.querySelector('#os-text');
-    if (ta) { ta.focus(); }
+    if (m.tipo === 'text' || m.tipo === 'text_optional') {
+      var ta = el.querySelector('#os-text');
+      if (ta) { ta.focus(); }
+    }
+    if (m.tipo === 'upload') {
+      renderPreviews();
+      var fi = el.querySelector('#os-files');
+      if (fi) fi.addEventListener('change', onFilesPicked);
+    }
   }
 
-  function renderChrome() {
-    var pct = progressPct();
-    var bar = root.querySelector('.os-progress > span');
-    var prog = root.querySelector('.os-progress');
-    if (bar) bar.style.width = Math.max(pct, 3) + '%';
-    if (prog) prog.setAttribute('aria-valuenow', String(pct));
+  function say(html, opts) {
+    opts = opts || {};
+    msgs.push({ role: 'bot', html: html, plain: opts.plain || stripTags(html), focusHtml: opts.focusHtml || null });
     paintMessages();
-    paintComposer();
-    renderHc();
+    renderChrome();
   }
-
-  function say(html, text) {
-    msgs = msgs.filter(function (m) { return m.role !== 'typing'; });
-    msgs.push({ role: 'bot', html: html, text: text || '' });
-    paintMessages();
-  }
-
-  function userSay(text) {
-    msgs.push({ role: 'user', html: esc(text), text: text });
+  function sayUser(text) {
+    msgs.push({ role: 'user', html: esc(text) });
     paintMessages();
   }
-
   function typing(on) {
-    msgs = msgs.filter(function (m) { return m.role !== 'typing'; });
-    if (on) msgs.push({ role: 'typing' });
+    if (on) {
+      msgs.push({ role: 'bot', typing: true });
+    } else {
+      msgs = msgs.filter(function (m) { return !m.typing; });
+    }
     paintMessages();
   }
-
-  function botThen(html, nextFn) {
+  function botThen(html, cb, opts) {
     busy = true;
-    inputMode = null;
-    paintComposer();
     typing(true);
     setTimeout(function () {
       typing(false);
-      say(html);
+      say(html, opts);
       busy = false;
-      if (nextFn) nextFn();
-      renderChrome();
-    }, TYPE_MS);
+      if (cb) cb();
+    }, 280);
   }
-
-  // ---------- Flow ----------
   function ask(mode) {
     inputMode = mode;
     paintComposer();
   }
-
-  function start() {
-    root.innerHTML = shellHtml();
-    if (window.lucide && lucide.createIcons) lucide.createIcons();
-    renderHc();
-    botThen('<p class="m-0">' + esc(COPY.bienvenida) + '</p><p class="mt-2 mb-0 text-sm text-gray-600">Si es una urgencia, llama al <a class="text-primary-600 underline" href="tel:123">123</a>.</p>', function () {
-      S.fase = 'inicio';
-      track('inicio');
-      botThen('<p class="m-0">' + esc(COPY.edad) + '</p>', function () {
-        ask({
-          tipo: 'confirm',
-          opciones: [
-            { v: 'adulto', t: 'Sí, 18 años o más', primary: true },
-            { v: 'menor', t: 'No, es menor de 18' }
-          ]
-        });
-      });
+  function pushHist() {
+    S.history.push({
+      fase: S.fase, edad: S.edad, pais: S.pais, sexo: S.sexo, relato: S.relato,
+      alarmas: S.alarmas.slice(), qi: S.qi, resp: JSON.parse(JSON.stringify(S.resp)),
+      antecedentes: S.antecedentes.slice(), quirurgicos: S.quirurgicos,
+      toxicos: S.toxicos.slice(), gineco: S.gineco.slice(), familiares: S.familiares,
+      alergias: S.alergias, medicamentos: S.medicamentos,
+      tratamientos: S.tratamientos, tratResultado: S.tratResultado, tratDetalle: S.tratDetalle,
+      catId: S.cat ? S.cat.id : null
     });
   }
 
-  function afterEdad(v) {
-    pushHistory();
-    S.edad = v;
-    userSay(v === 'adulto' ? 'Sí, 18 años o más' : 'Es menor de 18');
-    if (v === 'menor') {
-      S.fase = 'menor';
-      botThen('<p class="m-0"><strong>Esta orientación es solo para mayores de 18 años.</strong> Los síntomas en niños y adolescentes deben valorarlos su pediatra o médico. Si hay señales de alarma, llama al <a href="tel:123" class="text-primary-600 underline">123</a> o ve a urgencias.</p>', function () {
-        ask({ tipo: 'confirm', opciones: [{ v: 'reiniciar', t: 'Volver a empezar' }] });
-      });
-      return;
-    }
-    botThen('<p class="m-0">Perfecto. Confirma también: ¿entiendes que esto es una <strong>orientación general</strong>, no un diagnóstico, y no reemplaza la consulta médica?</p>', function () {
+  // ---------- Flow ----------
+  function start() {
+    root.innerHTML = shellHtml();
+    track('inicio');
+    S.fase = 'inicio';
+    focusHtml = '';
+    botThen('<p class="m-0">' + esc(T.bienvenida || '') + '</p>', function () {
+      say(esc(T.edad || '¿Tienes 18 años o más?'), { plain: T.edad });
       ask({
         tipo: 'confirm',
         opciones: [
-          { v: 'entiende', t: 'Sí, lo entiendo', primary: true },
-          { v: 'reiniciar', t: 'Prefiero no continuar' }
+          { v: 'adulto', t: 'Sí, 18 o más', primary: true },
+          { v: 'menor', t: 'Menor de 18' }
         ]
+      });
+    }, { plain: T.bienvenida });
+  }
+
+  function afterEdad(v) {
+    pushHist();
+    sayUser(v === 'adulto' ? 'Sí, 18 o más' : 'Menor de 18');
+    if (v === 'menor') {
+      S.fase = 'bloqueado';
+      botThen('<p class="m-0 os-alerta">Esta orientación es solo para mayores de 18 años. Consulta a un pediatra o médico.</p>', function () {
+        ask({ tipo: 'chips', opciones: [{ v: 'reiniciar', t: 'Empezar de nuevo' }] });
+      });
+      return;
+    }
+    S.edad = 'adulto';
+    askPais();
+  }
+
+  function askPais() {
+    S.fase = 'pais';
+    track('pais');
+    botThen(esc(T.pais || '¿En qué país estás?'), function () {
+      ask({
+        tipo: 'chips',
+        opciones: (D.paises || []).map(function (o) { return { v: o.v, t: o.t }; })
       });
     });
   }
 
-  function afterEntiende() {
-    pushHistory();
-    S.entiende = true;
-    userSay('Sí, lo entiendo');
+  function afterPais(v) {
+    pushHist();
+    var lab = ((D.paises || []).filter(function (p) { return p.v === v; })[0] || {}).t || v;
+    sayUser(lab);
+    S.pais = v;
+    askSexo();
+  }
+
+  function askSexo() {
     S.fase = 'sexo';
     track('sexo');
-    botThen('<p class="m-0">' + esc(COPY.sexo) + '</p>', function () {
-      ask({
-        tipo: 'chips',
-        opciones: D.sexo.map(function (o) { return { v: o.v, t: o.t }; })
-      });
+    botThen(esc(T.sexo || ''), function () {
+      ask({ tipo: 'chips', opciones: (D.sexo || []).map(function (o) { return { v: o.v, t: o.t }; }) });
     });
   }
 
   function afterSexo(v) {
-    pushHistory();
+    pushHist();
+    var lab = ((D.sexo || []).filter(function (o) { return o.v === v; })[0] || {}).t || v;
+    sayUser(lab);
     S.sexo = v;
-    userSay(labelOf(D.sexo, v));
+    askMotivo();
+  }
+
+  function askMotivo() {
     S.fase = 'motivo';
     track('motivo');
-    botThen('<p class="m-0">' + esc(COPY.motivo) + '</p><p class="mt-2 mb-0 text-sm text-gray-500">' + esc(COPY.motivo_hint || '') + '</p>', function () {
-      ask({ tipo: 'text', max: 1000, placeholder: 'Escribe tu motivo de consulta…', label: 'Motivo de consulta' });
+    focusHtml = esc(T.motivo_hint || '');
+    botThen(esc(T.motivo || ''), function () {
+      ask({ tipo: 'text', max: 1000, placeholder: 'Escribe qué te pasa…' });
     });
   }
 
   function afterMotivo(text) {
-    pushHistory();
+    pushHist();
+    sayUser(text);
     S.relato = text;
-    userSay(text);
+    focusHtml = '';
+    askCategoria();
+  }
+
+  function askCategoria() {
     S.fase = 'categoria';
     track('categoria');
-    botThen('<p class="m-0">' + esc(COPY.categoria) + '</p>', function () {
-      ask({
-        tipo: 'chips',
-        opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; })
-      });
+    botThen(esc(T.categoria || ''), function () {
+      ask({ tipo: 'chips', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
     });
   }
 
   function afterCategoria(id) {
-    pushHistory();
-    S.cat = catById(id);
-    S.qi = 0;
-    S.resp = {};
-    userSay(S.cat.titulo);
+    pushHist();
+    var c = catById(id);
+    if (!c) return;
+    sayUser(c.titulo);
+    S.cat = c;
+    askAlarmas();
+  }
+
+  function askAlarmas() {
     S.fase = 'alarmas';
     track('alarmas');
-    botThen('<p class="m-0">' + esc(COPY.alarmas) + '</p>', function () {
-      var ops = D.alarmas.map(function (a) { return { v: a.id, t: a.texto }; });
+    botThen(esc(T.alarmas || ''), function () {
+      var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });
       ask({ tipo: 'chips_multi', selected: [], opciones: ops });
     });
   }
 
-  function afterAlarmas(selected) {
-    pushHistory();
-    S.alarmas = selected.slice();
-    userSay(selected.map(function (id) {
+  function afterAlarmas(sel) {
+    pushHist();
+    sayUser(sel.map(function (id) {
       if (id === 'ninguna') return 'Ninguna de estas';
-      return labelOf(D.alarmas, id);
-    }).join('; '));
-    if (selected.length && selected[0] !== 'ninguna') {
+      var a = (D.alarmas || []).filter(function (x) { return x.id === id; })[0];
+      return a ? a.texto : id;
+    }).join(', '));
+    S.alarmas = sel.filter(function (x) { return x !== 'ninguna'; });
+    if (S.alarmas.length) {
       S.fase = 'urgencia';
-      track('urgencia');
-      var mental = selected.some(function (id) {
-        return D.alarmas.some(function (a) { return a.id === id && a.tipo === 'salud_mental'; });
-      });
-      var lineas = mental
-        ? '<div class="mt-3 rounded-xl bg-white/70 p-3 text-sm"><p class="m-0 font-semibold">No estás solo. Habla ahora:</p><ul class="mt-2 mb-0 pl-4"><li><a class="text-primary-600 underline" href="tel:106">Línea 106</a> (Bogotá)</li><li><a class="text-primary-600 underline" href="tel:192">Línea 192, opción 4</a></li><li><a class="text-primary-600 underline" href="tel:123">123</a></li></ul></div>'
-        : '';
-      botThen('<div class="os-alerta"><p class="m-0 text-sm font-semibold uppercase text-red-700">Atención inmediata</p><p class="mt-1 mb-0"><strong>Busca atención de urgencias ahora.</strong> Llama al <a href="tel:123" class="underline">123</a> o ve al servicio de urgencias más cercano. No tomes medicamentos por tu cuenta.</p>' + lineas + '</div>', function () {
-        ask({ tipo: 'confirm', opciones: [{ v: 'alarma_error', t: 'Me equivoqué al marcar' }, { v: 'reiniciar', t: 'Terminar' }] });
+      var urg = T.urgencia_intl || 'Si es una emergencia, llama a tu línea de emergencias local (en Colombia: 123) o ve a urgencias.';
+      botThen('<p class="m-0 os-alerta"><strong>Por lo que marcaste, te recomendamos atención urgente.</strong> ' + esc(urg) + '</p><p class="os-legal-sm">Esta herramienta no reemplaza urgencias.</p>', function () {
+        ask({
+          tipo: 'chips',
+          opciones: [
+            { v: 'alarma_error', t: 'Marqué por error, continuar' },
+            { v: 'reiniciar', t: 'Empezar de nuevo' }
+          ]
+        });
       });
       return;
     }
-    beginPreguntas();
+    botThen(esc(T.alarmas_ok || 'Perfecto.'), function () {
+      askTratamientos();
+    });
   }
 
-  function beginPreguntas() {
-    S.fase = 'pregunta';
+  function askTratamientos() {
+    S.fase = 'tratamientos';
+    track('tratamientos');
+    focusHtml = esc(T.tratamientos_hint || '');
+    botThen(esc(T.tratamientos || ''), function () {
+      ask({ tipo: 'text_optional', max: 400, placeholder: 'Ej. ibuprofeno 400 mg por 3 días…' });
+    });
+  }
+
+  function afterTratamientos(text) {
+    pushHist();
+    var t = (text || '').trim() || 'Nada';
+    sayUser(t);
+    S.tratamientos = t;
+    focusHtml = '';
+    var nada = /^nada|ninguno|no\b|ninguna/i.test(t);
+    if (nada) {
+      S.tratResultado = 'nada';
+      askSemiologia();
+      return;
+    }
+    askTratResultado();
+  }
+
+  function askTratResultado() {
+    S.fase = 'trat_resultado';
+    track('trat_resultado');
+    botThen(esc(T.trat_resultado || '¿Cómo te fue con eso?'), function () {
+      ask({
+        tipo: 'chips',
+        opciones: (D.tratResultado || []).map(function (o) { return { v: o.v, t: o.t }; })
+      });
+    });
+  }
+
+  function afterTratResultado(v) {
+    pushHist();
+    var lab = ((D.tratResultado || []).filter(function (o) { return o.v === v; })[0] || {}).t || v;
+    sayUser(lab);
+    S.tratResultado = v;
+    askTratDetalle();
+  }
+
+  function askTratDetalle() {
+    S.fase = 'trat_detalle';
+    botThen(esc(T.trat_detalle || '¿Tiempo y dosis aproximada? (opcional)'), function () {
+      ask({ tipo: 'text_optional', max: 200, placeholder: 'Ej. 400 mg cada 8 h por 3 días' });
+    });
+  }
+
+  function afterTratDetalle(text) {
+    pushHist();
+    var t = (text || '').trim() || 'Sin detalle';
+    sayUser(t);
+    S.tratDetalle = t === 'Sin detalle' ? '' : t;
+    askSemiologia();
+  }
+
+  function askSemiologia() {
     S.qi = 0;
-    botThen('<p class="m-0">' + esc(COPY.semiologia || COPY.alarmas_ok) + '</p><p class="mt-1 mb-0 text-sm text-primary-600">' + esc(S.cat.titulo) + '</p>', function () {
+    S.fase = 'pregunta';
+    track('semiologia');
+    botThen(esc(T.semiologia || ''), function () {
       askPregunta();
     });
   }
 
   function askPregunta() {
-    var p = S.cat.preguntas[S.qi];
-    track('pregunta_' + (S.qi + 1));
-    var sub = p.tipo === 'multi' ? '<p class="mt-1 mb-0 text-sm text-gray-500">Puedes marcar varias.</p>' : '';
-    botThen('<p class="m-0"><strong>' + esc(p.texto) + '</strong></p>' + sub, function () {
-      var ops = p.opciones.map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; });
-      if (p.tipo === 'multi') ask({ tipo: 'chips_multi', selected: [].concat(S.resp[p.id] || []), opciones: ops, qid: p.id });
-      else ask({ tipo: 'chips', opciones: ops, qid: p.id });
+    var qs = (S.cat && S.cat.preguntas) || [];
+    if (S.qi >= qs.length) {
+      askAntecedentes();
+      return;
+    }
+    S.fase = 'pregunta';
+    var p = qs[S.qi];
+    botThen(esc(p.texto), function () {
+      if (p.multi) {
+        var ops = p.opciones.map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; });
+        ask({ tipo: 'chips_multi', selected: [], opciones: ops });
+      } else {
+        ask({ tipo: 'chips', opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t }; }) });
+      }
     });
   }
 
   function afterPregunta(val) {
-    pushHistory();
-    var p = S.cat.preguntas[S.qi];
-    S.resp[p.id] = p.tipo === 'multi' ? val.slice() : val;
-    var labs;
-    if (p.tipo === 'multi') {
-      labs = p.opciones.filter(function (o) { return val.indexOf(o.v) !== -1; }).map(function (o) { return o.t; }).join('; ');
-    } else {
-      labs = (p.opciones.filter(function (o) { return o.v === val; })[0] || {}).t || val;
-    }
-    userSay(labs);
-    // Red-flag from option nivel prioritaria with certain patterns — keep flowing; result will show prioritaria
-    if (S.qi < S.cat.preguntas.length - 1) {
-      S.qi++;
-      askPregunta();
-    } else {
-      S.fase = 'tratamientos';
-      track('tratamientos');
-      botThen('<p class="m-0">' + esc(COPY.tratamientos) + '</p>', function () {
-        ask({ tipo: 'text_optional', max: 400, placeholder: 'Ej. ibuprofeno, reposo, nada…', label: 'Tratamientos probados', value: S.tratamientos });
-      });
-    }
+    pushHist();
+    var qs = S.cat.preguntas;
+    var p = qs[S.qi];
+    var sel = [].concat(val);
+    S.resp[p.id] = sel;
+    var labels = sel.map(function (v) {
+      var o = p.opciones.filter(function (x) { return x.v === v; })[0];
+      return o ? o.t : v;
+    });
+    sayUser(labels.join(', '));
+    S.qi++;
+    askPregunta();
   }
 
-  function afterTratamientos(text) {
-    pushHistory();
-    S.tratamientos = text || 'Nada';
-    userSay(S.tratamientos);
+  function askAntecedentes() {
     S.fase = 'antecedentes';
     track('antecedentes');
-    botThen('<p class="m-0">' + esc(COPY.antecedentes) + '</p>', function () {
+    botThen(esc(T.antecedentes || ''), function () {
       ask({
         tipo: 'chips_multi',
         selected: [],
-        opciones: D.antecedentes.map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
+        opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
       });
     });
   }
 
   function afterAntecedentes(sel) {
-    pushHistory();
-    S.antecedentes = sel.slice();
-    userSay(sel.map(function (id) { return labelOf(D.antecedentes, id); }).join('; '));
-    S.fase = 'quirurgicos';
-    botThen('<p class="m-0">' + esc(COPY.quirurgicos) + '</p>', function () {
-      ask({ tipo: 'text_optional', max: 300, placeholder: 'Ej. Apendicectomía 2019 / No', label: 'Antecedentes quirúrgicos' });
-    });
+    pushHist();
+    sayUser(sel.map(function (id) {
+      var a = (D.antecedentes || []).filter(function (x) { return x.id === id; })[0];
+      return a ? a.texto : id;
+    }).join(', '));
+    S.antecedentes = sel;
+    askQuirurgicos();
   }
 
+  function askQuirurgicos() {
+    S.fase = 'quirurgicos';
+    botThen(esc(T.quirurgicos || ''), function () {
+      ask({ tipo: 'text_optional', max: 300, placeholder: 'Cirugías o “No”' });
+    });
+  }
   function afterQuirurgicos(text) {
-    pushHistory();
-    S.quirurgicos = text || 'No';
-    userSay(S.quirurgicos);
+    pushHist();
+    var t = (text || '').trim() || 'No';
+    sayUser(t);
+    S.quirurgicos = t;
+    askToxicos();
+  }
+
+  function askToxicos() {
     S.fase = 'toxicos';
-    botThen('<p class="m-0">' + esc(COPY.toxicos) + '</p>', function () {
+    botThen(esc(T.toxicos || ''), function () {
       ask({
         tipo: 'chips_multi',
         selected: [],
-        opciones: D.toxicos.map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
+        opciones: (D.toxicos || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
       });
     });
   }
-
   function afterToxicos(sel) {
-    pushHistory();
-    S.toxicos = sel.slice();
-    userSay(sel.map(function (id) { return labelOf(D.toxicos, id); }).join('; '));
+    pushHist();
+    sayUser(sel.map(function (id) {
+      var a = (D.toxicos || []).filter(function (x) { return x.id === id; })[0];
+      return a ? a.texto : id;
+    }).join(', '));
+    S.toxicos = sel;
+    askAlergias();
+  }
+
+  function askAlergias() {
     S.fase = 'alergias';
-    botThen('<p class="m-0">' + esc(COPY.alergias) + '</p>', function () {
-      ask({ tipo: 'text_optional', max: 300, placeholder: 'Ej. Penicilina / Ninguna', label: 'Alergias' });
+    botThen(esc(T.alergias || ''), function () {
+      ask({ tipo: 'text_optional', max: 300, placeholder: 'Alergias o “Ninguna”' });
     });
   }
-
   function afterAlergias(text) {
-    pushHistory();
-    S.alergias = text || 'Ninguna';
-    userSay(S.alergias);
+    pushHist();
+    var t = (text || '').trim() || 'Ninguna';
+    sayUser(t);
+    S.alergias = t;
+    askMedicamentos();
+  }
+
+  function askMedicamentos() {
     S.fase = 'medicamentos';
-    botThen('<p class="m-0">' + esc(COPY.medicamentos) + '</p>', function () {
-      ask({ tipo: 'text_optional', max: 300, placeholder: 'Ej. Losartán 50 mg / Ninguno', label: 'Medicamentos' });
+    botThen(esc(T.medicamentos || ''), function () {
+      ask({ tipo: 'text_optional', max: 300, placeholder: 'Medicamentos actuales o “Ninguno”' });
+    });
+  }
+  function afterMedicamentos(text) {
+    pushHist();
+    var t = (text || '').trim() || 'Ninguno';
+    sayUser(t);
+    S.medicamentos = t;
+    goGinecoOrFamiliares();
+  }
+
+  function goGinecoOrFamiliares() {
+    var needG = S.sexo === 'mujer' || S.sexo === 'otro';
+    if (needG) askGineco();
+    else {
+      S.gineco = [];
+      askFamiliares();
+    }
+  }
+
+  function askGineco() {
+    S.fase = 'gineco';
+    botThen(esc(T.gineco || ''), function () {
+      ask({
+        tipo: 'chips_multi',
+        selected: [],
+        opciones: (D.gineco || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
+      });
+    });
+  }
+  function afterGineco(sel) {
+    pushHist();
+    sayUser(sel.map(function (id) {
+      var a = (D.gineco || []).filter(function (x) { return x.id === id; })[0];
+      return a ? a.texto : id;
+    }).join(', '));
+    S.gineco = sel;
+    askFamiliares();
+  }
+
+  function askFamiliares() {
+    S.fase = 'familiares';
+    botThen(esc(T.familiares || ''), function () {
+      ask({ tipo: 'text_optional', max: 300, placeholder: 'Antecedentes familiares o “Ninguno”' });
+    });
+  }
+  function afterFamiliares(text) {
+    pushHist();
+    var t = (text || '').trim() || 'Ninguno';
+    sayUser(t);
+    S.familiares = t;
+    askEvidencia();
+  }
+
+  function askEvidencia() {
+    S.fase = 'evidencia';
+    track('evidencia');
+    var hint = (S.cat && (S.cat.id === 'piel' || S.cat.id === 'capilar' || S.cat.id === 'facial'))
+      ? ' Especialmente útil en piel, cabello o rostro.'
+      : '';
+    botThen(esc((T.evidencia || '') + hint), function () {
+      ask({ tipo: 'upload' });
     });
   }
 
-  function afterMedicamentos(text) {
-    pushHistory();
-    S.medicamentos = text || 'Ninguno';
-    userSay(S.medicamentos);
-    if (S.sexo === 'mujer') {
-      S.fase = 'gineco';
-      botThen('<p class="m-0">' + esc(COPY.gineco) + '</p>', function () {
-        ask({
-          tipo: 'chips_multi',
-          selected: [],
-          opciones: D.gineco.map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
+  function renderPreviews() {
+    var box = document.getElementById('os-previews');
+    if (!box) return;
+    box.innerHTML = S.adjuntos.map(function (a) {
+      if (a.kind === 'image' && a.dataUrl) {
+        return '<img class="os-prev" src="' + a.dataUrl + '" alt="' + esc(a.name) + '">';
+      }
+      return '<span class="os-prev-file" title="' + esc(a.name) + '">' + esc(a.name) + '</span>';
+    }).join('');
+  }
+
+  function onFilesPicked(ev) {
+    var files = Array.prototype.slice.call(ev.target.files || []);
+    files.forEach(function (f) {
+      if (!OK_TYPES[f.type]) { alert('Tipo no permitido: ' + f.name); return; }
+      if (f.size > MAX_FILE) { alert('Archivo muy grande (máx. 5 MB): ' + f.name); return; }
+      var reader = new FileReader();
+      reader.onload = function () {
+        S.adjuntos.push({
+          name: f.name,
+          type: f.type,
+          size: f.size,
+          kind: f.type.indexOf('image/') === 0 ? 'image' : 'file',
+          dataUrl: f.type.indexOf('image/') === 0 ? reader.result : null
+          // Preview only: production Clinova payload will use attachments[] metadata; A/B disabled for storage
         });
-      });
-    } else {
-      S.gineco = [];
-      goFamiliaresOrResult();
-    }
+        renderPreviews();
+        paintComposer();
+      };
+      if (f.type.indexOf('image/') === 0) reader.readAsDataURL(f);
+      else {
+        S.adjuntos.push({ name: f.name, type: f.type, size: f.size, kind: 'file', dataUrl: null });
+        renderPreviews();
+        paintComposer();
+      }
+    });
+    ev.target.value = '';
   }
 
-  function goFamiliaresOrResult() {
-    var famCats = { capilar: 1, animo: 1, energia: 1, dolor: 1, sexual: 1 };
-    if (S.cat && famCats[S.cat.id]) {
-      S.fase = 'familiares';
-      botThen('<p class="m-0">' + esc(COPY.familiares) + '</p>', function () {
-        ask({ tipo: 'text_optional', max: 300, placeholder: 'Ej. Padre con calvicie / Ninguno', label: 'Antecedentes familiares' });
-      });
-    } else {
-      afterFamiliares('Ninguno', true);
-    }
-  }
-
-  function afterGineco(sel) {
-    pushHistory();
-    S.gineco = sel.slice();
-    userSay(sel.map(function (id) { return labelOf(D.gineco, id); }).join('; '));
-    goFamiliaresOrResult();
-  }
-
-  function afterFamiliares(text, silent) {
-    if (!silent) {
-      pushHistory();
-      S.familiares = text || 'Ninguno';
-      userSay(S.familiares);
-    } else {
-      S.familiares = '';
-    }
+  function finishUpload(keep) {
+    if (!keep) S.adjuntos = [];
+    sayUser(keep && S.adjuntos.length ? (S.adjuntos.length + ' archivo(s) adjunto(s)') : 'Sin adjuntos');
     showResultado();
+  }
+
+  function causaLabel(k) {
+    return (D.causas && D.causas[k]) || k;
+  }
+
+  function medRecommendationHtml(r) {
+    var html = '';
+    html += '<h3>Medicamentos</h3>';
+    // Continue same OTC if worked
+    if (S.tratResultado === 'funciono' && S.tratamientos && !/^nada/i.test(S.tratamientos)) {
+      html += '<p class="os-result-sub">Como te funcionó <strong>' + esc(S.tratamientos) + '</strong>' +
+        (S.tratDetalle ? ' (' + esc(S.tratDetalle) + ')' : '') +
+        ', si es de venta libre y te resulta seguro según la etiqueta, puedes continuar usándolo respetando dosis y tiempo máximo.</p>';
+    } else if (S.tratResultado === 'efectos') {
+      html += '<p class="os-result-sub">Por los efectos adversos que mencionaste con <strong>' + esc(S.tratamientos) + '</strong>, no sugerimos repetirlo. Revisa opciones de venta libre abajo o consulta al médico.</p>';
+    } else if (S.tratResultado === 'no' || S.tratResultado === 'parcial') {
+      html += '<p class="os-result-sub">Como lo anterior no resolvió del todo tu molestia, aquí van alternativas de venta libre (si aplican a tu caso):</p>';
+    }
+
+    if (r.embarazo) {
+      html += '<p class="os-result-body">En embarazo o lactancia no sugerimos automedicación: tu médico te orientará.</p>';
+    } else if (r.otc.length) {
+      r.otc.forEach(function (p) {
+        html += '<div class="os-otc"><p class="m-0 font-semibold">' + esc(p.nombre) + '</p>' +
+          '<p class="mt-1 mb-0 text-sm">' + esc(p.uso) + '</p>' +
+          '<ul class="mt-1 mb-0 pl-4 text-sm">' +
+          (p.avisos || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') +
+          '</ul></div>';
+      });
+      if (D.otcAvisos && D.otcAvisos.length) {
+        html += '<div class="os-warn"><ul class="m-0 pl-4">' +
+          D.otcAvisos.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></div>';
+      }
+    } else if (r.nivel !== 'prioritaria') {
+      html += '<p class="os-result-body">No hay una sugerencia clara de venta libre para tu combinación de respuestas.</p>';
+    }
+
+    // Never name Rx — hook to paid consult
+    html += '<p class="os-result-sub"><strong>Tu médico puede formularte un tratamiento</strong> (incluidos medicamentos con fórmula), órdenes de exámenes, conceptos de incapacidad u otras indicaciones en la consulta de seguimiento.</p>';
+    return html;
   }
 
   function showResultado() {
     S.fase = 'resultado';
     track('resultado');
-    botThen('<p class="m-0">' + esc(COPY.cierre) + '</p>', function () {
-      var r = evaluar();
-      var e = espInfo(r.esp);
-      var banners = {
-        autocuidado: ['Puedes empezar con cuidados en casa', 'Por lo que contaste, suele mejorar con medidas generales. Si no mejora, empeora o aparecen síntomas nuevos, consulta.'],
-        consulta: ['Te recomendamos una valoración médica', 'Un profesional puede confirmar la causa y darte un tratamiento adecuado para ti.'],
-        prioritaria: ['Te recomendamos consultar pronto', 'Algo de lo que marcaste necesita valoración médica en los próximos días. Si empeora o hay una señal de alarma, ve a urgencias o llama al 123.']
-      };
-      var b = banners[r.nivel];
-      var html = '<div class="os-result">' +
-        '<p class="os-result-kicker">Impresión orientativa · ' + esc(S.cat.titulo) + '</p>' +
-        '<p class="os-result-title">' + esc(b[0]) + '</p>' +
-        '<p class="os-result-body">' + esc(b[1]) + '</p>' +
-        '<p class="os-result-disc">Esto <strong>no es un diagnóstico</strong>. Son posibles causas y próximos pasos orientativos, pendientes de validación médica.</p>';
+    var r = evaluar();
+    var e = espInfo(r.esp);
+    botThen(esc(T.cierre || 'Listo…'), function () {
+      var html = '<div class="os-result">';
+      html += '<p class="os-result-kicker">Orientación</p>';
+      html += '<p class="os-result-title">Resumen de lo que contaste</p>';
+      html += '<p class="os-result-body">' + esc(S.relato) +
+        (S.cat ? ' · ' + esc(S.cat.titulo) : '') +
+        (S.pais ? ' · ' + esc(S.pais) : '') + '</p>';
 
       if (r.causas.length) {
-        html += '<h3>Posibles causas</h3><ul class="os-result-list">';
-        r.causas.forEach(function (k) {
-          var c = S.cat.causas[k];
-          if (c) html += '<li><strong>' + esc(c.t) + '</strong><span>' + esc(c.d) + '</span></li>';
+        html += '<h3>Posibles causas a considerar</h3><ul class="os-result-list">';
+        r.causas.slice(0, 5).forEach(function (k) {
+          html += '<li><strong>' + esc(causaLabel(k)) + '</strong></li>';
         });
         html += '</ul>';
       }
-
-      html += '<h3>Próximos pasos</h3>';
-      if (S.cat.nota) html += '<p class="os-result-body">' + esc(S.cat.nota) + '</p>';
 
       if (r.examenes.length) {
-        html += '<p class="os-result-sub"><strong>Exámenes que tu médico podría solicitar</strong> (informativo; no es una orden):</p><ul class="os-result-bullets">';
-        r.examenes.forEach(function (ex) { html += '<li>' + esc(ex) + '</li>'; });
+        html += '<h3>Exámenes que podrían ayudar</h3><ul class="os-result-bullets">';
+        r.examenes.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
         html += '</ul>';
       }
 
-      if (r.otc.length) {
-        html += '<p class="os-result-sub"><strong>Productos de venta libre</strong> que suelen usarse para aliviar síntomas (no son un tratamiento indicado para ti):</p>';
-        r.otc.forEach(function (p) {
-          html += '<div class="os-otc"><p class="m-0 font-semibold">' + esc(p.nombre) + '</p><p class="mt-1 mb-0 text-sm">' + esc(p.uso) + '</p><ul class="mt-1 mb-0 pl-4 text-sm">' +
-            p.advertencias.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></div>';
-        });
-        html += '<div class="os-warn"><p class="m-0 font-semibold">Antes de usar cualquier producto</p><ul class="mt-1 mb-0 pl-4">' +
-          D.otcAvisos.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></div>';
-      } else if (r.embarazo) {
-        html += '<p class="os-result-body">Por embarazo o lactancia no te mostramos medicamentos: consulta a tu médico antes de tomar cualquiera.</p>';
-      } else if (r.nivel === 'prioritaria') {
+      html += medRecommendationHtml(r);
+
+      if (r.nivel === 'prioritaria') {
         html += '<p class="os-result-body">Por lo que marcaste, no te sugerimos automedicarte. Lo mejor es valoración pronto.</p>';
       }
 
-      html += '<div class="os-remision"><p class="m-0 font-semibold">Remisión sugerida: ' + esc(e.nombre) + '</p>' +
-        '<p class="mt-1 mb-0 text-sm">' + (e.modalidades.indexOf('telemedicina') !== -1 ? 'Disponible virtual o presencial.' : 'Disponible de forma presencial en Bogotá.') + '</p></div></div>';
+      html += '<div class="os-remision"><p class="m-0 font-semibold">Consulta de seguimiento: ' + esc(e.nombre) + '</p>' +
+        '<p class="mt-1 mb-0 text-sm">El médico reutiliza tu información para profundizar. Puede incluir diagnóstico con aval profesional, fórmula médica, incapacidad, órdenes o remisiones.</p>' +
+        '<p class="mt-1 mb-0 text-sm">' + (e.modalidades.indexOf('telemedicina') !== -1 ? 'Virtual (internacional) o presencial en Bogotá.' : 'Presencial en Bogotá.') + '</p>' +
+        precioHtml() + promoHint() +
+        '</div>';
+      html += '<p class="os-result-disc">Orientación general basada en tus respuestas. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
+      html += '</div>';
 
-      say(html);
+      say(html, { plain: 'Tu orientación' });
       ask({
         tipo: 'result_actions',
         html: '<div class="os-chips">' +
-          '<button type="button" class="os-chip os-chip-primary" data-os="agendar" id="OS_CTA_AGENDAR">Agendar cita</button>' +
+          '<button type="button" class="os-chip os-chip-primary" data-os="agendar" id="OS_CTA_AGENDAR">Agendar consulta de seguimiento</button>' +
           (e.url ? '<a class="os-chip" href="' + esc(e.url) + '">Conocer el servicio</a>' : '') +
           '<button type="button" class="os-chip" data-os="reiniciar">Nueva orientación</button>' +
-          '</div>'
+          '</div>' +
+          '<p class="os-legal-sm">Al agendar puedes autorizar el envío de tus respuestas (y adjuntos) al profesional.</p>'
       });
-      renderHc();
     });
   }
 
@@ -724,7 +812,7 @@
     var e = espInfo(r.esp);
     if (!e.especialidad) {
       var msg = 'Hola, hice la orientación de síntomas en la web y quiero agendar una cita de medicina general.';
-      botThen('<p class="m-0">Para <strong>medicina general</strong> te atendemos por WhatsApp (fecha, hora y modalidad). El mensaje no incluye tus síntomas.</p>', function () {
+      botThen('<p class="m-0">Para <strong>medicina general</strong> te atendemos por WhatsApp. El mensaje no incluye tus síntomas.</p>', function () {
         ask({
           tipo: 'result_actions',
           html: '<div class="os-chips"><a class="os-chip os-chip-primary" id="OS_CTA_WHATSAPP" target="_blank" rel="noopener" href="' + esc(C.whatsapp + encodeURIComponent(msg)) + '">Agendar por WhatsApp</a><button type="button" class="os-chip" data-os="atras-resultado">Volver</button></div>'
@@ -733,8 +821,8 @@
       return;
     }
     if (e.modalidades.indexOf(S.modalidad) === -1) S.modalidad = e.modalidades.length === 1 ? e.modalidades[0] : '';
-    var nombresMod = { presencial: 'Presencial (Bogotá)', telemedicina: 'Virtual (telemedicina)' };
-    botThen('<p class="m-0">Agenda tu cita de <strong>' + esc(e.nombre) + '</strong>. Elige la modalidad:</p>', function () {
+    var nombresMod = { presencial: 'Presencial (Bogotá)', telemedicina: 'Virtual (internacional)' };
+    botThen('<p class="m-0">Agenda tu consulta de <strong>' + esc(e.nombre) + '</strong>. Elige modalidad:</p>' + precioHtml() + promoHint(), function () {
       paintAgendarForm(e, nombresMod);
     });
   }
@@ -750,14 +838,15 @@
     if (S.modalidad === 'telemedicina') {
       html += '<label class="os-check' + (S.consTele ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-tele"' + (S.consTele ? ' checked' : '') + '><span>' + esc(C.txtTele) + ' <small class="text-error-600">*</small></span></label>';
     }
-    html += '<label class="os-check' + (S.compartir ? ' is-on' : '') + '"><input type="checkbox" data-os="compartir"' + (S.compartir ? ' checked' : '') + '><span><strong>Compartir mi historia preliminar con el profesional</strong> (opcional, recomendado). Llega como información previa pendiente de validación médica.</span></label>';
+    html += '<label class="os-check' + (S.compartir ? ' is-on' : '') + '"><input type="checkbox" data-os="compartir"' + (S.compartir ? ' checked' : '') + '><span><strong>Compartir mi información con el profesional</strong> (recomendado). Llega como previa pendiente de validación médica.</span></label>';
     if (S.compartir) {
       html += '<label class="os-check' + (S.consDatos ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-datos"' + (S.consDatos ? ' checked' : '') + '><span>' + esc(C.txtDatos) + ' <a class="text-primary-600 underline" target="_blank" rel="noopener" href="' + esc(C.privacidad) + '">Política de privacidad</a>. <small class="text-error-600">*</small></span></label>';
     }
     var ok = S.modalidad && (S.modalidad !== 'telemedicina' || S.consTele) && (!S.compartir || S.consDatos);
     html += '<div class="os-chips mt-2"><button type="button" class="os-chip" data-os="atras-resultado">Volver</button>' +
       '<button type="button" class="os-chip os-chip-primary" data-os="abrir-agenda" id="OS_CTA_FECHA"' + (ok ? '' : ' disabled') + '>Elegir fecha y hora</button></div>';
-    html += '<p class="os-hint">' + (S.compartir ? 'Tus respuestas se envían solo cuando confirmes la cita.' : 'Si no marcas compartir, tus respuestas no salen de tu navegador.') + '</p></div>';
+    html += '<p class="os-hint">' + (S.compartir ? 'Tus respuestas (y adjuntos) se envían solo al confirmar la cita.' : 'Si no marcas compartir, tus respuestas no salen de tu navegador.') + '</p>';
+    html += '<p class="os-legal-sm">Fórmulas emitidas por médicos licenciados en Colombia; validez fuera de Colombia según normas locales.</p></div>';
     ask({ tipo: 'agendar_ui', html: html });
   }
 
@@ -767,7 +856,6 @@
     if (i !== -1) { list.splice(i, 1); return list; }
     if (exclusiva) return [v];
     return list.filter(function (x) {
-      // drop exclusive options when picking normal
       var opt = (inputMode.opciones || []).filter(function (o) { return o.v === x; })[0];
       return !(opt && opt.exclusiva);
     }).concat(v);
@@ -775,21 +863,18 @@
 
   function goBack() {
     if (!S.history.length || busy) return;
-    // Remove last user + following bot messages roughly: pop last user bubble and after
     var snap = S.history.pop();
-    // Trim messages to before last user
     for (var i = msgs.length - 1; i >= 0; i--) {
       if (msgs[i].role === 'user') { msgs = msgs.slice(0, i); break; }
     }
     S.fase = snap.fase;
-    S.edad = snap.edad; S.sexo = snap.sexo; S.relato = snap.relato;
+    S.edad = snap.edad; S.pais = snap.pais; S.sexo = snap.sexo; S.relato = snap.relato;
     S.alarmas = snap.alarmas; S.qi = snap.qi; S.resp = snap.resp;
     S.antecedentes = snap.antecedentes; S.quirurgicos = snap.quirurgicos;
     S.toxicos = snap.toxicos; S.gineco = snap.gineco; S.familiares = snap.familiares;
     S.alergias = snap.alergias; S.medicamentos = snap.medicamentos;
-    S.tratamientos = snap.tratamientos; S.entiende = snap.entiende;
+    S.tratamientos = snap.tratamientos; S.tratResultado = snap.tratResultado; S.tratDetalle = snap.tratDetalle;
     S.cat = snap.catId ? catById(snap.catId) : null;
-    // Re-prompt current fase without adding new bot message if possible — re-ask
     inputMode = null;
     renderChrome();
     reaskCurrent();
@@ -798,35 +883,43 @@
   function reaskCurrent() {
     var f = S.fase;
     if (f === 'inicio') {
-      ask({ tipo: 'confirm', opciones: [{ v: 'adulto', t: 'Sí, 18 años o más', primary: true }, { v: 'menor', t: 'No, es menor de 18' }] });
+      ask({ tipo: 'confirm', opciones: [{ v: 'adulto', t: 'Sí, 18 o más', primary: true }, { v: 'menor', t: 'Menor de 18' }] });
+    } else if (f === 'pais') {
+      ask({ tipo: 'chips', opciones: (D.paises || []).map(function (o) { return { v: o.v, t: o.t }; }) });
     } else if (f === 'sexo') {
-      ask({ tipo: 'chips', opciones: D.sexo.map(function (o) { return { v: o.v, t: o.t }; }) });
+      ask({ tipo: 'chips', opciones: (D.sexo || []).map(function (o) { return { v: o.v, t: o.t }; }) });
     } else if (f === 'motivo') {
-      ask({ tipo: 'text', max: 1000, placeholder: 'Escribe tu motivo…', value: S.relato });
+      ask({ tipo: 'text', max: 1000, placeholder: '…', value: S.relato });
     } else if (f === 'categoria') {
       ask({ tipo: 'chips', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
     } else if (f === 'alarmas') {
-      var ops = D.alarmas.map(function (a) { return { v: a.id, t: a.texto }; });
+      var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });
       ask({ tipo: 'chips_multi', selected: [], opciones: ops });
+    } else if (f === 'tratamientos') {
+      ask({ tipo: 'text_optional', max: 400, value: S.tratamientos });
+    } else if (f === 'trat_resultado') {
+      ask({ tipo: 'chips', opciones: (D.tratResultado || []).map(function (o) { return { v: o.v, t: o.t }; }) });
+    } else if (f === 'trat_detalle') {
+      ask({ tipo: 'text_optional', max: 200, value: S.tratDetalle });
     } else if (f === 'pregunta') {
       askPregunta();
-    } else if (f === 'tratamientos') {
-      ask({ tipo: 'text_optional', max: 400, placeholder: '…', value: S.tratamientos });
     } else if (f === 'antecedentes') {
-      ask({ tipo: 'chips_multi', selected: [], opciones: D.antecedentes.map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', selected: [], opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
     } else if (f === 'quirurgicos') {
       ask({ tipo: 'text_optional', max: 300, value: S.quirurgicos });
     } else if (f === 'toxicos') {
-      ask({ tipo: 'chips_multi', selected: [], opciones: D.toxicos.map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', selected: [], opciones: (D.toxicos || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
     } else if (f === 'alergias') {
       ask({ tipo: 'text_optional', max: 300, value: S.alergias });
     } else if (f === 'medicamentos') {
       ask({ tipo: 'text_optional', max: 300, value: S.medicamentos });
     } else if (f === 'gineco') {
-      ask({ tipo: 'chips_multi', selected: [], opciones: D.gineco.map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', selected: [], opciones: (D.gineco || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
     } else if (f === 'familiares') {
       ask({ tipo: 'text_optional', max: 300, value: S.familiares });
+    } else if (f === 'evidencia') {
+      ask({ tipo: 'upload' });
     } else if (f === 'resultado') {
       showResultado();
     } else {
@@ -844,17 +937,17 @@
     if (a === 'agendar') { showAgendar(); return; }
     if (a === 'atras-resultado') { S.fase = 'resultado'; showResultado(); return; }
     if (a === 'abrir-agenda') { abrirAgenda(); return; }
-
+    if (a === 'skip-upload') { finishUpload(false); return; }
+    if (a === 'ok-upload') {
+      if (!S.consAdjuntos || !S.adjuntos.length) return;
+      finishUpload(true);
+      return;
+    }
     if (a === 'mod') {
       S.modalidad = b.getAttribute('data-v');
-      paintAgendarForm(espInfo(evaluar().esp), { presencial: 'Presencial (Bogotá)', telemedicina: 'Virtual (telemedicina)' });
+      paintAgendarForm(espInfo(evaluar().esp), { presencial: 'Presencial (Bogotá)', telemedicina: 'Virtual (internacional)' });
       return;
     }
-    if (a === 'cons-tele' || a === 'compartir' || a === 'cons-datos') {
-      // handled on change
-      return;
-    }
-
     if (a === 'chip') {
       var v = b.getAttribute('data-v');
       if (!inputMode) return;
@@ -864,7 +957,6 @@
         paintComposer();
         return;
       }
-      // single chip / confirm
       handleSingle(v);
       return;
     }
@@ -880,9 +972,13 @@
     if (a === 'cons-tele') S.consTele = t.checked;
     else if (a === 'compartir') S.compartir = t.checked;
     else if (a === 'cons-datos') S.consDatos = t.checked;
-    else return;
+    else if (a === 'cons-adj') {
+      S.consAdjuntos = t.checked;
+      paintComposer();
+      return;
+    } else return;
     if (S.fase === 'agendar') {
-      paintAgendarForm(espInfo(evaluar().esp), { presencial: 'Presencial (Bogotá)', telemedicina: 'Virtual (telemedicina)' });
+      paintAgendarForm(espInfo(evaluar().esp), { presencial: 'Presencial (Bogotá)', telemedicina: 'Virtual (internacional)' });
     }
   });
 
@@ -893,28 +989,20 @@
     if (busy || !inputMode) return;
     var ta = form.querySelector('#os-text');
     var text = (ta && ta.value || '').trim();
-    if (inputMode.tipo === 'text' && text.length < 3) {
-      ta.focus();
-      return;
-    }
+    if (inputMode.tipo === 'text' && text.length < 3) { ta.focus(); return; }
     handleText(text);
   });
 
   function handleSingle(v) {
     if (v === 'reiniciar') { reset(); start(); return; }
-    if (v === 'alarma_error') {
-      // back to alarmas
-      goBack();
-      return;
-    }
-    if (v === 'entiende') { afterEntiende(); return; }
-    if (S.fase === 'inicio' || (!S.entiende && (v === 'adulto' || v === 'menor'))) {
-      if (v === 'adulto' || v === 'menor') afterEdad(v);
-      return;
-    }
+    if (v === 'alarma_error') { goBack(); return; }
+    if (S.fase === 'inicio') { afterEdad(v); return; }
+    if (S.fase === 'pais') { afterPais(v); return; }
     if (S.fase === 'sexo') { afterSexo(v); return; }
     if (S.fase === 'categoria') { afterCategoria(v); return; }
+    if (S.fase === 'trat_resultado') { afterTratResultado(v); return; }
     if (S.fase === 'pregunta') { afterPregunta(v); return; }
+    if (S.fase === 'urgencia' && (v === 'adulto' || v === 'menor')) { afterEdad(v); return; }
   }
 
   function handleMulti(sel) {
@@ -928,13 +1016,14 @@
   function handleText(text) {
     if (S.fase === 'motivo') { afterMotivo(text); return; }
     if (S.fase === 'tratamientos') { afterTratamientos(text); return; }
+    if (S.fase === 'trat_detalle') { afterTratDetalle(text); return; }
     if (S.fase === 'quirurgicos') { afterQuirurgicos(text); return; }
     if (S.fase === 'alergias') { afterAlergias(text); return; }
     if (S.fase === 'medicamentos') { afterMedicamentos(text); return; }
     if (S.fase === 'familiares') { afterFamiliares(text); return; }
   }
 
-  // ---------- Sidebar booking (unchanged contract) ----------
+  // ---------- Sidebar booking ----------
   var $ = window.jQuery;
 
   function abrirAgenda() {
@@ -961,7 +1050,6 @@
     var el = document.querySelector(sel);
     return el ? String(el.value || '').trim() : '';
   }
-
   function codigoPais() {
     var r = document.querySelector('#form-schedule-appointment-general input[name="country_flag"]:checked');
     if (!r) return '';
@@ -996,6 +1084,7 @@
     var body = {
       id: S.id,
       categoria: S.cat.id,
+      pais: S.pais,
       respuestas: S.resp,
       seguridad: seguridadIds(),
       sexo: S.sexo,
@@ -1009,8 +1098,14 @@
       alergias: S.alergias,
       medicamentos: S.medicamentos,
       tratamientos: S.tratamientos,
+      trat_resultado: S.tratResultado,
+      trat_detalle: S.tratDetalle,
+      // Adjuntos: metadatos + dataUrl solo en preview/simulado; producción A/B pendiente
+      adjuntos: S.adjuntos.map(function (a) {
+        return { name: a.name, type: a.type, size: a.size, kind: a.kind };
+      }),
       cita: { nombre: nombre, telefono: codigoPais() + tel, fecha: fecha, hora: hora, modalidad: modalidad, tipo_cita: valor('#specialtyAppointment') },
-      consentimientos: { datos: true, telemedicina: modalidad === 'telemedicina' && S.consTele, version: C.consentVersion },
+      consentimientos: { datos: true, telemedicina: modalidad === 'telemedicina' && S.consTele, adjuntos: !!S.consAdjuntos && S.adjuntos.length > 0, version: C.consentVersion },
       web: ''
     };
     S.enviado = true;
