@@ -89,15 +89,33 @@
       precios: (cfg && cfg.precios) || {}
     };
   }
+  function fmtCop(n) {
+    return '$' + Number(n).toLocaleString('es-CO') + ' COP';
+  }
+  function fmtUsd(n) {
+    var x = Number(n);
+    var opts = (Math.abs(x - Math.round(x)) < 0.001)
+      ? { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+      : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    return 'USD ' + x.toLocaleString('es-CO', opts);
+  }
+  function precioParts(cop, usd) {
+    var parts = [];
+    if (cop != null) parts.push(fmtCop(cop));
+    if (usd != null) parts.push(fmtUsd(usd));
+    return parts.join(' · ');
+  }
   function precioHtml() {
     var p = C.precio || D.precio || {};
     if (p.cop == null && p.usd == null) {
       return '<p class="os-precio">Consulta de seguimiento: <em>Precio por confirmar</em> (COP / USD)</p>';
     }
-    var parts = [];
-    if (p.cop != null) parts.push('$' + Number(p.cop).toLocaleString('es-CO') + ' COP');
-    if (p.usd != null) parts.push('USD ' + Number(p.usd).toFixed(2));
-    return '<p class="os-precio">Consulta de seguimiento: ' + esc(parts.join(' · ')) + '</p>';
+    var pct = p.cupon_pct != null ? Number(p.cupon_pct) : 50;
+    var copPromo = p.cop_promo != null ? p.cop_promo : (p.cop != null ? Math.round(Number(p.cop) * (100 - pct) / 100) : null);
+    var usdPromo = p.usd_promo != null ? p.usd_promo : (p.usd != null ? Math.round(Number(p.usd) * (100 - pct)) / 100 : null);
+    var regular = precioParts(p.cop, p.usd);
+    var promo = precioParts(copPromo, usdPromo);
+    return '<p class="os-precio">Consulta de seguimiento: <s class="os-precio-old">' + esc(regular) + '</s> <span class="os-precio-promo">' + esc(promo) + '</span> con código <strong>' + esc(p.cupon || C.cupon || '50%') + '</strong></p>';
   }
   function promoHint() {
     var code = C.cupon || (C.precio && C.precio.cupon) || '50%';
