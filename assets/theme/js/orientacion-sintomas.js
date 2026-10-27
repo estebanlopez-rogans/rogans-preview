@@ -616,19 +616,12 @@
         });
       });
     } else {
-      afterGineco(['ninguna'], true);
+      S.gineco = [];
+      goFamiliaresOrResult();
     }
   }
 
-  function afterGineco(sel, silent) {
-    if (!silent) {
-      pushHistory();
-      S.gineco = sel.slice();
-      userSay(sel.map(function (id) { return labelOf(D.gineco, id); }).join('; '));
-    } else {
-      S.gineco = sel.slice();
-    }
-    // Familiares: relevant for capilar, animo, energia, dolor
+  function goFamiliaresOrResult() {
     var famCats = { capilar: 1, animo: 1, energia: 1, dolor: 1, sexual: 1 };
     if (S.cat && famCats[S.cat.id]) {
       S.fase = 'familiares';
@@ -640,13 +633,20 @@
     }
   }
 
+  function afterGineco(sel) {
+    pushHistory();
+    S.gineco = sel.slice();
+    userSay(sel.map(function (id) { return labelOf(D.gineco, id); }).join('; '));
+    goFamiliaresOrResult();
+  }
+
   function afterFamiliares(text, silent) {
     if (!silent) {
       pushHistory();
       S.familiares = text || 'Ninguno';
       userSay(S.familiares);
     } else {
-      S.familiares = text || 'Ninguno';
+      S.familiares = '';
     }
     showResultado();
   }
