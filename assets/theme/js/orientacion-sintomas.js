@@ -14,7 +14,7 @@
   var MAX_FILE = 5 * 1024 * 1024; // 5 MB
   var OK_TYPES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'application/pdf': 1 };
 
-  var S, msgs, inputMode, busy, focusHtml;
+  var S, msgs, inputMode, busy, focusHtml, currentQ;
 
   function uid() {
     return 'os-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -184,9 +184,13 @@
       if (spacer) spacer.style.height = '0px';
       return;
     }
-    // Spacer lets the current question sit at the top even when little content is below it.
+    // Spacer pins focus to top. When options sit under the question, cap the
+    // spacer so tablet/iPad don't show a tall empty band above the footer.
     if (spacer) {
-      var need = Math.max(0, sc.clientHeight - focus.offsetHeight - 24);
+      var optsEl = document.getElementById('os-options');
+      var optsH = (optsEl && optsEl.innerHTML && optsEl.offsetHeight) ? optsEl.offsetHeight : 0;
+      var need = Math.max(0, sc.clientHeight - focus.offsetHeight - optsH - 24);
+      if (optsH > 0) need = Math.min(need, 48);
       spacer.style.height = need + 'px';
     }
     // Measure relative to scrollport (offsetTop is unreliable with nested wrappers).
@@ -243,7 +247,9 @@
     }
 
     if (fq) {
-      if (focusIdx >= 0) {
+      if (currentQ) {
+        fq.innerHTML = esc(stripTags(currentQ));
+      } else if (focusIdx >= 0) {
         var plain = msgs[focusIdx].plain || stripTags(msgs[focusIdx].html);
         fq.innerHTML = msgs[focusIdx].focusHtml || esc(plain);
       } else {
@@ -323,7 +329,10 @@
       optionsHtml = '<div class="os-upload">' +
         '<label class="os-check' + (S.consAdjuntos ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-adj"' + (S.consAdjuntos ? ' checked' : '') + '><span>Autorizo el tratamiento de estas fotos/exámenes (datos sensibles de salud) solo para mi consulta de seguimiento. <small class="text-error-600">*</small></span></label>' +
         '<p class="os-legal-sm mt-2">JPG, PNG, WebP o PDF · máx. 5 MB c/u · no se guardan en el sitio; solo se envían si agendas.</p>' +
-        '<input type="file" id="os-files" multiple accept="image/jpeg,image/png,image/webp,application/pdf" ' + (S.consAdjuntos ? '' : 'disabled') + '>' +
+        '<label class="os-file-btn' + (S.consAdjuntos ? '' : ' is-disabled') + '" for="os-files">' +
+        '<span class="os-file-btn-icon" aria-hidden="true">📎</span>' +
+        '<span class="os-file-btn-text">Subir fotos o exámenes</span></label>' +
+        '<input type="file" id="os-files" class="os-file-input" multiple accept="image/jpeg,image/png,image/webp,application/pdf" ' + (S.consAdjuntos ? '' : 'disabled') + '>' +
         '<div class="os-previews" id="os-previews"></div></div>';
       foot += '<div class="os-composer-actions">' +
         '<button type="button" class="os-chip" data-os="skip-upload">' + esc(T.evidencia_skip || 'Continuar sin adjuntos') + '</button>' +
@@ -355,7 +364,9 @@
 
   function say(html, opts) {
     opts = opts || {};
-    msgs.push({ role: 'bot', html: html, plain: opts.plain || stripTags(html), focusHtml: opts.focusHtml || null });
+    var plain = opts.plain || stripTags(html);
+    if (!opts.keepQ) currentQ = plain;
+    msgs.push({ role: 'bot', html: html, plain: plain, focusHtml: opts.focusHtml || null });
     paintMessages();
     renderChrome();
   }
@@ -388,7 +399,9 @@
   }
   function ask(mode) {
     inputMode = mode;
+    if (mode && mode.q) currentQ = mode.q;
     paintComposer();
+    paintMessages();
   }
   function pushHist() {
     S.history.push({
@@ -408,6 +421,7 @@
     track('inicio');
     S.fase = 'inicio';
     focusHtml = '';
+    currentQ = '';
     botThen('<p class="m-0">' + esc(T.bienvenida || '') + '</p>', function () {
       say(esc(T.edad || '¿Tienes 18 años o más?'), { plain: T.edad });
       ask({
@@ -490,7 +504,7 @@
     S.fase = 'categoria';
     track('categoria');
     botThen(esc(T.categoria || ''), function () {
-      ask({ tipo: 'chips', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
+      ask({ tipo: 'chips', q: T.categoria || '', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
     });
   }
 
@@ -509,7 +523,7 @@
     botThen(esc(T.alarmas || ''), function () {
       var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });
-      ask({ tipo: 'chips_multi', selected: [], opciones: ops });
+      ask({ tipo: 'chips_multi', q: T.alarmas || '', selected: [], opciones: ops });
     });
   }
 
@@ -616,11 +630,12 @@
     S.fase = 'pregunta';
     var p = qs[S.qi];
     botThen(esc(p.texto), function () {
-      if (p.multi) {
+      var isMulti = !!(p.multi || p.tipo === 'multi');
+      if (isMulti) {
         var ops = p.opciones.map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; });
-        ask({ tipo: 'chips_multi', selected: [], opciones: ops });
+        ask({ tipo: 'chips_multi', q: p.texto, selected: [], opciones: ops });
       } else {
-        ask({ tipo: 'chips', opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t }; }) });
+        ask({ tipo: 'chips', q: p.texto, opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t }; }) });
       }
     });
   }
@@ -770,11 +785,8 @@
   function askEvidencia() {
     S.fase = 'evidencia';
     track('evidencia');
-    var hint = (S.cat && (S.cat.id === 'piel' || S.cat.id === 'capilar' || S.cat.id === 'facial'))
-      ? ' Especialmente útil en piel, cabello o rostro.'
-      : '';
-    botThen(esc((T.evidencia || '') + hint), function () {
-      ask({ tipo: 'upload' });
+    botThen(esc(T.evidencia || ''), function () {
+      ask({ tipo: 'upload', q: T.evidencia || '' });
     });
   }
 
@@ -1156,44 +1168,53 @@
 
   function reaskCurrent() {
     var f = S.fase;
+    // Title + options always from the same step (fixes stale #os-focus-q after Atrás).
     if (f === 'inicio') {
-      ask({ tipo: 'confirm', opciones: [{ v: 'adulto', t: 'Sí, 18 o más', primary: true }, { v: 'menor', t: 'Menor de 18' }] });
+      ask({ tipo: 'confirm', q: T.edad || '¿Tienes 18 años o más?', opciones: [{ v: 'adulto', t: 'Sí, 18 o más', primary: true }, { v: 'menor', t: 'Menor de 18' }] });
     } else if (f === 'pais') {
-      ask({ tipo: 'chips', opciones: (D.paises || []).map(function (o) { return { v: o.v, t: o.t }; }) });
+      ask({ tipo: 'chips', q: T.pais || '¿Desde qué país nos escribes?', opciones: (D.paises || []).map(function (o) { return { v: o.v, t: o.t }; }) });
     } else if (f === 'sexo') {
-      ask({ tipo: 'chips', opciones: (D.sexo || []).map(function (o) { return { v: o.v, t: o.t }; }) });
+      ask({ tipo: 'chips', q: T.sexo || '¿Cuál es tu sexo biológico?', opciones: (D.sexo || []).map(function (o) { return { v: o.v, t: o.t }; }) });
     } else if (f === 'motivo') {
-      ask({ tipo: 'text', max: 1000, placeholder: '…', value: S.relato });
+      ask({ tipo: 'text', q: T.motivo || '¿Qué te trae por aquí?', max: 1000, placeholder: '…', value: S.relato });
     } else if (f === 'categoria') {
-      ask({ tipo: 'chips', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
+      ask({ tipo: 'chips', q: T.categoria || '', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
     } else if (f === 'alarmas') {
       var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });
-      ask({ tipo: 'chips_multi', selected: [], opciones: ops });
+      ask({ tipo: 'chips_multi', q: T.alarmas || '', selected: [], opciones: ops });
     } else if (f === 'tratamientos') {
-      ask({ tipo: 'text_optional', max: 400, value: S.tratamientos });
+      ask({ tipo: 'text_optional', q: T.tratamientos || '', max: 400, value: S.tratamientos });
     } else if (f === 'trat_resultado') {
-      ask({ tipo: 'chips', opciones: (D.tratResultado || []).map(function (o) { return { v: o.v, t: o.t }; }) });
+      ask({ tipo: 'chips', q: T.trat_resultado || '¿Cómo te fue con eso?', opciones: (D.tratResultado || []).map(function (o) { return { v: o.v, t: o.t }; }) });
     } else if (f === 'trat_detalle') {
-      ask({ tipo: 'text_optional', max: 200, value: S.tratDetalle });
+      ask({ tipo: 'text_optional', q: T.trat_detalle || '¿Tiempo y dosis aproximada? (opcional)', max: 200, value: S.tratDetalle });
     } else if (f === 'pregunta') {
-      askPregunta();
+      var qs = (S.cat && S.cat.preguntas) || [];
+      var p = qs[S.qi];
+      if (!p) { askAntecedentes(); return; }
+      var isMulti = !!(p.multi || p.tipo === 'multi');
+      if (isMulti) {
+        ask({ tipo: 'chips_multi', q: p.texto, selected: [], opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; }) });
+      } else {
+        ask({ tipo: 'chips', q: p.texto, opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t }; }) });
+      }
     } else if (f === 'antecedentes') {
-      ask({ tipo: 'chips_multi', selected: [], opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', q: T.antecedentes || '', selected: [], opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
     } else if (f === 'quirurgicos') {
-      ask({ tipo: 'text_optional', max: 300, value: S.quirurgicos });
+      ask({ tipo: 'text_optional', q: T.quirurgicos || '', max: 300, value: S.quirurgicos });
     } else if (f === 'toxicos') {
-      ask({ tipo: 'chips_multi', selected: [], opciones: (D.toxicos || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', q: T.toxicos || '', selected: [], opciones: (D.toxicos || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
     } else if (f === 'alergias') {
-      ask({ tipo: 'text_optional', max: 300, value: S.alergias });
+      ask({ tipo: 'text_optional', q: T.alergias || '', max: 300, value: S.alergias });
     } else if (f === 'medicamentos') {
-      ask({ tipo: 'text_optional', max: 300, value: S.medicamentos });
+      ask({ tipo: 'text_optional', q: T.medicamentos || '', max: 300, value: S.medicamentos });
     } else if (f === 'gineco') {
-      ask({ tipo: 'chips_multi', selected: [], opciones: (D.gineco || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', q: T.gineco || '', selected: [], opciones: (D.gineco || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
     } else if (f === 'familiares') {
-      ask({ tipo: 'text_optional', max: 300, value: S.familiares });
+      ask({ tipo: 'text_optional', q: T.familiares || '', max: 300, value: S.familiares });
     } else if (f === 'evidencia') {
-      ask({ tipo: 'upload' });
+      ask({ tipo: 'upload', q: T.evidencia || '' });
     } else if (f === 'resultado') {
       showResultado();
     } else {
@@ -1314,9 +1335,12 @@
     abridor.remove();
     if ($) {
       var $sel = $('#specialtyAppointment');
-      if ($sel.length && $sel.val() !== e.especialidad) {
-        $sel.val(e.especialidad).trigger('change');
-        if ($.fn.niceSelect) $sel.niceSelect('update');
+      if ($sel.length && e.especialidad) {
+        var hasOpt = $sel.find('option').filter(function () { return this.value === e.especialidad; }).length > 0;
+        if (hasOpt && $sel.val() !== e.especialidad) {
+          $sel.val(e.especialidad).trigger('change');
+          if ($.fn.niceSelect) $sel.niceSelect('update');
+        }
       }
       var id = S.modalidad === 'telemedicina' ? '#modalityAppointmentTelemedicinaGeneral' : '#modalityAppointmentPresencialGeneral';
       $(id).prop('checked', true).trigger('change');
