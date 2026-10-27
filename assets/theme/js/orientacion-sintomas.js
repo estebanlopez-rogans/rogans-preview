@@ -336,7 +336,8 @@
       var n = (m.opciones || []).length;
       var chips = '<div class="os-chips' + (n > 4 ? ' os-chips-stack' : '') + '" role="group">';
       (m.opciones || []).forEach(function (o) {
-        chips += '<button type="button" class="os-chip' + (o.primary ? ' os-chip-primary' : '') + '" data-os="chip" data-v="' + esc(o.v) + '">' + esc(o.t) + '</button>';
+        chips += '<button type="button" class="os-chip' + (o.primary ? ' os-chip-primary' : '') + (o.sugerido ? ' is-sugerido' : '') + '" data-os="chip" data-v="' + esc(o.v) + '">' + esc(o.t) +
+          (o.sugerido ? ' <span class="os-tag-sug">Sugerido</span>' : '') + '</button>';
       });
       chips += '</div>';
       if (n > 4) {
@@ -370,17 +371,22 @@
         '<textarea id="os-text" class="os-text" rows="2" maxlength="' + (m.max || 500) + '" placeholder="' + esc(m.placeholder || '') + '">' + esc(m.value || '') + '</textarea>' +
         '<button type="submit" class="os-chip os-chip-primary os-send">' + (m.tipo === 'text_optional' ? 'Continuar' : 'Enviar') + '</button></form>';
     } else if (m.tipo === 'upload') {
+      // Adjuntos 100% opcionales: el consentimiento solo aparece (y solo es
+      // obligatorio) si el paciente eligió archivos.
+      var hasFiles = S.adjuntos.length > 0;
       optionsHtml = '<div class="os-upload">' +
-        '<label class="os-check' + (S.consAdjuntos ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-adj"' + (S.consAdjuntos ? ' checked' : '') + '><span>Autorizo el tratamiento de estas fotos/exámenes (datos sensibles de salud) solo para mi consulta de seguimiento. <small class="text-error-600">*</small></span></label>' +
-        '<p class="os-legal-sm mt-2">JPG, PNG, WebP o PDF · máx. 5 MB c/u · no se guardan en el sitio; solo se envían si agendas.</p>' +
-        '<label class="os-file-btn' + (S.consAdjuntos ? '' : ' is-disabled') + '" for="os-files">' +
+        '<p class="os-upload-opt"><span class="os-tag-opt">Opcional</span> Puedes continuar sin adjuntar nada.</p>' +
+        '<label class="os-file-btn" for="os-files">' +
         '<span class="os-file-btn-icon" aria-hidden="true">📎</span>' +
-        '<span class="os-file-btn-text">Subir fotos o exámenes</span></label>' +
-        '<input type="file" id="os-files" class="os-file-input" multiple accept="image/jpeg,image/png,image/webp,application/pdf" ' + (S.consAdjuntos ? '' : 'disabled') + '>' +
-        '<div class="os-previews" id="os-previews"></div></div>';
-      foot += '<div class="os-composer-actions">' +
-        '<button type="button" class="os-chip" data-os="skip-upload">' + esc(T.evidencia_skip || 'Continuar sin adjuntos') + '</button>' +
-        '<button type="button" class="os-chip os-chip-primary" data-os="ok-upload"' + (S.adjuntos.length && S.consAdjuntos ? '' : ' disabled') + '>Adjuntar y continuar</button>' +
+        '<span class="os-file-btn-text">' + (hasFiles ? 'Agregar más fotos o exámenes' : 'Subir fotos o exámenes') + '</span></label>' +
+        '<input type="file" id="os-files" class="os-file-input" multiple accept="image/jpeg,image/png,image/webp,application/pdf">' +
+        '<p class="os-legal-sm mt-2">JPG, PNG, WebP o PDF · máx. 5 MB c/u · no se guardan en el sitio; solo se envían si agendas.</p>' +
+        '<div class="os-previews" id="os-previews"></div>' +
+        (hasFiles ? '<label class="os-check' + (S.consAdjuntos ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-adj"' + (S.consAdjuntos ? ' checked' : '') + '><span>Autorizo el tratamiento de estas fotos/exámenes (datos sensibles de salud) solo para mi consulta de seguimiento. <small class="text-error-600">*</small></span></label>' : '') +
+        '</div>';
+      foot += '<div class="os-composer-actions os-upload-actions">' +
+        '<button type="button" class="os-chip os-chip-primary os-skip-upload" data-os="skip-upload">' + esc(T.evidencia_skip || 'Continuar sin adjuntos') + '</button>' +
+        (hasFiles ? '<button type="button" class="os-chip os-chip-primary" data-os="ok-upload"' + (S.consAdjuntos ? '' : ' disabled') + '>Adjuntar y continuar</button>' : '') +
         '</div>';
     } else if (m.tipo === 'result_actions' || m.tipo === 'agendar_ui') {
       // Results can be long — put body in scroll, keep actions in footer when possible
@@ -544,11 +550,44 @@
     askCategoria();
   }
 
+  function normTxt(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  // Área más probable según las palabras del relato (o '' si nada coincide).
+  function sugerirCategoria(texto) {
+    var txt = ' ' + normTxt(texto).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+    var best = '', bestN = 0;
+    D.categorias.forEach(function (c) {
+      var n = 0;
+      (c.palabras || []).forEach(function (w) {
+        if (txt.indexOf(' ' + normTxt(w)) !== -1) n++;
+      });
+      if (n > bestN) { best = c.id; bestN = n; }
+    });
+    return best;
+  }
+  function categoriaOpciones() {
+    var sug = sugerirCategoria(S.relato);
+    var list = D.categorias.slice();
+    if (sug) {
+      var i = -1;
+      list.forEach(function (c, j) { if (c.id === sug) i = j; });
+      if (i > 0) list.unshift(list.splice(i, 1)[0]);
+      // Medicina general sigue de segunda (si no es la sugerida).
+      if (sug !== 'medicina_general') {
+        var k = -1;
+        list.forEach(function (c, j) { if (c.id === 'medicina_general') k = j; });
+        if (k > 1) list.splice(1, 0, list.splice(k, 1)[0]);
+      }
+    }
+    return list.map(function (c) { return { v: c.id, t: c.titulo, sugerido: c.id === sug }; });
+  }
+
   function askCategoria() {
     S.fase = 'categoria';
     track('categoria');
     botThen(esc(T.categoria || ''), function () {
-      ask({ tipo: 'chips', q: T.categoria || '', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
+      ask({ tipo: 'chips', q: T.categoria || '', opciones: categoriaOpciones() });
     });
   }
 
@@ -928,6 +967,88 @@
     return '<span class="os-card-ico" aria-hidden="true"><i data-lucide="' + esc(name) + '" class="w-4 h-4"></i></span>';
   }
 
+  function respLabels(pid) {
+    if (!S.cat) return [];
+    var out = [];
+    (S.cat.preguntas || []).forEach(function (p) {
+      if (p.id !== pid) return;
+      var sel = [].concat(S.resp[p.id] || []);
+      (p.opciones || []).forEach(function (o) { if (sel.indexOf(o.v) !== -1) out.push({ v: o.v, t: o.t }); });
+    });
+    return out;
+  }
+  function lc1(s) { s = String(s || ''); return s.charAt(0).toLowerCase() + s.slice(1); }
+  function relatoCorto() {
+    var s = String(S.relato || '').trim().split(/[.\n]/)[0].trim();
+    if (s.length > 80) s = s.slice(0, 77).replace(/\s+\S*$/, '') + '…';
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+  }
+  // Titular concreto con las palabras del paciente: motivo + duración + intensidad + asociados + lo que probó.
+  function headlineParts() {
+    var parts = [];
+    var mot = relatoCorto();
+    if (mot) parts.push(mot);
+    var dur = respLabels('desde').concat(respLabels('inicio'));
+    dur.forEach(function (d) { parts.push(lc1(d.t)); });
+    var inten = respLabels('intensidad')[0];
+    if (inten) {
+      var nivelTxt = { '0-3': 'leve', '4-6': 'moderada', '7-10': 'fuerte' }[inten.v];
+      parts.push('intensidad ' + (nivelTxt || lc1(inten.t)));
+    }
+    var loc = respLabels('localizacion')[0];
+    var yaDicho = { abdomen: /barriga|estomag|panza|abdom|vientre|colico/, cabeza: /cabeza|migra/, pecho: /pecho/, espalda: /espalda|lumbar/, urinario: /orin|urin|vejiga/ };
+    if (loc && !/generalizado|otro_sitio/.test(loc.v) && !(yaDicho[loc.v] && yaDicho[loc.v].test(normTxt(mot))) &&
+        normTxt(mot).indexOf(normTxt(loc.t).split(' ')[0]) === -1) parts.push('en ' + lc1(loc.t));
+    var asoc = respLabels('asociados').concat(respLabels('ademas'));
+    var asocReal = asoc.filter(function (a) { return a.v !== 'ninguna'; });
+    if (asocReal.length) parts.push('con ' + asocReal.map(function (a) { return lc1(a.t); }).join(', '));
+    else if (asoc.length) parts.push('sin otros síntomas de alarma');
+    if (S.tratamientos && !/^nada/i.test(S.tratamientos)) {
+      var tr = 'probaste ' + S.tratamientos;
+      if (S.tratResultado) tr += ' (' + lc1(tratResultadoLabel(S.tratResultado)) + ')';
+      parts.push(tr);
+    }
+    return parts;
+  }
+  function esIndefinido(r) {
+    var gen = D.causasGenericas || [];
+    return !r.causas.length || gen.indexOf(r.causas[0]) !== -1;
+  }
+  function posiblesGenerales(r) {
+    var out = [];
+    var gen = D.causasGenericas || [];
+    r.causas.forEach(function (k) { if (gen.indexOf(k) === -1) out.push(causaLabel(k)); });
+    var pos = (S.cat && S.cat.posibles) || {};
+    Object.keys(pos).forEach(function (pid) {
+      respLabels(pid).forEach(function (o) {
+        (pos[pid][o.v] || []).forEach(function (x) { if (out.indexOf(x) === -1) out.push(x); });
+      });
+    });
+    return out.slice(0, 3);
+  }
+
+  function contasteCardHtml(r) {
+    var parts = headlineParts();
+    var html = '<section class="os-card os-card-contaste">';
+    html += '<header class="os-card-head">' + iconHtml('message-square-text') + '<div><p class="os-card-kicker">Tu caso</p><h3 class="os-card-title">Lo que nos contaste</h3></div></header>';
+    html += '<p class="os-contaste-head">' + esc(parts.join(', ')) + '.</p>';
+    var rows = keySymptomRows();
+    if (rows.length) {
+      html += '<ul class="os-mini-list">';
+      rows.slice(0, 6).forEach(function (x) { html += '<li><span class="os-mini-q">' + esc(x.q) + '</span> ' + esc(x.a) + '</li>'; });
+      html += '</ul>';
+    }
+    var pos = posiblesGenerales(r);
+    if (pos.length) {
+      html += '<h4 class="os-med-sub">Posibilidades generales que el médico revisará</h4><ul class="os-causa-list">';
+      pos.forEach(function (x) { html += '<li class="os-causa-item"><div class="os-causa-top"><strong>' + esc(x) + '</strong></div></li>'; });
+      html += '</ul>';
+    }
+    html += '<p class="os-card-note">Con tus respuestas no hay una causa única clara. Un médico revisa tu caso y define el diagnóstico en la consulta de seguimiento.</p>';
+    html += '</section>';
+    return html;
+  }
+
   function summaryCardHtml() {
     var html = '<section class="os-card os-card-summary">';
     html += '<header class="os-card-head">' + iconHtml('clipboard-list') + '<div><p class="os-card-kicker">Tu relato</p><h3 class="os-card-title">Resumen de lo que contaste</h3></div></header>';
@@ -980,6 +1101,8 @@
   function medsCardHtml(r) {
     var html = '<section class="os-card os-card-meds">';
     html += '<header class="os-card-head">' + iconHtml('pill') + '<div><p class="os-card-kicker">Cuidados</p><h3 class="os-card-title">Medicamentos sugeridos</h3></div></header>';
+    html += '<div class="os-meds-consult"><p><i data-lucide="stethoscope" class="w-4 h-4" aria-hidden="true"></i> <span>Te sugerimos <strong>consultar con un médico antes de tomar cualquier medicamento</strong>.</span></p>' +
+      '<button type="button" class="os-meds-consult-cta" data-os="agendar" data-src="meds">Agendar consulta de seguimiento</button></div>';
 
     if (S.tratResultado === 'funciono' && S.tratamientos && !/^nada/i.test(S.tratamientos)) {
       html += '<p class="os-card-lead">Como te funcionó <strong>' + esc(S.tratamientos) + '</strong>' +
@@ -1103,14 +1226,14 @@
   }
 
   // Tarjeta principal de agendamiento: arriba del resultado.
-  function bookingHeroHtml(e) {
+  function bookingHeroHtml(e, indef) {
     var pr = precioPromo();
     var mods = e.modalidades && e.modalidades.length ? e.modalidades : ['presencial'];
     S.modalidad = modDefault(e);
     var labels = { telemedicina: 'Virtual', presencial: 'Presencial (Bogotá)' };
 
     var html = '<section class="os-card os-card-book os-book-hero" id="os-booking">';
-    html += '<header class="os-card-head">' + iconHtml('calendar-check') + '<div><p class="os-card-kicker">Siguiente paso recomendado</p><h3 class="os-card-title">Que un médico revise tu caso y te formule</h3></div></header>';
+    html += '<header class="os-card-head">' + iconHtml('calendar-check') + '<div><p class="os-card-kicker">Siguiente paso recomendado</p><h3 class="os-card-title">' + (indef ? 'Un médico revisa tu caso y define el diagnóstico' : 'Que un médico revise tu caso y te formule') + '</h3></div></header>';
     html += '<p class="os-book-esp">Consulta de seguimiento con <strong>' + esc(e.nombre) + '</strong></p>';
     html += '<div class="os-book-toggle" role="group" aria-label="Modalidad de la consulta">';
     mods.forEach(function (m) {
@@ -1153,10 +1276,16 @@
     return html;
   }
 
-  function briefHtml(r) {
+  function briefHtml(r, indef) {
+    var mot = relatoCorto();
+    var dur = respLabels('desde')[0];
+    if (indef) {
+      return '<p class="os-result-brief">Con lo que nos contaste no hay una causa única clara. <strong>Un médico revisa tu caso y define el diagnóstico</strong>; ya tiene tus respuestas.</p>';
+    }
     var area = S.cat ? S.cat.titulo : '';
     var top = r.causas.length ? causaLabel(r.causas[0]) : '';
-    var txt = 'Según lo que contaste' + (area ? ' sobre <strong>' + esc(area) + '</strong>' : '');
+    var txt = mot ? 'Nos contaste: «' + esc(mot) + '»' + (dur ? ' (' + esc(lc1(dur.t)) + ')' : '') + '. ' : '';
+    txt += 'Según tus respuestas' + (area ? ' sobre <strong>' + esc(area) + '</strong>' : '');
     txt += top ? ', lo más probable es <strong>' + esc(top) + '</strong>.' : '.';
     txt += ' Un médico puede confirmarlo y formularte en la consulta de seguimiento.';
     return '<p class="os-result-brief">' + txt + '</p>';
@@ -1164,15 +1293,16 @@
 
   function buildResultHtml(r, e) {
     var html = '<div class="os-result" id="os-result-panel" data-os-result="1">';
-    html += '<p class="os-result-hero-kicker">Tu orientación</p>';
-    html += '<h2 class="os-result-hero-title">Recomendaciones y próximos pasos</h2>';
-    html += briefHtml(r);
+    var indef = esIndefinido(r);
+    var titulo = indef ? headlineParts().slice(0, 4).join(', ') : 'Recomendaciones y próximos pasos';
+    html += '<h2 class="os-result-hero-title' + (indef ? ' is-relato' : '') + '">' + esc(titulo || 'Recomendaciones y próximos pasos') + '</h2>';
+    html += briefHtml(r, indef);
     if (r.nivel === 'prioritaria') html += warningCardHtml(r);
-    html += bookingHeroHtml(e);
-    html += causasCardHtml(r);
+    html += bookingHeroHtml(e, indef);
+    html += indef ? contasteCardHtml(r) : causasCardHtml(r);
     html += medsCardHtml(r);
     html += examsCardHtml(r);
-    html += summaryCardHtml();
+    if (!indef) html += summaryCardHtml();
     html += referralCardHtml(e);
     if (r.nivel !== 'prioritaria') html += warningCardHtml(r);
     html += bookingCardHtml(e);
@@ -1293,7 +1423,7 @@
     } else if (f === 'motivo') {
       ask({ tipo: 'text', q: T.motivo || '¿Qué te trae por aquí?', max: 1000, placeholder: '…', value: S.relato });
     } else if (f === 'categoria') {
-      ask({ tipo: 'chips', q: T.categoria || '', opciones: D.categorias.map(function (c) { return { v: c.id, t: c.titulo }; }) });
+      ask({ tipo: 'chips', q: T.categoria || '', opciones: categoriaOpciones() });
     } else if (f === 'alarmas') {
       var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });

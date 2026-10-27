@@ -166,51 +166,43 @@
         return;
       }
       
-      var mainHeaderInitialOffset = null;
-      
+      // Marcador fijo en el flujo justo antes del header: su posición es la
+      // del header "en reposo" aunque el header ya esté fixed, oculto o el
+      // layout cambie después de cargar (fuentes, banners, barra de Safari).
+      // Antes se guardaba un offset que podía quedar en 0 (header oculto /
+      // layout sin terminar) y el header quedaba fixed encima del logo con
+      // scroll 0 (visto en iPad Safari).
+      var $anchor = $('<div class="main-header-anchor" aria-hidden="true" style="height:0;margin:0;padding:0;border:0"></div>');
+      $mainHeader.before($anchor);
+
       function updateStickyHeader() {
         var scrollTop = $(window).scrollTop();
-        
-        // Guardar la posición inicial del header solo la primera vez
-        if (mainHeaderInitialOffset === null) {
-          mainHeaderInitialOffset = $mainHeader.offset().top;
+        if (!$mainHeader.is(':visible') && !$mainHeader.hasClass('sticky-header')) {
+          return;
         }
-        
+        var anchorTop = $anchor.offset().top;
         var mainHeaderHeight = $mainHeader.outerHeight();
-        
-        if (scrollTop >= mainHeaderInitialOffset) {
+
+        if (scrollTop > 0 && scrollTop >= anchorTop) {
           if (!$mainHeader.hasClass('sticky-header')) {
             $mainHeader.addClass('sticky-header');
-            $subHeader.css('padding-top', mainHeaderHeight + 'px');
-          } else {
-            // Recalcular altura si cambió (por ejemplo, en resize)
-            var currentHeight = $mainHeader.outerHeight();
-            $subHeader.css('padding-top', currentHeight + 'px');
           }
-        } else {
+          $subHeader.css('padding-top', mainHeaderHeight + 'px');
+        } else if ($mainHeader.hasClass('sticky-header')) {
           $mainHeader.removeClass('sticky-header');
           $subHeader.css('padding-top', '');
-          // Resetear la posición inicial para recalcular en el próximo scroll
-          mainHeaderInitialOffset = null;
         }
       }
-      
-      // Ejecutar al cargar
-      setTimeout(function() {
-        updateStickyHeader();
-      }, 100);
-      
+
+      // Ejecutar al cargar (y otra vez cuando terminan fuentes/imágenes)
+      setTimeout(updateStickyHeader, 100);
+      $(window).on('load', updateStickyHeader);
+
       // Ejecutar en scroll
-      $(window).on('scroll', function() {
-        updateStickyHeader();
-      });
-      
+      $(window).on('scroll', updateStickyHeader);
+
       // Ejecutar en resize para recalcular alturas
-      $(window).on('resize', function() {
-        // Resetear la posición inicial para recalcular
-        mainHeaderInitialOffset = null;
-        updateStickyHeader();
-      });
+      $(window).on('resize orientationchange', updateStickyHeader);
     }
     
     // Inicializar sticky header
