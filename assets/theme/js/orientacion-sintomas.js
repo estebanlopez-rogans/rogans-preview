@@ -263,8 +263,13 @@
     }
     paintMessages();
   }
+  function clearComposer() {
+    inputMode = null;
+    paintComposer();
+  }
   function botThen(html, cb, opts) {
     busy = true;
+    clearComposer();
     typing(true);
     setTimeout(function () {
       typing(false);
@@ -957,12 +962,15 @@
         paintComposer();
         return;
       }
+      clearComposer();
       handleSingle(v);
       return;
     }
     if (a === 'multi-ok') {
       if (!inputMode || !(inputMode.selected || []).length) return;
-      handleMulti(inputMode.selected.slice());
+      var sel = inputMode.selected.slice();
+      clearComposer();
+      handleMulti(sel);
     }
   });
 
@@ -990,6 +998,7 @@
     var ta = form.querySelector('#os-text');
     var text = (ta && ta.value || '').trim();
     if (inputMode.tipo === 'text' && text.length < 3) { ta.focus(); return; }
+    clearComposer();
     handleText(text);
   });
 
