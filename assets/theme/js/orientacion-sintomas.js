@@ -139,6 +139,22 @@
     inputMode = null;
     busy = false;
     focusHtml = '';
+    setResultMode(false);
+  }
+
+  function setResultMode(on) {
+    var shell = document.getElementById('os-shell');
+    if (!shell) return;
+    if (on) shell.classList.add('is-result');
+    else shell.classList.remove('is-result');
+  }
+
+  function refreshIcons() {
+    try {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+      }
+    } catch (e) {}
   }
 
   function shellHtml() {
@@ -161,7 +177,13 @@
     var sc = document.getElementById('os-scroll');
     var focus = document.getElementById('os-focus');
     var spacer = document.getElementById('os-spacer');
+    var shell = document.getElementById('os-shell');
     if (!sc || !focus) return;
+    // Result mode: no Perplexity spacer — content must stay fully visible.
+    if (shell && shell.classList.contains('is-result')) {
+      if (spacer) spacer.style.height = '0px';
+      return;
+    }
     // Spacer lets the current question sit at the top even when little content is below it.
     if (spacer) {
       var need = Math.max(0, sc.clientHeight - focus.offsetHeight - 24);
@@ -324,6 +346,9 @@
       renderPreviews();
       var fi = document.querySelector('#os-files');
       if (fi) fi.addEventListener('change', onFilesPicked);
+    }
+    if (m.tipo === 'result_actions' || m.tipo === 'agendar_ui') {
+      refreshIcons();
     }
     requestAnimationFrame(function () { scrollToCurrentQuestion(); });
   }
@@ -799,96 +824,255 @@
   }
 
   function causaLabel(k) {
+    var c = S.cat && S.cat.causas && S.cat.causas[k];
+    if (c) {
+      if (typeof c === 'string') return c;
+      return c.t || k;
+    }
     return (D.causas && D.causas[k]) || k;
   }
 
-  function medRecommendationHtml(r) {
-    var html = '';
-    html += '<h3>Medicamentos</h3>';
-    // Continue same OTC if worked
+  function causaDesc(k) {
+    var c = S.cat && S.cat.causas && S.cat.causas[k];
+    if (c && typeof c === 'object') return c.d || '';
+    return '';
+  }
+
+  function likeliChip(i) {
+    if (i === 0) return { t: 'Más frecuente', cls: 'os-chip-likeli-hi' };
+    if (i === 1) return { t: 'Posible', cls: 'os-chip-likeli-mid' };
+    return { t: 'A considerar', cls: 'os-chip-likeli-lo' };
+  }
+
+  function tratResultadoLabel(v) {
+    var list = D.tratResultado || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].v === v) return list[i].t;
+    }
+    return v || '';
+  }
+
+  function keySymptomRows() {
+    var rows = [];
+    if (!S.cat) return rows;
+    (S.cat.preguntas || []).forEach(function (p) {
+      var sel = [].concat(S.resp[p.id] || []);
+      if (!sel.length) return;
+      var labels = [];
+      (p.opciones || []).forEach(function (o) {
+        if (sel.indexOf(o.v) !== -1) labels.push(o.t);
+      });
+      if (!labels.length) return;
+      rows.push({ q: p.texto || p.t || p.id, a: labels.join('; ') });
+    });
+    return rows;
+  }
+
+  function iconHtml(name) {
+    return '<span class="os-card-ico" aria-hidden="true"><i data-lucide="' + esc(name) + '" class="w-4 h-4"></i></span>';
+  }
+
+  function summaryCardHtml() {
+    var html = '<section class="os-card os-card-summary">';
+    html += '<header class="os-card-head">' + iconHtml('clipboard-list') + '<div><p class="os-card-kicker">Tu relato</p><h3 class="os-card-title">Resumen de lo que contaste</h3></div></header>';
+    html += '<dl class="os-dl">';
+    if (S.relato) {
+      html += '<div><dt>Motivo</dt><dd>' + esc(S.relato) + '</dd></div>';
+    }
+    if (S.cat) {
+      html += '<div><dt>Área</dt><dd>' + esc(S.cat.titulo) + '</dd></div>';
+    }
+    var rows = keySymptomRows();
+    if (rows.length) {
+      html += '<div><dt>Síntomas clave</dt><dd><ul class="os-mini-list">';
+      rows.slice(0, 6).forEach(function (r) {
+        html += '<li><span class="os-mini-q">' + esc(r.q) + '</span> ' + esc(r.a) + '</li>';
+      });
+      html += '</ul></dd></div>';
+    }
+    if (S.tratamientos && !/^nada/i.test(S.tratamientos)) {
+      html += '<div><dt>Lo que has probado</dt><dd>' + esc(S.tratamientos);
+      if (S.tratResultado) html += ' · <em>' + esc(tratResultadoLabel(S.tratResultado)) + '</em>';
+      if (S.tratDetalle) html += '<br><span class="os-muted">' + esc(S.tratDetalle) + '</span>';
+      html += '</dd></div>';
+    } else {
+      html += '<div><dt>Lo que has probado</dt><dd>Nada todavía</dd></div>';
+    }
+    html += '</dl></section>';
+    return html;
+  }
+
+  function causasCardHtml(r) {
+    if (!r.causas.length) return '';
+    var html = '<section class="os-card os-card-causas">';
+    html += '<header class="os-card-head">' + iconHtml('stethoscope') + '<div><p class="os-card-kicker">Orientación</p><h3 class="os-card-title">Posibles causas / diagnósticos probables</h3></div></header>';
+    html += '<ul class="os-causa-list">';
+    r.causas.slice(0, 5).forEach(function (k, i) {
+      var chip = likeliChip(i);
+      var desc = causaDesc(k);
+      html += '<li class="os-causa-item"><div class="os-causa-top"><strong>' + esc(causaLabel(k)) + '</strong>';
+      html += '<span class="os-likeli ' + chip.cls + '">' + esc(chip.t) + '</span></div>';
+      if (desc) html += '<p class="os-causa-desc">' + esc(desc) + '</p>';
+      html += '</li>';
+    });
+    html += '</ul>';
+    html += '<p class="os-card-note">El médico confirma el diagnóstico en la consulta. Esta lista es orientación general según tus respuestas.</p>';
+    html += '</section>';
+    return html;
+  }
+
+  function medsCardHtml(r) {
+    var html = '<section class="os-card os-card-meds">';
+    html += '<header class="os-card-head">' + iconHtml('pill') + '<div><p class="os-card-kicker">Cuidados</p><h3 class="os-card-title">Medicamentos sugeridos</h3></div></header>';
+
     if (S.tratResultado === 'funciono' && S.tratamientos && !/^nada/i.test(S.tratamientos)) {
-      html += '<p class="os-result-sub">Como te funcionó <strong>' + esc(S.tratamientos) + '</strong>' +
+      html += '<p class="os-card-lead">Como te funcionó <strong>' + esc(S.tratamientos) + '</strong>' +
         (S.tratDetalle ? ' (' + esc(S.tratDetalle) + ')' : '') +
         ', si es de venta libre y te resulta seguro según la etiqueta, puedes continuar usándolo respetando dosis y tiempo máximo.</p>';
     } else if (S.tratResultado === 'efectos') {
-      html += '<p class="os-result-sub">Por los efectos adversos que mencionaste con <strong>' + esc(S.tratamientos) + '</strong>, no sugerimos repetirlo. Revisa opciones de venta libre abajo o consulta al médico.</p>';
+      html += '<p class="os-card-lead">Por los efectos adversos que mencionaste con <strong>' + esc(S.tratamientos) + '</strong>, no sugerimos repetirlo. Revisa opciones de venta libre abajo o consulta al médico.</p>';
     } else if (S.tratResultado === 'no' || S.tratResultado === 'parcial') {
-      html += '<p class="os-result-sub">Como lo anterior no resolvió del todo tu molestia, aquí van alternativas de venta libre (si aplican a tu caso):</p>';
+      html += '<p class="os-card-lead">Como lo anterior no resolvió del todo tu molestia, aquí van alternativas de venta libre (si aplican):</p>';
     }
 
     if (r.embarazo) {
-      html += '<p class="os-result-body">En embarazo o lactancia no sugerimos automedicación: tu médico te orientará.</p>';
+      html += '<p class="os-card-lead">En embarazo o lactancia no sugerimos automedicación: tu médico te orientará.</p>';
     } else if (r.otc.length) {
+      html += '<div class="os-med-grid">';
       r.otc.forEach(function (p) {
-        html += '<div class="os-otc"><p class="m-0 font-semibold">' + esc(p.nombre) + '</p>' +
-          '<p class="mt-1 mb-0 text-sm">' + esc(p.uso) + '</p>' +
-          '<ul class="mt-1 mb-0 pl-4 text-sm">' +
-          (p.avisos || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') +
-          '</ul></div>';
+        var avisos = p.advertencias || p.avisos || [];
+        html += '<article class="os-otc"><p class="os-otc-name">' + esc(p.nombre) + '</p>';
+        html += '<span class="os-badge-otc">Venta libre</span>';
+        if (p.uso) html += '<p class="os-otc-uso">' + esc(p.uso) + '</p>';
+        if (avisos.length) {
+          html += '<ul class="os-otc-dose">';
+          avisos.forEach(function (a) { html += '<li>' + esc(a) + '</li>'; });
+          html += '</ul>';
+        }
+        html += '</article>';
       });
+      html += '</div>';
       if (D.otcAvisos && D.otcAvisos.length) {
         html += '<div class="os-warn"><ul class="m-0 pl-4">' +
           D.otcAvisos.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></div>';
       }
     } else if (r.nivel !== 'prioritaria') {
-      html += '<p class="os-result-body">No hay una sugerencia clara de venta libre para tu combinación de respuestas.</p>';
+      html += '<p class="os-card-lead">No hay una sugerencia clara de venta libre para tu combinación de respuestas.</p>';
     }
 
-    // Never name Rx — hook to paid consult
-    html += '<p class="os-result-sub"><strong>Tu médico puede formularte un tratamiento</strong> (incluidos medicamentos con fórmula), órdenes de exámenes, conceptos de incapacidad u otras indicaciones en la consulta de seguimiento.</p>';
+    html += '<div class="os-rx-note"><strong>Con fórmula médica</strong> — requiere fórmula: el médico puede formularla en la consulta de seguimiento (también incapacidad y órdenes).</div>';
+    html += '</section>';
+    return html;
+  }
+
+  function examsCardHtml(r) {
+    if (!r.examenes.length) return '';
+    var html = '<section class="os-card os-card-exams">';
+    html += '<header class="os-card-head">' + iconHtml('flask-conical') + '<div><p class="os-card-kicker">Estudios</p><h3 class="os-card-title">Exámenes médicos sugeridos</h3></div></header>';
+    html += '<ul class="os-exam-list">';
+    r.examenes.forEach(function (x) {
+      html += '<li>' + esc(x) + '</li>';
+    });
+    html += '</ul>';
+    html += '<p class="os-card-note">El médico decide cuáles ordenar según la valoración.</p>';
+    html += '</section>';
+    return html;
+  }
+
+  function referralCardHtml(e) {
+    var html = '<section class="os-card os-card-ref">';
+    html += '<header class="os-card-head">' + iconHtml('user-round') + '<div><p class="os-card-kicker">Remisión</p><h3 class="os-card-title">Especialista sugerido</h3></div></header>';
+    html += '<p class="os-card-lead"><strong>' + esc(e.nombre) + '</strong></p>';
+    html += '<p class="os-muted">Te orientamos hacia esta especialidad según tus respuestas. El médico de seguimiento puede confirmar o ajustar la remisión.</p>';
+    html += '</section>';
+    return html;
+  }
+
+  function warningCardHtml(r) {
+    var html = '<section class="os-card os-card-warn">';
+    html += '<header class="os-card-head">' + iconHtml('triangle-alert') + '<div><p class="os-card-kicker">Vigilancia</p><h3 class="os-card-title">Señales de alarma a vigilar</h3></div></header>';
+    if (r.nivel === 'prioritaria') {
+      html += '<p class="os-card-lead os-alerta">Por lo que marcaste, no te sugerimos automedicarte. Busca valoración pronto o acude a urgencias si empeoras.</p>';
+    } else {
+      html += '<p class="os-card-lead">Consulta de inmediato (Colombia 123 / urgencias) si aparece:</p>';
+    }
+    html += '<ul class="os-warn-list">';
+    (D.alarmas || []).slice(0, 6).forEach(function (a) {
+      html += '<li>' + esc(a.texto || a.t || '') + '</li>';
+    });
+    html += '</ul></section>';
+    return html;
+  }
+
+  function bookingCardHtml(e) {
+    var p = C.precio || D.precio || {};
+    var pct = p.cupon_pct != null ? Number(p.cupon_pct) : 50;
+    var copPromo = p.cop_promo != null ? p.cop_promo : (p.cop != null ? Math.round(Number(p.cop) * (100 - pct) / 100) : null);
+    var usdPromo = p.usd_promo != null ? p.usd_promo : (p.usd != null ? Math.round(Number(p.usd) * (100 - pct)) / 100 : null);
+    var regular = precioParts(p.cop, p.usd);
+    var promo = precioParts(copPromo, usdPromo);
+    var code = p.cupon || C.cupon || '50%';
+    var mods = e.modalidades || [];
+    var modTxt = [];
+    if (mods.indexOf('telemedicina') !== -1) modTxt.push('Virtual');
+    if (mods.indexOf('presencial') !== -1) modTxt.push('Presencial en Bogotá');
+    if (!modTxt.length) modTxt = ['Presencial en Bogotá'];
+
+    var html = '<section class="os-card os-card-book" id="os-booking">';
+    html += '<header class="os-card-head">' + iconHtml('calendar-check') + '<div><p class="os-card-kicker">Siguiente paso</p><h3 class="os-card-title">Agenda tu consulta de seguimiento</h3></div></header>';
+    html += '<p class="os-book-esp">Con <strong>' + esc(e.nombre) + '</strong> · ' + esc(modTxt.join(' · ')) + '</p>';
+    html += '<div class="os-book-price"><s class="os-precio-old">' + esc(regular || '$50.000 COP · USD 15') + '</s>';
+    html += '<span class="os-precio-promo">' + esc(promo || '$25.000 COP · USD 7,50') + '</span>';
+    html += '<span class="os-book-code">código <strong>' + esc(code) + '</strong></span></div>';
+    html += '<ul class="os-book-perks">';
+    html += '<li><i data-lucide="badge-check" class="w-3.5 h-3.5" aria-hidden="true"></i> Diagnóstico con aval profesional</li>';
+    html += '<li><i data-lucide="pill" class="w-3.5 h-3.5" aria-hidden="true"></i> Fórmula médica si aplica</li>';
+    html += '<li><i data-lucide="file-text" class="w-3.5 h-3.5" aria-hidden="true"></i> Incapacidad y órdenes de exámenes</li>';
+    html += '<li><i data-lucide="folder-heart" class="w-3.5 h-3.5" aria-hidden="true"></i> Reutiliza tu orientación (si autorizas)</li>';
+    html += '</ul>';
+    html += '<div class="os-book-actions">';
+    html += '<button type="button" class="os-chip os-chip-primary os-book-cta" data-os="agendar" id="OS_CTA_AGENDAR">Agendar consulta de seguimiento</button>';
+    if (e.url) html += '<a class="os-chip" href="' + esc(e.url) + '">Conocer el servicio</a>';
+    html += '<button type="button" class="os-chip" data-os="reiniciar">Nueva orientación</button>';
+    html += '</div>';
+    html += '<p class="os-legal-sm">Al agendar puedes autorizar el envío de tus respuestas (y adjuntos) al profesional.</p>';
+    html += '</section>';
+    return html;
+  }
+
+  function buildResultHtml(r, e) {
+    var html = '<div class="os-result" id="os-result-panel" data-os-result="1">';
+    html += '<p class="os-result-hero-kicker">Tu orientación</p>';
+    html += '<h2 class="os-result-hero-title">Recomendaciones y próximos pasos</h2>';
+    html += summaryCardHtml();
+    html += causasCardHtml(r);
+    html += medsCardHtml(r);
+    html += examsCardHtml(r);
+    html += referralCardHtml(e);
+    html += warningCardHtml(r);
+    html += bookingCardHtml(e);
+    html += '<p class="os-result-disc">Orientación general basada en tus respuestas. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
+    html += '</div>';
     return html;
   }
 
   function showResultado() {
     S.fase = 'resultado';
     track('resultado');
+    setResultMode(true);
     var r = evaluar();
     var e = espInfo(r.esp);
-    botThen(esc(T.cierre || 'Listo…'), function () {
-      var html = '<div class="os-result">';
-      html += '<p class="os-result-kicker">Orientación</p>';
-      html += '<p class="os-result-title">Resumen de lo que contaste</p>';
-      html += '<p class="os-result-body">' + esc(S.relato) +
-        (S.cat ? ' · ' + esc(S.cat.titulo) : '') +
-        (S.pais ? ' · ' + esc(S.pais) : '') + '</p>';
-
-      if (r.causas.length) {
-        html += '<h3>Posibles causas a considerar</h3><ul class="os-result-list">';
-        r.causas.slice(0, 5).forEach(function (k) {
-          html += '<li><strong>' + esc(causaLabel(k)) + '</strong></li>';
-        });
-        html += '</ul>';
-      }
-
-      if (r.examenes.length) {
-        html += '<h3>Exámenes que podrían ayudar</h3><ul class="os-result-bullets">';
-        r.examenes.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
-        html += '</ul>';
-      }
-
-      html += medRecommendationHtml(r);
-
-      if (r.nivel === 'prioritaria') {
-        html += '<p class="os-result-body">Por lo que marcaste, no te sugerimos automedicarte. Lo mejor es valoración pronto.</p>';
-      }
-
-      html += '<div class="os-remision"><p class="m-0 font-semibold">Consulta de seguimiento: ' + esc(e.nombre) + '</p>' +
-        '<p class="mt-1 mb-0 text-sm">El médico reutiliza tu información para profundizar. Puede incluir diagnóstico con aval profesional, fórmula médica, incapacidad, órdenes o remisiones.</p>' +
-        '<p class="mt-1 mb-0 text-sm">' + (e.modalidades.indexOf('telemedicina') !== -1 ? 'Virtual (internacional) o presencial en Bogotá.' : 'Presencial en Bogotá.') + '</p>' +
-        precioHtml() + promoHint() +
-        '</div>';
-      html += '<p class="os-result-disc">Orientación general basada en tus respuestas. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
-      html += '</div>';
-
-      say(html, { plain: 'Tu orientación' });
+    botThen(esc(T.cierre || 'Listo. Aquí van tus recomendaciones y próximos pasos…'), function () {
+      say(esc('Tu orientación'), { plain: 'Tu orientación' });
       ask({
         tipo: 'result_actions',
-        html: '<div class="os-chips">' +
-          '<button type="button" class="os-chip os-chip-primary" data-os="agendar" id="OS_CTA_AGENDAR">Agendar consulta de seguimiento</button>' +
-          (e.url ? '<a class="os-chip" href="' + esc(e.url) + '">Conocer el servicio</a>' : '') +
-          '<button type="button" class="os-chip" data-os="reiniciar">Nueva orientación</button>' +
-          '</div>' +
-          '<p class="os-legal-sm">Al agendar puedes autorizar el envío de tus respuestas (y adjuntos) al profesional.</p>'
+        html: buildResultHtml(r, e)
+      });
+      requestAnimationFrame(function () {
+        var panel = document.getElementById('os-result-panel');
+        if (panel) {
+          try { panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) {}
+        }
       });
     });
   }
@@ -896,6 +1080,7 @@
   function showAgendar() {
     S.fase = 'agendar';
     track('agendar');
+    setResultMode(true);
     var r = evaluar();
     var e = espInfo(r.esp);
     if (!e.especialidad) {
@@ -964,6 +1149,7 @@
     S.tratamientos = snap.tratamientos; S.tratResultado = snap.tratResultado; S.tratDetalle = snap.tratDetalle;
     S.cat = snap.catId ? catById(snap.catId) : null;
     inputMode = null;
+    if (S.fase !== 'resultado' && S.fase !== 'agendar') setResultMode(false);
     renderChrome();
     reaskCurrent();
   }
