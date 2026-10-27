@@ -442,7 +442,7 @@
     sayUser(t);
     S.tratamientos = t;
     focusHtml = '';
-    var nada = /^nada|ninguno|no\b|ninguna/i.test(t);
+    var nada = /^(nada|ninguno|ninguna|no)(\b|[.!?,\s]|$)/i.test(t.trim());
     if (nada) {
       S.tratResultado = 'nada';
       askSemiologia();
