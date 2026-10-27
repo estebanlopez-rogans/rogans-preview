@@ -94,43 +94,128 @@ return f.apply(this,arguments);};})();</script>
 <script src="../assets/vendor/lucide.min.js" defer></script>
 
 <style>
-	/* Chat Perplexity-like — caja fija, historial scrollable, pregunta enfocada */
-	.os-promo{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; padding:.85rem 1.15rem; border-radius:1rem; background:linear-gradient(90deg,#00a99c,#00d0c0); color:#fff; font-weight:600; }
-	.os-promo code{ background:rgba(255,255,255,.2); padding:.2rem .55rem; border-radius:.4rem; font-weight:800; letter-spacing:.02em; }
-	.os-chat-shell{ display:flex; flex-direction:column; height:min(72vh,640px); min-height:420px; background:#fff; border-radius:1.5rem; border:1px solid #e5e7eb; overflow:hidden; box-shadow:0 8px 24px rgba(16,24,40,.06); }
-	@media (max-width:639px){ .os-chat-shell{ height:calc(100vh - 7.5rem); min-height:360px; border-radius:1rem; } }
+	/* Hero — claro, poco texto, buen contraste */
+	.os-hero{ padding:1.25rem 0 1.5rem; background:#fff; }
+	@media (min-width:1024px){ .os-hero{ padding:2rem 0 2.5rem; } }
+	.os-hero-kicker{ margin:0; font-size:.8125rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#00a99c; }
+	.os-hero-title{ margin:.5rem 0 0; font-size:1.75rem; font-weight:700; line-height:1.2; color:#111827; letter-spacing:-.02em; }
+	@media (min-width:640px){ .os-hero-title{ font-size:2.25rem; } }
+	@media (min-width:1024px){ .os-hero-title{ font-size:2.75rem; } }
+	.os-hero-title span{ color:#00a99c; }
+	.os-hero-sub{ margin:.75rem 0 0; font-size:1.0625rem; line-height:1.45; color:#4b5563; max-width:36rem; }
+	@media (min-width:640px){ .os-hero-sub{ font-size:1.125rem; } }
+	.os-promo{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.65rem; margin-top:1rem; padding:.85rem 1rem; border-radius:1rem; background:linear-gradient(90deg,#00a99c,#00d0c0); color:#fff; font-weight:600; font-size:.9375rem; line-height:1.35; }
+	.os-promo code{ background:rgba(255,255,255,.22); padding:.15rem .5rem; border-radius:.4rem; font-weight:800; }
+	.os-promo .os-precio-old{ text-decoration:line-through; opacity:.85; font-weight:500; }
+	.os-hero-cta{ margin-top:1rem; }
+	.os-legal-sm{ margin:.5rem 0 0; font-size:.7rem; color:#9ca3af; line-height:1.4; }
+
+	/* Chat shell — viewport-aware, sticky footer, internal scroll */
+	#orientador{ padding-bottom:max(1rem, env(safe-area-inset-bottom)); }
+	.os-chat-shell{
+		display:flex; flex-direction:column;
+		height:min(640px, calc(100svh - 6.5rem));
+		height:min(640px, calc(100dvh - 6.5rem));
+		min-height:380px; max-height:720px;
+		background:#fff; border-radius:1.25rem; border:1px solid #e5e7eb;
+		overflow:hidden; box-shadow:0 8px 24px rgba(16,24,40,.06);
+	}
+	@media (max-width:639px){
+		.os-chat-shell{
+			height:calc(100svh - 5.75rem - env(safe-area-inset-bottom, 0px));
+			height:calc(100dvh - 5.75rem - env(safe-area-inset-bottom, 0px));
+			min-height:320px; border-radius:1rem;
+			/* keep section below from peeking into the box */
+			margin-bottom:.5rem;
+		}
+		#orientador{ padding-top:.75rem; padding-bottom:.75rem; }
+	}
 	.os-progress{ height:3px; background:#eef2f2; flex:none; }
 	.os-progress>span{ display:block; height:100%; background:#00d0c0; transition:width .35s ease; }
-	.os-history{ flex:1 1 auto; overflow-y:auto; padding:.75rem 1rem; scroll-behavior:smooth; background:linear-gradient(180deg,#f8fafb 0%,#fff 50%); }
-	@media (min-width:640px){ .os-history{ padding:1rem 1.25rem; } }
-	.os-history .os-row{ opacity:.72; transform:scale(.98); transform-origin:left top; }
+
+	.os-stage{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+	.os-scroll{
+		flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto;
+		-webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+		padding:.65rem .9rem .35rem; background:linear-gradient(180deg,#f8fafb 0%,#fff 40%);
+		scroll-behavior:auto;
+	}
+	@media (min-width:640px){ .os-scroll{ padding:1rem 1.15rem .5rem; } }
+
+	.os-hist-hint{
+		display:none; margin:0 0 .5rem; text-align:center;
+		font-size:.7rem; font-weight:600; color:#9ca3af; letter-spacing:.01em;
+	}
+	.os-hist-hint.is-on{ display:block; }
+	.os-history{ display:flex; flex-direction:column; gap:0; }
+	.os-history:empty{ display:none; }
+	.os-history .os-row{ opacity:.55; transform:scale(.97); transform-origin:left top; }
 	.os-history .os-row-user{ transform-origin:right top; }
-	.os-focus{ flex:none; padding:.75rem 1rem .35rem; border-top:1px solid #f3f4f6; background:#fff; }
-	.os-focus-q{ margin:0; font-size:1.125rem; font-weight:700; color:#111827; line-height:1.35; }
+
+	.os-focus{
+		flex:none; padding:.55rem 0 .35rem; margin-top:.15rem;
+		scroll-margin-top:.35rem; background:transparent;
+	}
+	.os-focus-q{ margin:0; font-size:1.125rem; font-weight:700; color:#111827; line-height:1.3; }
 	@media (min-width:640px){ .os-focus-q{ font-size:1.25rem; } }
-	.os-focus-sub{ margin:.35rem 0 0; font-size:.875rem; color:#6b7280; }
-	.os-composer{ flex:none; border-top:1px solid #eef2f2; padding:.75rem 1rem 1rem; background:#fff; }
-	.os-composer-inner{ display:flex; flex-direction:column; gap:.65rem; }
-	.os-row{ display:flex; gap:.65rem; margin-bottom:.85rem; align-items:flex-end; }
+	.os-focus-sub{ margin:.35rem 0 0; font-size:.8125rem; color:#6b7280; }
+
+	.os-options{ padding:.35rem 0 .5rem; }
+	.os-options:empty{ display:none; padding:0; }
+	.os-spacer{ flex:none; pointer-events:none; }
+
+	/* Sticky answer footer inside shell */
+	.os-composer{
+		flex:none; border-top:1px solid #eef2f2;
+		padding:.65rem .9rem max(.85rem, env(safe-area-inset-bottom, 0px));
+		background:#fff; z-index:2;
+		box-shadow:0 -6px 16px rgba(16,24,40,.04);
+	}
+	@media (min-width:640px){ .os-composer{ padding:.75rem 1.15rem 1rem; } }
+	.os-composer-inner{ display:flex; flex-direction:column; gap:.55rem; }
+	.os-composer-actions{ display:flex; flex-wrap:wrap; gap:.45rem; align-items:center; }
+
+	.os-row{ display:flex; gap:.65rem; margin-bottom:.75rem; align-items:flex-end; }
 	.os-row-user{ justify-content:flex-end; }
-	.os-avatar{ width:1.75rem; height:1.75rem; border-radius:999px; background:#00a99c; color:#fff; font-weight:700; font-size:.7rem; display:flex; align-items:center; justify-content:center; flex:none; }
-	.os-bubble{ max-width:min(100%,32rem); padding:.7rem .9rem; border-radius:1rem; font-size:.9375rem; line-height:1.45; color:#111827; }
+	.os-avatar{ width:1.6rem; height:1.6rem; border-radius:999px; background:#00a99c; color:#fff; font-weight:700; font-size:.65rem; display:flex; align-items:center; justify-content:center; flex:none; }
+	.os-bubble{ max-width:min(100%,32rem); padding:.6rem .8rem; border-radius:1rem; font-size:.875rem; line-height:1.4; color:#111827; }
 	.os-bubble-bot{ background:#fff; border:1px solid #e5e7eb; border-bottom-left-radius:.3rem; }
 	.os-bubble-user{ background:#00a99c; color:#fff; border-bottom-right-radius:.3rem; }
-	.os-typing{ display:inline-flex; gap:4px; align-items:center; padding:.7rem .9rem; }
+	.os-typing{ display:inline-flex; gap:4px; align-items:center; padding:.6rem .8rem; }
 	.os-typing span{ width:6px; height:6px; border-radius:999px; background:#9ca3af; animation:os-dot 1.2s infinite ease-in-out; }
 	.os-typing span:nth-child(2){ animation-delay:.15s; } .os-typing span:nth-child(3){ animation-delay:.3s; }
 	@keyframes os-dot{ 0%,80%,100%{ transform:translateY(0); opacity:.4;} 40%{ transform:translateY(-3px); opacity:1;} }
-	.os-chips{ display:flex; flex-wrap:wrap; gap:.45rem; }
-	.os-chip{ display:inline-flex; align-items:center; justify-content:center; text-align:left; padding:.55rem .9rem; border-radius:999px; border:1px solid #d1d5db; background:#fff; color:#111827; font-weight:600; font-size:.875rem; line-height:1.25; cursor:pointer; transition:border-color .15s, background .15s, color .15s; }
+
+	.os-chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
+	.os-chips-stack{ display:flex; flex-direction:column; gap:.4rem; }
+	.os-chip{
+		display:inline-flex; align-items:center; justify-content:flex-start; text-align:left;
+		padding:.5rem .85rem; border-radius:999px; border:1px solid #d1d5db; background:#fff;
+		color:#111827; font-weight:600; font-size:.875rem; line-height:1.25; cursor:pointer;
+		transition:border-color .15s, background .15s, color .15s;
+		-webkit-tap-highlight-color:transparent;
+	}
+	@media (max-width:639px){
+		.os-chip{ padding:.42rem .7rem; font-size:.8125rem; border-radius:.85rem; width:100%; }
+		.os-chips-stack .os-chip, .os-options .os-chips .os-chip{ width:100%; }
+		.os-composer-actions .os-chip{ width:auto; border-radius:999px; }
+	}
 	.os-chip:hover, .os-chip:focus-visible{ border-color:#00a99c; outline:none; }
 	.os-chip.is-on, .os-chip-primary{ background:#00a99c; border-color:#00a99c; color:#fff; }
 	.os-chip:disabled{ opacity:.45; cursor:not-allowed; }
-	.os-text-form{ display:flex; gap:.5rem; align-items:flex-end; }
-	.os-text{ flex:1; min-height:2.5rem; resize:vertical; max-height:7rem; border:1px solid #e5e7eb; border-radius:.85rem; padding:.65rem .9rem; font:inherit; color:#111827; }
+
+	.os-text-form{ display:flex; flex-direction:column; gap:.5rem; align-items:stretch; }
+	@media (min-width:640px){ .os-text-form{ flex-direction:row; align-items:flex-end; } }
+	.os-text{ flex:1 1 auto; width:100%; min-width:0; min-height:2.75rem; resize:vertical; max-height:7rem; border:1px solid #e5e7eb; border-radius:.85rem; padding:.65rem .9rem; font:inherit; color:#111827; box-sizing:border-box; }
 	.os-text:focus{ outline:2px solid #00d0c0; outline-offset:1px; border-color:#00a99c; }
-	.os-send{ flex:none; }
-	.os-back{ align-self:flex-start; display:inline-flex; align-items:center; gap:.35rem; background:transparent; border:0; color:#6b7280; font-weight:600; font-size:.8125rem; cursor:pointer; padding:0; }
+	.os-send{ flex:none; align-self:stretch; text-align:center; justify-content:center; }
+	@media (min-width:640px){ .os-send{ align-self:flex-end; } }
+	.os-composer-actions{ flex-wrap:wrap; }
+	@media (max-width:639px){
+		.os-composer-actions .os-chip-primary{ flex:1 1 auto; min-width:7rem; justify-content:center; }
+		.os-composer-actions .os-chip[data-excl="1"], .os-composer-actions .os-chip:not(.os-chip-primary){ flex:1 1 auto; min-width:7rem; justify-content:center; }
+	}
+	.os-back{ align-self:flex-start; display:inline-flex; align-items:center; gap:.35rem; background:transparent; border:0; color:#6b7280; font-weight:600; font-size:.75rem; cursor:pointer; padding:0; }
 	.os-back:hover{ color:#111827; }
 	.os-alerta{ color:#7f1d1d; }
 	.os-result-kicker{ margin:0; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#00a99c; }
@@ -160,15 +245,14 @@ return f.apply(this,arguments);};})();</script>
 	.os-previews{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.5rem; }
 	.os-prev{ width:4.5rem; height:4.5rem; object-fit:cover; border-radius:.5rem; border:1px solid #e5e7eb; }
 	.os-prev-file{ font-size:.7rem; padding:.35rem .5rem; border-radius:.4rem; background:#eef2f2; max-width:8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-	.os-legal-sm{ margin:.5rem 0 0; font-size:.7rem; color:#9ca3af; line-height:1.4; }
 	.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 	#os-app h2:focus{ outline:none; }
 </style>
 
 <main class="main bg-gray-50">
-	<section class="pt-6 lg:pt-8 pb-6 lg:pb-8 bg-white">
-		<div class="container">
-			<nav aria-label="Ruta de navegación">
+	<section class="os-hero">
+		<div class="container max-w-3xl">
+			<nav class="hidden sm:block" aria-label="Ruta de navegación">
 				<ol class="flex items-center flex-wrap gap-x-2 text-sm text-gray-500 m-0 p-0 list-none">
 					<li><a href="https://rogansya.com/" class="hover:text-primary-600 transition-colors duration-300">Home</a></li>
 					<li aria-hidden="true">›</li>
@@ -176,36 +260,14 @@ return f.apply(this,arguments);};})();</script>
 				</ol>
 			</nav>
 
-			<div class="mt-5 lg:mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-				<div class="lg:col-span-7">
-					<p class="m-0 text-sm font-semibold text-primary-600 uppercase tracking-wide">Orientación médica</p>
-					<h1 class="mt-2 mb-0 text-3xl md:text-4xl lg:text-5xl font-medium leading-tight text-gray-950">Síntomas → recomendaciones. <span class="text-primary-600">Consulta si lo necesitas.</span></h1>
-					<p class="mt-3 mb-0 text-lg text-gray-600">Orientación con posibles causas, <strong>exámenes</strong> y <strong>medicamentos</strong>. Si hace falta, agenda una consulta de seguimiento: el médico usa tu misma información para diagnóstico, fórmula, incapacidad u órdenes.</p>
-					<div class="mt-4 os-promo" role="note">
-						<span>Usa el código <code>50%</code> en el checkout: <s class="os-precio-old opacity-90 font-medium">$50.000 COP · USD 15</s> → <strong>$25.000 COP · USD 7,50</strong></span>
-						<a href="#orientador" class="inline-flex items-center rounded-full bg-white text-primary-700 px-4 py-1.5 text-sm font-bold hover:bg-gray-50">Empezar</a>
-					</div>
-					<a href="#orientador" id="OS_CTA_HERO" class="btn-primary-500 mt-5 inline-flex">Empezar ahora</a>
-					<p class="os-legal-sm">Orientación general · +18 años · No reemplaza la valoración profesional. Urgencias: línea local (Colombia 123).</p>
-				</div>
-				<div class="lg:col-span-5">
-					<ul class="m-0 p-5 lg:p-6 list-none rounded-3xl bg-gray-50 grid grid-cols-1 gap-3">
-													<li class="flex items-center gap-3 text-base text-gray-700">
-								<span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center flex-none"><i data-lucide="sparkles" class="w-4 h-4" aria-hidden="true"></i></span>
-								Recomendaciones de cuidados, exámenes y medicamentos							</li>
-													<li class="flex items-center gap-3 text-base text-gray-700">
-								<span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center flex-none"><i data-lucide="stethoscope" class="w-4 h-4" aria-hidden="true"></i></span>
-								Consulta de seguimiento con un médico si lo necesitas							</li>
-													<li class="flex items-center gap-3 text-base text-gray-700">
-								<span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center flex-none"><i data-lucide="globe" class="w-4 h-4" aria-hidden="true"></i></span>
-								Virtual internacional · presencial en Bogotá							</li>
-													<li class="flex items-center gap-3 text-base text-gray-700">
-								<span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center flex-none"><i data-lucide="badge-percent" class="w-4 h-4" aria-hidden="true"></i></span>
-								Promo: código 50% → $25.000 COP · USD 7,50 (antes $50.000 COP · USD 15)							</li>
-											</ul>
-					<p class="mt-3 mb-0 text-sm text-gray-500">Consulta de seguimiento: <s class="os-precio-old text-gray-400">$50.000 COP · USD 15</s> <strong class="text-primary-700">$25.000 COP · USD 7,50</strong> con código <code>50%</code>.</p>
-				</div>
+			<p class="os-hero-kicker mt-3 sm:mt-5">Rogans · Orientación médica</p>
+			<h1 class="os-hero-title">Cuéntanos tus síntomas y recibe <span>orientación médica</span> en minutos</h1>
+			<p class="os-hero-sub">Te sugerimos cuidados, exámenes y medicamentos. Si lo necesitas, agenda una consulta con un médico.</p>
+			<div class="os-promo" role="note">
+				<span>Código <code>50%</code>: <s class="os-precio-old">$50.000 COP · USD 15</s> → <strong>$25.000 COP · USD 7,50</strong></span>
 			</div>
+			<a href="#orientador" id="OS_CTA_HERO" class="btn-primary-500 os-hero-cta inline-flex text-base px-6 py-3">Empezar orientación</a>
+			<p class="os-legal-sm">+18 años · Orientación general, no reemplaza al médico. Urgencias: línea local (Colombia 123).</p>
 		</div>
 	</section>
 

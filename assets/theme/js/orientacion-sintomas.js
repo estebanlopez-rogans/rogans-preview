@@ -144,10 +144,35 @@
   function shellHtml() {
     return '<div class="os-chat-shell" id="os-shell">' +
       '<div class="os-progress" aria-hidden="true"><span id="os-prog" style="width:4%"></span></div>' +
-      '<div class="os-history" id="os-history" role="log" aria-relevant="additions"></div>' +
-      '<div class="os-focus" id="os-focus"><p class="os-focus-q" id="os-focus-q">…</p><p class="os-focus-sub" id="os-focus-sub" hidden></p></div>' +
-      '<div class="os-composer" id="os-composer"></div>' +
+      '<div class="os-stage">' +
+        '<div class="os-scroll" id="os-scroll">' +
+          '<p class="os-hist-hint" id="os-hist-hint">↑ Ver respuestas anteriores</p>' +
+          '<div class="os-history" id="os-history" role="log" aria-relevant="additions"></div>' +
+          '<div class="os-focus" id="os-focus"><p class="os-focus-q" id="os-focus-q">…</p><p class="os-focus-sub" id="os-focus-sub" hidden></p></div>' +
+          '<div class="os-options" id="os-options"></div>' +
+          '<div class="os-spacer" id="os-spacer" aria-hidden="true"></div>' +
+        '</div>' +
+        '<div class="os-composer" id="os-composer"></div>' +
+      '</div>' +
       '</div>';
+  }
+
+  function scrollToCurrentQuestion() {
+    var sc = document.getElementById('os-scroll');
+    var focus = document.getElementById('os-focus');
+    var spacer = document.getElementById('os-spacer');
+    if (!sc || !focus) return;
+    // Spacer lets the current question sit at the top even when little content is below it.
+    if (spacer) {
+      var need = Math.max(0, sc.clientHeight - focus.offsetHeight - 24);
+      spacer.style.height = need + 'px';
+    }
+    // Measure relative to scrollport (offsetTop is unreliable with nested wrappers).
+    var scRect = sc.getBoundingClientRect();
+    var foRect = focus.getBoundingClientRect();
+    var top = sc.scrollTop + (foRect.top - scRect.top) - 8;
+    if (top < 0) top = 0;
+    sc.scrollTop = top;
   }
 
   function progressPct() {
@@ -164,22 +189,25 @@
 
   function paintMessages() {
     var hist = document.getElementById('os-history');
+    var hint = document.getElementById('os-hist-hint');
     var fq = document.getElementById('os-focus-q');
     var fs = document.getElementById('os-focus-sub');
     if (!hist) return;
 
-    // Last bot message becomes focus; earlier go to history
+    // Last bot message becomes focus; earlier go to history (above, out of view until scroll up)
     var focusIdx = -1;
     for (var i = msgs.length - 1; i >= 0; i--) {
       if (msgs[i].role === 'bot' && !msgs[i].typing) { focusIdx = i; break; }
     }
     var html = '';
+    var histCount = 0;
     msgs.forEach(function (m, idx) {
       if (idx === focusIdx && !m.typing) return; // shown in focus
       if (m.typing) {
         html += '<div class="os-row"><div class="os-avatar" aria-hidden="true">R</div><div class="os-bubble os-bubble-bot os-typing"><span></span><span></span><span></span></div></div>';
         return;
       }
+      histCount++;
       if (m.role === 'user') {
         html += '<div class="os-row os-row-user"><div class="os-bubble os-bubble-user">' + m.html + '</div></div>';
       } else {
@@ -187,7 +215,10 @@
       }
     });
     hist.innerHTML = html;
-    hist.scrollTop = hist.scrollHeight;
+    if (hint) {
+      if (histCount > 0) hint.classList.add('is-on');
+      else hint.classList.remove('is-on');
+    }
 
     if (fq) {
       if (focusIdx >= 0) {
@@ -201,6 +232,9 @@
       if (focusHtml) { fs.hidden = false; fs.innerHTML = focusHtml; }
       else { fs.hidden = true; fs.innerHTML = ''; }
     }
+
+    // After layout, pin current question to top of the box
+    requestAnimationFrame(function () { scrollToCurrentQuestion(); });
   }
 
   function stripTags(h) {
@@ -211,56 +245,87 @@
 
   function paintComposer() {
     var el = document.getElementById('os-composer');
+    var opts = document.getElementById('os-options');
     if (!el) return;
-    if (!inputMode) { el.innerHTML = ''; return; }
-    var html = '<div class="os-composer-inner">';
-    if (S.history.length) {
-      html += '<button type="button" class="os-back" data-os="atras">← Atrás</button>';
+    if (!inputMode) {
+      el.innerHTML = '';
+      if (opts) opts.innerHTML = '';
+      return;
     }
     var m = inputMode;
+    var foot = '<div class="os-composer-inner">';
+    if (S.history.length) {
+      foot += '<button type="button" class="os-back" data-os="atras">← Atrás</button>';
+    }
+    var optionsHtml = '';
+
     if (m.tipo === 'chips' || m.tipo === 'confirm') {
-      html += '<div class="os-chips" role="group">';
+      // Few chips → keep in sticky footer for one-tap; many → scrollable options
+      var n = (m.opciones || []).length;
+      var chips = '<div class="os-chips' + (n > 4 ? ' os-chips-stack' : '') + '" role="group">';
       (m.opciones || []).forEach(function (o) {
-        html += '<button type="button" class="os-chip' + (o.primary ? ' os-chip-primary' : '') + '" data-os="chip" data-v="' + esc(o.v) + '">' + esc(o.t) + '</button>';
+        chips += '<button type="button" class="os-chip' + (o.primary ? ' os-chip-primary' : '') + '" data-os="chip" data-v="' + esc(o.v) + '">' + esc(o.t) + '</button>';
       });
-      html += '</div>';
+      chips += '</div>';
+      if (n > 4) {
+        optionsHtml = chips;
+      } else {
+        foot += chips;
+      }
     } else if (m.tipo === 'chips_multi') {
-      html += '<div class="os-chips" role="group">';
+      // Long lists (alarmas) scroll above; exclusiva + Continuar sticky in footer
+      var scrollOps = [];
+      var exclOps = [];
       (m.opciones || []).forEach(function (o) {
-        var on = (m.selected || []).indexOf(o.v) !== -1;
-        html += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="' + (o.exclusiva ? '1' : '0') + '">' + esc(o.t) + '</button>';
+        if (o.exclusiva) exclOps.push(o);
+        else scrollOps.push(o);
       });
-      html += '</div>';
-      html += '<div class="os-chips"><button type="button" class="os-chip os-chip-primary" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button></div>';
+      optionsHtml = '<div class="os-chips os-chips-stack" role="group">';
+      scrollOps.forEach(function (o) {
+        var on = (m.selected || []).indexOf(o.v) !== -1;
+        optionsHtml += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="0">' + esc(o.t) + '</button>';
+      });
+      optionsHtml += '</div>';
+      foot += '<div class="os-composer-actions">';
+      exclOps.forEach(function (o) {
+        var on = (m.selected || []).indexOf(o.v) !== -1;
+        foot += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="1">' + esc(o.t) + '</button>';
+      });
+      foot += '<button type="button" class="os-chip os-chip-primary" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button></div>';
     } else if (m.tipo === 'text' || m.tipo === 'text_optional') {
-      html += '<form data-os="text-form" class="os-text-form">' +
+      foot += '<form data-os="text-form" class="os-text-form">' +
         '<label class="sr-only" for="os-text">Tu respuesta</label>' +
         '<textarea id="os-text" class="os-text" rows="2" maxlength="' + (m.max || 500) + '" placeholder="' + esc(m.placeholder || '') + '">' + esc(m.value || '') + '</textarea>' +
         '<button type="submit" class="os-chip os-chip-primary os-send">' + (m.tipo === 'text_optional' ? 'Continuar' : 'Enviar') + '</button></form>';
     } else if (m.tipo === 'upload') {
-      html += '<div class="os-upload">' +
+      optionsHtml = '<div class="os-upload">' +
         '<label class="os-check' + (S.consAdjuntos ? ' is-on' : '') + '"><input type="checkbox" data-os="cons-adj"' + (S.consAdjuntos ? ' checked' : '') + '><span>Autorizo el tratamiento de estas fotos/exámenes (datos sensibles de salud) solo para mi consulta de seguimiento. <small class="text-error-600">*</small></span></label>' +
         '<p class="os-legal-sm mt-2">JPG, PNG, WebP o PDF · máx. 5 MB c/u · no se guardan en el sitio; solo se envían si agendas.</p>' +
         '<input type="file" id="os-files" multiple accept="image/jpeg,image/png,image/webp,application/pdf" ' + (S.consAdjuntos ? '' : 'disabled') + '>' +
-        '<div class="os-previews" id="os-previews"></div></div>' +
-        '<div class="os-chips mt-2">' +
+        '<div class="os-previews" id="os-previews"></div></div>';
+      foot += '<div class="os-composer-actions">' +
         '<button type="button" class="os-chip" data-os="skip-upload">' + esc(T.evidencia_skip || 'Continuar sin adjuntos') + '</button>' +
         '<button type="button" class="os-chip os-chip-primary" data-os="ok-upload"' + (S.adjuntos.length && S.consAdjuntos ? '' : ' disabled') + '>Adjuntar y continuar</button>' +
         '</div>';
     } else if (m.tipo === 'result_actions' || m.tipo === 'agendar_ui') {
-      html += m.html || '';
+      // Results can be long — put body in scroll, keep actions in footer when possible
+      optionsHtml = m.html || '';
     }
-    html += '</div>';
-    el.innerHTML = html;
+    foot += '</div>';
+
+    if (opts) opts.innerHTML = optionsHtml;
+    el.innerHTML = foot;
+
     if (m.tipo === 'text' || m.tipo === 'text_optional') {
       var ta = el.querySelector('#os-text');
-      if (ta) { ta.focus(); }
+      if (ta) { try { ta.focus(); } catch (e) {} }
     }
     if (m.tipo === 'upload') {
       renderPreviews();
-      var fi = el.querySelector('#os-files');
+      var fi = document.querySelector('#os-files');
       if (fi) fi.addEventListener('change', onFilesPicked);
     }
+    requestAnimationFrame(function () { scrollToCurrentQuestion(); });
   }
 
   function say(html, opts) {
