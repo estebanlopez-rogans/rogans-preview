@@ -99,12 +99,40 @@
       precios: (cfg && cfg.precios) || {}
     };
   }
-  function farmaciaUrl(term) {
+  function farmaciaUrl(term, content) {
     var f = D.farmacia || {};
     var base = (f.url || 'https://farminova24.com').replace(/\/+$/, '');
     var utm = f.utm || 'utm_source=rogansya&utm_medium=orientacion&utm_campaign=sintomas';
+    if (content) utm += '&utm_content=' + encodeURIComponent(content);
     if (f.buscar && term) return base + f.buscar + encodeURIComponent(term) + '&' + utm;
     return base + '/?' + utm;
+  }
+  // v9 — enlace general de exámenes (ROGANS_OS_FARMACIA_EXAMENES_URL o home de la farmacia).
+  function farmaciaExamenesUrl() {
+    var f = D.farmacia || {};
+    var utm = (f.utm || 'utm_source=rogansya&utm_medium=orientacion&utm_campaign=sintomas') + '&utm_content=examenes';
+    if (f.examenes) return f.examenes + (f.examenes.indexOf('?') >= 0 ? '&' : '?') + utm;
+    return farmaciaUrl('', 'examenes');
+  }
+  // v9 — término de búsqueda para un examen; null = no enlazable (valoraciones, «según…»).
+  function examenBusqueda(name) {
+    var n = normTxt(name);
+    var map = D.examenesBusqueda || [];
+    for (var i = 0; i < map.length; i++) {
+      if (n.indexOf(normTxt(map[i][0])) === 0) return map[i][1];
+    }
+    return null;
+  }
+  // «PCR o VSG si el médico lo considera» → nombre «PCR o VSG», detalle «si el médico lo considera».
+  function examenPartes(name) {
+    var m = String(name).match(/^(.*?)\s+((?:si|solo si)\s.*)$/i);
+    return m ? { nombre: m[1], det: m[2] } : { nombre: String(name), det: '' };
+  }
+  function cardCtaHtml(src, label) {
+    var pr = precioPromo();
+    return '<div class="os-card-cta-wrap"><button type="button" class="os-card-cta" data-os="agendar" data-src="' + esc(src) + '">' +
+      '<i data-lucide="calendar-check" class="os-cta-ico" aria-hidden="true"></i><span>' + esc(label) + '</span></button>' +
+      '<p class="os-card-cta-sub">Consulta de seguimiento a <strong>' + esc(pr.promoCop) + '</strong> con código ' + esc(pr.code) + ' · el médico recibe tus respuestas.</p></div>';
   }
   function farmaciaNombre() {
     return (D.farmacia && D.farmacia.nombre) || 'la farmacia';
@@ -1045,6 +1073,7 @@
       html += '</ul>';
     }
     html += '<p class="os-card-note">Con tus respuestas no hay una causa única clara. Un médico revisa tu caso y define el diagnóstico en la consulta de seguimiento.</p>';
+    html += cardCtaHtml('resumen', 'Agendar cita médica con este resumen');
     html += '</section>';
     return html;
   }
@@ -1075,7 +1104,9 @@
     } else {
       html += '<div><dt>Lo que has probado</dt><dd>Nada todavía</dd></div>';
     }
-    html += '</dl></section>';
+    html += '</dl>';
+    html += cardCtaHtml('resumen', 'Agendar cita médica con este resumen');
+    html += '</section>';
     return html;
   }
 
@@ -1169,12 +1200,24 @@
     if (!r.examenes.length) return '';
     var html = '<section class="os-card os-card-exams">';
     html += '<header class="os-card-head">' + iconHtml('flask-conical') + '<div><p class="os-card-kicker">Estudios</p><h3 class="os-card-title">Exámenes médicos sugeridos</h3></div></header>';
-    html += '<ul class="os-exam-list">';
+    var fn = farmaciaNombre();
+    html += '<ul class="os-exam-rows">';
     r.examenes.forEach(function (x) {
-      html += '<li>' + esc(x) + '</li>';
+      var q = examenBusqueda(x);
+      var pt = examenPartes(x);
+      var inner = '<span class="os-exam-txt"><span class="os-exam-name">' + esc(pt.nombre) + '</span>' +
+        (pt.det ? '<span class="os-exam-det">' + esc(pt.det) + '</span>' : '') + '</span>';
+      if (q) {
+        html += '<li><a class="os-exam-link" data-os-farmacia="examenes" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(q, 'examenes')) + '" aria-label="' + esc(pt.nombre + ' en ' + fn + ' (abre en otra pestaña)') + '">' +
+          '<i data-lucide="flask-conical" class="os-exam-ico" aria-hidden="true"></i>' + inner +
+          '<span class="os-exam-go">' + esc(fn) + '<i data-lucide="external-link" class="os-ext-ico" aria-hidden="true"></i></span></a></li>';
+      } else {
+        html += '<li><div class="os-exam-row is-plain"><i data-lucide="stethoscope" class="os-exam-ico" aria-hidden="true"></i>' + inner + '</div></li>';
+      }
     });
     html += '</ul>';
-    html += '<p class="os-card-note">El médico decide cuáles ordenar según la valoración.</p>';
+    html += '<a class="os-exam-all" data-os-farmacia="examenes-todos" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaExamenesUrl()) + '">Ver exámenes en ' + esc(fn) + '<i data-lucide="external-link" class="os-ext-ico" aria-hidden="true"></i></a>';
+    html += '<p class="os-card-note">El médico decide cuáles ordenar según la valoración. Algunos laboratorios piden orden médica: te la pueden dar en la consulta de seguimiento.</p>';
     html += '</section>';
     return html;
   }
@@ -1184,6 +1227,7 @@
     html += '<header class="os-card-head">' + iconHtml('user-round') + '<div><p class="os-card-kicker">Remisión</p><h3 class="os-card-title">Especialista sugerido</h3></div></header>';
     html += '<p class="os-card-lead"><strong>' + esc(e.nombre) + '</strong></p>';
     html += '<p class="os-muted">Te orientamos hacia esta especialidad según tus respuestas. El médico de seguimiento puede confirmar o ajustar la remisión.</p>';
+    html += cardCtaHtml('remision', 'Agendar cita con ' + e.nombre);
     html += '</section>';
     return html;
   }
