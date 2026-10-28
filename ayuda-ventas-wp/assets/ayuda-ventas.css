@@ -764,3 +764,103 @@
     font-weight: 600;
   }
 }
+
+/* Cierre de ventas: sistema visual y barra de conversión. */
+.av-app { --av-muted: #3e595a; }
+.av-card,
+.av-tile,
+.av-opt,
+.av-sheet { border-radius: 16px; }
+.av-card,
+.av-tile { box-shadow: 0 1px 2px rgba(0, 51, 52, .05), 0 10px 28px rgba(0, 51, 52, .07); }
+.av-tag { font-size: .62em; padding: .16em .5em; letter-spacing: .03em; }
+.av-ph { font-size: .75em; border-width: 1px; border-style: solid; background: #fff8e8; }
+.av-ph.av-big { font-size: 1.15em; }
+.av-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(0, 51, 52, .12); }
+.av-app.is-dark .av-progress { background: rgba(255, 255, 255, .16); }
+.av-progress > span { display: block; height: 100%; width: 0; background: var(--av-teal); transition: width .35s ease; }
+.av-slide { padding-bottom: calc(7.8em + var(--av-sab)); }
+.av-dots {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  bottom: auto;
+}
+.av-dock {
+  position: absolute;
+  z-index: 18;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: .45em;
+  padding: .5em .65em calc(.55em + var(--av-sab));
+  background: rgba(255, 255, 255, .96);
+  border-top: 1px solid rgba(0, 51, 52, .08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.av-app.is-dark .av-dock { background: rgba(0, 28, 29, .94); color: #fff; border-top-color: rgba(255, 255, 255, .08); }
+.av-dock-label { flex: 1; min-width: 0; margin: 0; font-size: .78em; font-weight: 600; line-height: 1.25; }
+.av-app .av-dock-nav {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(0, 164, 155, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: inherit;
+}
+.av-app.is-dark .av-dock-nav { background: rgba(255, 255, 255, .1); }
+.av-dock-nav svg { width: 1.25em; height: 1.25em; }
+.av-dock-nav:disabled { opacity: .35; }
+.av-app .av-dock-wa {
+  min-height: 44px;
+  padding: 0 .85em;
+  border-radius: 999px;
+  border: 2px solid var(--av-teal);
+  font-weight: 600;
+  font-size: .82em;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+.av-app .av-dock .av-btn { flex: none; }
+.av-proof { list-style: none; display: flex; gap: .55em; margin: 0; padding: 0; flex-wrap: wrap; }
+.av-proof li { background: rgba(255, 255, 255, .08); border: 1px solid rgba(0, 208, 192, .45); border-radius: 14px; padding: .5em .7em; min-width: 6.2em; }
+.av-proof b { display: block; color: var(--av-teal); font-size: 1.2em; line-height: 1.1; }
+.av-proof span { display: block; font-size: .72em; color: #d5efed; margin-top: .15em; }
+.av-proof-src { font-size: .62em; line-height: 1.35; color: #8fb3b1; margin: 0; max-width: 46em; }
+.av-bars { margin-top: .9em; display: flex; flex-direction: column; gap: .45em; }
+.av-barline { display: grid; grid-template-columns: 4.8em minmax(0, 1fr) auto; gap: .45em; align-items: center; font-size: .82em; }
+.av-barline i { display: block; height: .7em; border-radius: 999px; background: #c5ddd9; width: 0; }
+.av-barline-rogans i { background: var(--av-teal); }
+.av-barline b { font-weight: 700; white-space: nowrap; }
+.av-plan { background: rgba(255, 255, 255, .08); border: 1px solid rgba(0, 208, 192, .35); border-radius: 16px; padding: 1em 1.1em; }
+.av-plan h3 { color: var(--av-teal); font-size: 1.05em; margin-bottom: .35em; }
+.av-plan ul { margin: 0; padding-left: 1.1em; }
+.av-plan li { margin: .4em 0; color: #e7f6f4; font-size: .92em; }
+.av-trust { display: flex; flex-wrap: wrap; gap: .4em; margin-top: .7em; }
+.av-trust span { border: 1px solid rgba(0, 208, 192, .55); border-radius: 999px; padding: .28em .7em; font-size: .75em; font-weight: 600; }
+@media (orientation: portrait) {
+  .av-slide { padding-bottom: calc(9em + var(--av-sab)); }
+  .av-cover-txt { padding-bottom: calc(8.5em + var(--av-sab)); }
+  .av-app .av-arrow { bottom: calc(5.1em + var(--av-sab)); }
+}
+@media (max-width: 560px) {
+  .av-dock { flex-wrap: wrap; }
+  .av-dock-label { flex: 1 1 calc(100% - 6.5em); }
+  .av-app .av-dock .av-btn,
+  .av-app .av-dock-wa { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .av-progress > span { transition: none; }
+}

@@ -70,6 +70,16 @@
       var s = slides[n];
       if (chip) chip.textContent = s.getAttribute('data-chip') || '';
       if (pn) pn.textContent = (n + 1) + ' / ' + N;
+      var progress = document.getElementById('av-progress');
+      if (progress) progress.style.width = (((n + 1) / N) * 100) + '%';
+      var dockLabel = document.getElementById('av-dock-label');
+      if (dockLabel) dockLabel.textContent = (s.getAttribute('data-chip') || '') + ' · ' + (n + 1) + ' / ' + N;
+      var dockCta = document.getElementById('CTA-ROGANS-AYUDAVENTAS-V1-BARRA-AGENDAR');
+      if (dockCta) dockCta.textContent = (n === N - 1) ? (dockCta.getAttribute('data-label-last') || 'Separar mi cupo') : (dockCta.getAttribute('data-label') || 'Agendar valoración');
+      var dockPrev = document.getElementById('NAV-ROGANS-AYUDAVENTAS-V1-BARRA-ANTERIOR');
+      var dockNext = document.getElementById('NAV-ROGANS-AYUDAVENTAS-V1-BARRA-SIGUIENTE');
+      if (dockPrev) dockPrev.disabled = n === 0;
+      if (dockNext) dockNext.disabled = n === N - 1;
       var dark = s.classList.contains('av-dark');
       app.classList.toggle('is-dark', dark);
       app.classList.toggle('is-mint', s.classList.contains('av-mint'));
@@ -160,6 +170,10 @@
 
     prev.addEventListener('click', function () { go(cur - 1, { focus: true }); });
     next.addEventListener('click', function () { go(cur + 1, { focus: true }); });
+    var dockPrevBtn = document.getElementById('NAV-ROGANS-AYUDAVENTAS-V1-BARRA-ANTERIOR');
+    var dockNextBtn = document.getElementById('NAV-ROGANS-AYUDAVENTAS-V1-BARRA-SIGUIENTE');
+    if (dockPrevBtn) dockPrevBtn.addEventListener('click', function () { go(cur - 1, { focus: true }); });
+    if (dockNextBtn) dockNextBtn.addEventListener('click', function () { go(cur + 1, { focus: true }); });
     document.getElementById('av-home').addEventListener('click', function () { closeAll(); go(1, { focus: true }); });
     document.getElementById('av-menu-btn').addEventListener('click', function () { show('av-menu'); });
 

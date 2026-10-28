@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="es">
-<head>
+<html lang="es"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
@@ -12,18 +11,17 @@
 @font-face { font-family: Poppins; src: url(assets/fonts/Poppins-SemiBold.ttf) format("truetype"); font-weight: 600; font-display: swap; }
 @font-face { font-family: Poppins; src: url(assets/fonts/Poppins-Bold.ttf) format("truetype"); font-weight: 700; font-display: swap; }
 html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-serif; }
-.sub-header { background: #262626; padding: .55rem 1.25rem; display: flex; justify-content: flex-end; }
-.sub-header img { height: 34px; width: auto; margin-right: auto; }
+.sub-header { background: #262626; padding: .55rem 1.25rem; display: flex; }
+.sub-header img { height: 34px; width: auto; }
 .main-header { background: #fff; border-bottom: 1px solid #e7e7e7; padding: .9rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
 .main-header img { height: 32px; width: auto; }
-.main-header nav { margin-left: auto; color: #616161; font-size: .9rem; }
-.av-sitefoot { background: #262626; color: #f6f6f6; padding: 1.25rem 1.5rem 1.5rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
-.av-sitefoot img { height: 28px; width: auto; }
-.av-sitefoot p { margin: 0; font-size: .8rem; line-height: 1.4; max-width: 40rem; }
+.main-header nav { margin-left: auto; color: #3e595a; font-size: .9rem; }
+.av-sitefoot { background: #003334; color: #e7f6f4; padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: center; }
+.av-sitefoot img { height: 26px; width: auto; }
+.av-sitefoot p { margin: 0; font-size: .78rem; }
 </style>
 <link rel="stylesheet" href="assets/ayuda-ventas.css">
-</head>
-<body>
+</head><body>
 <div class="sub-header"><img src="assets/logo-sobre-negro.svg" alt="Rogans Care"></div>
 <header class="main-header"><img src="assets/logo-rogans-negro.svg" alt="Rogans"><nav aria-label="Principal">Cuidado capilar</nav></header>
 <div
@@ -43,6 +41,7 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 		<button type="button" class="av-ib" id="av-menu-btn" aria-label="Menú" aria-expanded="false" aria-controls="av-menu">
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
 		</button>
+		<div class="av-progress" aria-hidden="true"><span id="av-progress"></span></div>
 	</div>
 
 	<button type="button" class="av-arrow av-prev" id="av-prev" aria-label="Anterior" disabled>
@@ -65,11 +64,17 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 				<p class="av-kicker">Bienvenido a Rogans · Cuidado capilar</p>
 				<h1 id="av-h-portada">Tu cabello, con un <em>plan médico</em> claro.</h1>
 				<p class="av-lead">Aquí puedes ver, a tu ritmo, cómo funciona el tratamiento, qué han vivido otros pacientes y la respuesta a tus dudas antes de decidir.</p>
-				<button type="button" class="av-btn" id="CTA-ROGANS-AYUDAVENTAS-V1-EMPEZAR" data-go="2">Toca para empezar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+				<ul class="av-proof">
+					<li><b>4,8</b><span>308 reseñas en Google</span></li>
+					<li><b>+17.000</b><span>pacientes atendidos</span></li>
+					<li><b>0 %</b><span>interés en los tratamientos</span></li>
+				</ul>
+				<button type="button" class="av-btn" id="CTA-ROGANS-AYUDAVENTAS-V1-EMPEZAR" data-go="2">Ver el plan <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
 				<div class="av-seal">
 					<img src="assets/logo-certificado.webp" alt="Sello de IPS habilitada">
 					<span>IPS habilitada ante el Ministerio de Salud<br>Bogotá · Autopista Norte #106-71, of. 401</span>
 				</div>
+				<p class="av-proof-src">4,8 y 308 reseñas: Folliculis, sept. 2026, con la nota de verificar el día en Google. +17.000 pacientes: rogansya.com/implantes-capilares/. 0 %: rogansya.com/financiamiento/.</p>
 			</div>
 		</section>
 
@@ -659,6 +664,12 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 					</article>
 					<article class="av-card">
 						<h3>Implante capilar: referencias públicas en Bogotá</h3>
+						<div class="av-bars" aria-label="Comparación visual de precios publicados">
+							<div class="av-barline av-barline-rogans"><span>Rogans</span><i style="width:62%"></i><b>$9–13 M</b></div>
+							<div class="av-barline"><span>Clínica B</span><i style="width:71%"></i><b>$15–21 M</b></div>
+							<div class="av-barline"><span>Clínica A</span><i style="width:83%"></i><b>$17,5 M</b></div>
+							<div class="av-barline"><span>Clínica C</span><i style="width:95%"></i><b>$19,99 M</b></div>
+						</div>
 						<div class="av-tablewrap">
 							<table class="av-tbl av-price">
 								<thead><tr><th>Clínica</th><th>Alcance publicado</th><th class="av-r">Precio (COP)</th></tr></thead>
@@ -670,7 +681,7 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 								</tbody>
 							</table>
 						</div>
-						<p class="av-small">Rogans publica $13.000.000 y una promoción de $9.000.000. La FAQ de implantes dice “desde $10.000.000”. A, B y C son paquetes publicados más altos, con el procedimiento y el seguimiento incluidos. El precio final depende de tu caso: pide siempre una cotización escrita con número de injertos, técnica y qué incluye.</p>
+						<p class="av-small">Las barras usan $21.000.000, el tope publicado de la clínica B, solo para comparar. Rogans: $13.000.000 y promoción $9.000.000. La FAQ de implantes dice “desde $10.000.000”. A, B y C incluyen el procedimiento y el seguimiento. El precio final depende de tu caso: pide una cotización escrita.</p>
 					</article>
 				</div>
 			</div>
@@ -759,6 +770,20 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-CIERRE" data-go="2">← Volver a preguntas</button>
 				</div>
 				<p class="av-lead">Puedes decidir hoy o tomarte tu tiempo. Antes de pagar te entregamos todo por escrito.</p>
+				<article class="av-plan" aria-labelledby="av-plan-title">
+					<h3 id="av-plan-title">Resumen del plan publicado</h3>
+					<ul>
+						<li><b>Implante</b> $9.000.000 a $13.000.000. Incluye 1.500 a 4.000 injertos, sala de cirugía, 2 PRP y seguimiento.</li>
+						<li><b>Sin cirugía</b> sesión $350.000, Starter $1.650.000, Advanced $2.800.000 (precios de promoción).</li>
+						<li><b>Financiación</b> 0 % de interés en los tratamientos. No hay una cuota mensual fija publicada: la define la entidad aliada al aprobar.</li>
+						<li><b>Garantía publicada</b> hasta $2.800.000 para el implante si el tratamiento no funciona, y 10 % de repoblamiento en la zona implantada, con condiciones escritas.</li>
+					</ul>
+					<div class="av-trust">
+						<span>IPS habilitada</span>
+						<span>Plan lo define un médico</span>
+						<span>0 % de interés</span>
+					</div>
+				</article>
 				<div class="av-options">
 					<button type="button" class="av-opt av-hi" id="CTA-ROGANS-AYUDAVENTAS-V1-EMPIEZO" data-open="av-o1">
 						<span class="av-num">1</span><span class="av-opt-title">Empiezo hoy</span><span class="av-opt-text">Agendamos tu primera sesión y te enviamos el plan y la factura.</span>
@@ -852,10 +877,21 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 			</div>
 		</div>
 	</div>
+
+	<div class="av-dock">
+		<button type="button" class="av-dock-nav" id="NAV-ROGANS-AYUDAVENTAS-V1-BARRA-ANTERIOR" aria-label="Anterior">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+		</button>
+		<p class="av-dock-label" id="av-dock-label">Portada · 1 / 15</p>
+		<a class="av-dock-wa" id="WHATSAPP-ROGANS-AYUDAVENTAS-V1-BARRA" href="https://wa.me/573209234629" target="_blank" rel="noopener">WhatsApp</a>
+		<button type="button" class="av-btn av-sm" id="CTA-ROGANS-AYUDAVENTAS-V1-BARRA-AGENDAR" data-open="av-o1" data-label="Agendar valoración" data-label-last="Separar mi cupo">Agendar valoración</button>
+		<button type="button" class="av-dock-nav" id="NAV-ROGANS-AYUDAVENTAS-V1-BARRA-SIGUIENTE" aria-label="Siguiente">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+		</button>
+	</div>
 </div>
 
 
-<footer class="av-sitefoot"><img src="assets/logo-blanco.svg" alt="Rogans"><p>Autopista Norte #106-71, oficina 401, Bogotá. Herramienta interna. Los resultados varían según cada paciente y requieren valoración médica.</p></footer>
+<footer class="av-sitefoot"><img src="assets/logo-blanco.svg" alt="Rogans"><p>IPS habilitada · Autopista Norte #106-71, of. 401, Bogotá. Herramienta interna.</p></footer>
 <script src="assets/ayuda-ventas.js"></script>
-</body>
-</html>
+</body></html>
