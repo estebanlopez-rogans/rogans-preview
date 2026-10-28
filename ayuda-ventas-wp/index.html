@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="googlebot" content="noindex,nofollow">
+<title>Tu plan capilar | Rogans</title>
+<style>
+@font-face { font-family: Poppins; src: url(assets/fonts/Poppins-Regular.ttf) format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: Poppins; src: url(assets/fonts/Poppins-Medium.ttf) format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: Poppins; src: url(assets/fonts/Poppins-SemiBold.ttf) format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: Poppins; src: url(assets/fonts/Poppins-Bold.ttf) format("truetype"); font-weight: 700; font-display: swap; }
+html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-serif; }
+.sub-header { background: #262626; padding: .55rem 1.25rem; display: flex; justify-content: flex-end; }
+.sub-header img { height: 34px; width: auto; margin-right: auto; }
+.main-header { background: #fff; border-bottom: 1px solid #e7e7e7; padding: .9rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
+.main-header img { height: 32px; width: auto; }
+.main-header nav { margin-left: auto; color: #616161; font-size: .9rem; }
+.av-sitefoot { background: #262626; color: #f6f6f6; padding: 1.25rem 1.5rem 1.5rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+.av-sitefoot img { height: 28px; width: auto; background: transparent; }
+.av-sitefoot p { margin: 0; font-size: .8rem; line-height: 1.4; max-width: 40rem; }
+</style>
+<link rel="stylesheet" href="assets/ayuda-ventas.css">
+</head>
+<body>
+<div class="sub-header">
+  <img src="assets/logo-sobre-negro.svg" alt="Rogans Care">
+</div>
+<header class="main-header">
+  <img src="assets/logo-rogans-negro.svg" alt="Rogans">
+  <nav aria-label="Principal">Cuidado capilar</nav>
+</header>
+<div
+	id="ayuda-ventas"
+	class="av-app is-cover is-dark"
+	data-base="assets/"
+	data-logo-dark="assets/logo-blanco.svg"
+	data-logo-light="assets/logo-rogans-negro.svg"
+>
+	<div class="av-bar">
+		<button type="button" class="av-ib" id="av-home" aria-label="Ir a preguntas">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.8V20h13V9.8"/></svg>
+		</button>
+		<img class="av-barlogo" id="av-logo" src="assets/logo-blanco.svg" alt="">
+		<span class="av-barchip" id="av-chip">Portada</span>
+		<span class="av-barpn" id="av-pn">1 / 14</span>
+		<button type="button" class="av-ib" id="av-menu-btn" aria-label="Menú" aria-expanded="false" aria-controls="av-menu">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+		</button>
+	</div>
+
+	<button type="button" class="av-arrow av-prev" id="av-prev" aria-label="Anterior" disabled>
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+	</button>
+	<button type="button" class="av-arrow av-next" id="av-next" aria-label="Siguiente">
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+	</button>
+	<div class="av-dots" id="av-dots" aria-label="Secciones"></div>
+
+	<div id="av-track" class="av-track">
+
+		<section class="av-slide av-dark av-cover" data-chip="Portada" aria-labelledby="av-h-portada">
+			<div class="av-cover-img">
+				<img class="av-photo" src="assets/anamaria-romero.webp" alt="Anamaria Romero, médica del equipo Rogans" fetchpriority="high">
+				<span class="av-credit">Foto: Anamaria Romero, médica del equipo · rogansya.com</span>
+			</div>
+			<div class="av-cover-txt">
+				<img class="av-cover-logo" src="assets/logo-blanco.svg" alt="Rogans">
+				<p class="av-kicker">Bienvenido a Rogans · Cuidado capilar</p>
+				<h1 id="av-h-portada">Tu cabello, con un <em>plan médico</em> claro.</h1>
+				<p class="av-lead">Aquí puedes ver, a tu ritmo, cómo funciona el tratamiento, qué han vivido otros pacientes y la respuesta a tus dudas antes de decidir.</p>
+				<button type="button" class="av-btn" id="CTA-ROGANS-AYUDAVENTAS-V1-EMPEZAR" data-go="2">Toca para empezar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+				<div class="av-seal">
+					<img src="assets/logo-certificado.webp" alt="Sello de IPS habilitada">
+					<span>IPS habilitada ante el Ministerio de Salud<br>Bogotá · Autopista Norte #106-71, of. 401</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Tus preguntas" aria-labelledby="av-h-preguntas">
+			<div class="av-in">
+				<div>
+					<p class="av-kicker">Empecemos por lo que más te importa</p>
+					<h2 class="av-title" id="av-h-preguntas">¿Qué te gustaría <em>resolver hoy?</em></h2>
+				</div>
+				<p class="av-lead">Es normal tener dudas antes de empezar. Toca una y vamos directo a esa respuesta.</p>
+				<div class="av-hub">
+					<div class="av-tile">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-FUNCIONA" data-go="4">
+							<span class="av-num" aria-hidden="true">?</span>
+							<span class="av-tt"><b>¿Funciona de verdad?</b><small>Resultados y testimonios</small></span>
+						</button>
+						<div class="av-subs">
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-FUNCIONA-RESULTADOS" data-go="4">Resultados</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-FUNCIONA-TESTIMONIOS" data-go="5">Testimonios</button>
+						</div>
+					</div>
+					<div class="av-tile">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-CONFIABLE" data-go="6">
+							<span class="av-num" aria-hidden="true">★</span>
+							<span class="av-tt"><b>¿Es confiable?</b><small>Reseñas de Google</small></span>
+						</button>
+						<div class="av-subs">
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-CONFIABLE-RESENAS" data-go="6">Reseñas</button>
+						</div>
+					</div>
+					<div class="av-tile">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-EQUIPO" data-go="7">
+							<span class="av-num" aria-hidden="true">✚</span>
+							<span class="av-tt"><b>¿Quién me atiende?</b><small>Equipo y respaldo legal</small></span>
+						</button>
+						<div class="av-subs">
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-EQUIPO-MEDICOS" data-go="7">Equipo</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-EQUIPO-LEGAL" data-go="8">Respaldo legal</button>
+						</div>
+					</div>
+					<div class="av-tile">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO" data-go="9">
+							<span class="av-num" aria-hidden="true">⚗</span>
+							<span class="av-tt"><b>¿Qué me aplican? ¿Es seguro?</b><small>Componentes y seguridad</small></span>
+						</button>
+						<div class="av-subs">
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO-COMPONENTES" data-go="9">Componentes</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO-SEGURIDAD" data-go="10">Seguridad</button>
+						</div>
+					</div>
+					<div class="av-tile">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO" data-go="11">
+							<span class="av-num" aria-hidden="true">$</span>
+							<span class="av-tt"><b>¿Cuánto cuesta?</b><small>Precio y financiación</small></span>
+						</button>
+						<div class="av-subs">
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-PLANES" data-go="11">Precio</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-FINANCIACION" data-go="12">Financiación</button>
+						</div>
+					</div>
+					<div class="av-tile">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-GARANTIA" data-go="13">
+							<span class="av-num" aria-hidden="true">✓</span>
+							<span class="av-tt"><b>¿Y si no me funciona?</b><small>Garantía</small></span>
+						</button>
+						<div class="av-subs">
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-GARANTIA-DETALLE" data-go="13">Garantía</button>
+						</div>
+					</div>
+				</div>
+				<p class="av-hint">También puedes deslizar o usar las flechas para ver todo en orden, con calma.</p>
+			</div>
+			<p class="av-src">Esta presentación es informativa. Tu tratamiento lo define siempre un médico después de la valoración.</p>
+		</section>
+
+		<section class="av-slide" data-chip="Cómo funciona" aria-labelledby="av-h-como">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Tu proceso en Rogans</p>
+						<h2 class="av-title" id="av-h-como">Cuatro pasos, <em>siempre con un médico</em></h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-COMO" data-go="2">← Volver a preguntas</button>
+				</div>
+				<div class="av-steps">
+					<article class="av-card av-step">
+						<img src="assets/how-to-work-1.webp" alt="Valoración médica" loading="lazy">
+						<div><span class="av-num">1</span><h3>Valoración médica</h3><p>Presencial o en línea, con un médico que revisa tu caso.</p></div>
+					</article>
+					<article class="av-card av-step">
+						<img src="assets/how-to-work-2.webp" alt="Tu fórmula y plan" loading="lazy">
+						<div><span class="av-num">2</span><h3>Tu fórmula y plan</h3><p>El especialista diseña un tratamiento según tu evaluación y tus objetivos.</p></div>
+					</article>
+					<article class="av-card av-step">
+						<img src="assets/how-to-work-3.webp" alt="Inicias el tratamiento" loading="lazy">
+						<div><span class="av-num">3</span><h3>Inicias el tratamiento</h3><p>Fórmulas personalizadas, preparadas de forma segura y con supervisión médica.</p></div>
+					</article>
+					<article class="av-card av-step">
+						<img src="assets/how-to-work-4.webp" alt="Seguimiento" loading="lazy">
+						<div><span class="av-num">4</span><h3>Seguimiento</h3><p>Controles médicos y ajustes del plan cuando hace falta.</p></div>
+					</article>
+				</div>
+				<div class="av-card av-flat av-appbox">
+					<img src="assets/rogans-app.webp" alt="Aplicación Rogans" loading="lazy">
+					<p><b>En la app Rogans</b> registras fotos de cada etapa, recibes recordatorios de cada dosis y agendas tus controles.</p>
+				</div>
+			</div>
+			<p class="av-src">Fuente: rogansya.com (“¿Cómo funciona la atención médica en Rogans?” y sección app). Imágenes: rogansya.com.</p>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Resultados" aria-labelledby="av-h-resultados">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Pacientes reales, con su autorización</p>
+						<h2 class="av-title" id="av-h-resultados">Así se ha visto el <em>proceso</em></h2>
+					</div>
+					<div class="av-headr">
+						<div class="av-tags">
+							<span class="av-tag av-med">Pendiente revisión médica</span>
+							<span class="av-tag av-legal">Requiere consentimiento escrito</span>
+						</div>
+						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-RESULTADOS" data-go="2">← Volver a preguntas</button>
+					</div>
+				</div>
+				<div class="av-results">
+					<article class="av-card av-compare-card">
+						<div class="av-compare" id="av-cmp" role="slider" tabindex="0" aria-label="Comparar antes y 3 meses" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+							<img src="assets/henry-3meses.jpg" alt="Henry Sánchez a los 3 meses del implante capilar" loading="lazy">
+							<div class="av-cmp-before"><img src="assets/henry-antes.jpg" alt="Henry Sánchez antes del implante capilar" loading="lazy"></div>
+							<span class="av-cl av-l">Antes</span><span class="av-cl av-r">3 meses</span>
+							<div class="av-cmp-handle" aria-hidden="true"><span><svg viewBox="0 0 24 24"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"/></svg></span></div>
+						</div>
+						<div class="av-cc-txt">
+							<h3>Henry Sánchez · Implante capilar</h3>
+							<p>Desliza para comparar. Recortes sin editar de la imagen publicada en rogansya.com (antes y 3 meses).</p>
+							<button type="button" class="av-btn av-sm" id="VIDEO-ROGANS-AYUDAVENTAS-V1-HENRY" data-video="henry-sanchez" data-title="Henry Sánchez · Implante capilar">▶ Ver su video</button>
+						</div>
+					</article>
+					<div class="av-slots">
+						<div class="av-slot"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><b>Foto antes / después<br>con consentimiento</b><span>Paciente #___ · Tratamiento · Meses</span></div>
+						<div class="av-slot"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><b>Foto antes / después<br>con consentimiento</b><span>Paciente #___ · Fórmula · Meses</span></div>
+						<div class="av-slot"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><b>Foto antes / después<br>con consentimiento</b><span>Paciente #___ · Mesoterapia / PRP · Meses</span></div>
+						<div class="av-slot"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><b>Foto antes / después<br>con consentimiento</b><span>Mujer · Paciente #___ · Meses</span></div>
+					</div>
+				</div>
+				<p class="av-note"><b>Los resultados varían según cada paciente y requieren valoración médica.</b> Las fotos muestran casos individuales, no una promesa de resultado.</p>
+			</div>
+			<p class="av-src">Foto real: rogansya.com/implantes-capilares (portada del testimonio de Henry Sánchez). Espacios vacíos: galería clínica de Rogans, solo con autorización escrita del paciente.</p>
+		</section>
+
+		<section class="av-slide" data-chip="Testimonios" aria-labelledby="av-h-testimonios">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">En sus propias palabras</p>
+						<h2 class="av-title" id="av-h-testimonios">Ellos te lo <em>cuentan</em></h2>
+					</div>
+					<div class="av-headr">
+						<div class="av-tags"><span class="av-tag av-legal">Confirmar autorización de uso</span></div>
+						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-TESTIMONIOS" data-go="2">← Volver a preguntas</button>
+					</div>
+				</div>
+				<div class="av-vids">
+					<button type="button" class="av-vid" id="VIDEO-ROGANS-AYUDAVENTAS-V1-PIRRY" data-video="pirry" data-title="Pirry · Tratamiento capilar" aria-label="Ver video de Pirry, tratamiento capilar">
+						<img src="assets/cover-pirry.webp" alt="" loading="lazy">
+						<span class="av-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>
+						<span class="av-vc"><b>Pirry</b>Tratamiento capilar</span>
+					</button>
+					<button type="button" class="av-vid" id="VIDEO-ROGANS-AYUDAVENTAS-V1-MAURICIO" data-video="mauricio-cujar" data-title="Mauricio Cújar · Tratamiento capilar" aria-label="Ver video de Mauricio Cújar, tratamiento capilar">
+						<img src="assets/cover-mauricio-cujar.webp" alt="" loading="lazy">
+						<span class="av-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>
+						<span class="av-vc"><b>Mauricio Cújar</b>Tratamiento capilar</span>
+					</button>
+					<button type="button" class="av-vid" id="VIDEO-ROGANS-AYUDAVENTAS-V1-SANTIAGO" data-video="santiago-giraldo" data-title="Santiago Giraldo · Tratamiento capilar" aria-label="Ver video de Santiago Giraldo, tratamiento capilar">
+						<img src="assets/cover-santiago-giraldo.webp" alt="" loading="lazy">
+						<span class="av-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>
+						<span class="av-vc"><b>Santiago Giraldo</b>Tratamiento capilar</span>
+					</button>
+					<button type="button" class="av-vid" id="VIDEO-ROGANS-AYUDAVENTAS-V1-EDDUIN" data-video="edduin-leon" data-title="Edduin León · Mesoterapia" aria-label="Ver video de Edduin León, mesoterapia">
+						<img src="assets/cover-edduin-leon.webp" alt="" loading="lazy">
+						<span class="av-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>
+						<span class="av-vc"><b>Edduin León</b>Mesoterapia</span>
+					</button>
+					<button type="button" class="av-vid" id="VIDEO-ROGANS-AYUDAVENTAS-V1-FABER" data-video="faber-ramirez" data-title="Faber Ramírez · Implante capilar" aria-label="Ver video de Faber Ramírez, implante capilar">
+						<img src="assets/cover-faber-ramirez.webp" alt="" loading="lazy">
+						<span class="av-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>
+						<span class="av-vc"><b>Faber Ramírez</b>Implante capilar</span>
+					</button>
+					<button type="button" class="av-vid" id="VIDEO-ROGANS-AYUDAVENTAS-V1-CARLOS" data-video="carlos-morales" data-title="Carlos A. Morales · Implante capilar" aria-label="Ver video de Carlos A. Morales, implante capilar">
+						<img src="assets/cover-carlos-morales.webp" alt="" loading="lazy">
+						<span class="av-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>
+						<span class="av-vc"><b>Carlos A. Morales</b>Implante capilar</span>
+					</button>
+				</div>
+				<div class="av-quotes">
+					<blockquote class="av-card">
+						<p class="av-quote">El equipo médico fue excepcional, brindándome un servicio profesional y cuidadoso desde la consulta inicial hasta la recuperación postoperatoria. Me sentí en buenas manos en todo momento.</p>
+						<footer class="av-who">Andrés · Restauración capilar</footer>
+					</blockquote>
+					<blockquote class="av-card">
+						<p class="av-quote">Nunca pensé que un implante capilar pudiera hacerme sentir tan bien. Recuperé mi cabello y, con él, mi confianza.</p>
+						<footer class="av-who">Andrés José Uribe H. · Implante capilar</footer>
+					</blockquote>
+					<div class="av-card av-qr">
+						<img src="assets/qr_testimonios.svg" alt="QR testimonios" loading="lazy">
+						<p>Ver más en tu celular</p>
+					</div>
+				</div>
+			</div>
+			<p class="av-src">Videos, fotos y citas: rogansya.com (secciones “Testimonios reales”). Cada testimonio es una experiencia individual.</p>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Credibilidad" aria-labelledby="av-h-credibilidad">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">No te lo decimos nosotros</p>
+						<h2 class="av-title" id="av-h-credibilidad">Lo que dicen en <em>Google</em></h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-CREDENCIAL" data-go="2">← Volver a preguntas</button>
+				</div>
+				<div class="av-reviews">
+					<div class="av-rcol">
+						<div class="av-card av-score">
+							<div class="av-big">4,8</div>
+							<div class="av-stars" aria-hidden="true">★★★★★</div>
+							<div class="av-cnt">308 reseñas en Google</div>
+							<span class="av-tag av-dato">Verificar cifra del día en Google Maps</span>
+						</div>
+						<div class="av-card av-qrrow">
+							<img src="assets/qr_maps.svg" alt="QR Google Maps" loading="lazy">
+							<p><b>Léelas tú mismo.</b> Escanea con tu celular y abre Rogans en Google Maps.</p>
+						</div>
+					</div>
+					<div class="av-rcol">
+						<blockquote class="av-card av-rv">
+							<div class="av-stars av-s" aria-hidden="true">★★★★★</div>
+							<p class="av-quote">Muy buena experiencia, con amabilidad y excelente atención. Sus instalaciones ofrecen un ambiente cálido y tranquilo.</p>
+							<footer class="av-who">Reseña de Google · diciembre 2025</footer>
+						</blockquote>
+						<blockquote class="av-card av-rv">
+							<div class="av-stars av-s" aria-hidden="true">★★★★★</div>
+							<p class="av-quote">Destaco la calidad humana y profesional de su atención al cliente; realmente te sientes bien atendido.</p>
+							<footer class="av-who">Reseña de Google · octubre 2025</footer>
+						</blockquote>
+						<blockquote class="av-card av-rv">
+							<div class="av-stars av-s" aria-hidden="true">★★★★★</div>
+							<p class="av-quote">A pesar de tenerle miedo a las agujas no he sentido mucho dolor.</p>
+							<footer class="av-who">Reseña de Google · octubre 2025</footer>
+						</blockquote>
+						<div class="av-card av-darkcard">
+							<div><span class="av-ph av-big">+40.000</span><div class="av-pl">pacientes atendidos</div></div>
+							<span class="av-tag av-dato">Dato por confirmar</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="av-src">Calificación: Folliculis (folliculis.com/es/clinic/clinica-rogans), comprobada sept. 2026. Reseñas: textos públicos de Google recopilados en exa.ai; confirmar en Google Maps.</p>
+		</section>
+
+		<section class="av-slide" data-chip="Quién te atiende" aria-labelledby="av-h-equipo">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Equipo médico</p>
+						<h2 class="av-title" id="av-h-equipo">Tu plan lo define <em>un médico</em></h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-EQUIPO" data-go="2">← Volver a preguntas</button>
+				</div>
+				<p class="av-lead">Puedes verificar el registro de cada profesional en ReTHUS, el registro oficial del talento humano en salud.</p>
+				<div class="av-team">
+					<article class="av-card av-doc">
+						<img src="assets/dr-aycardi.webp" alt="Juan Carlos Aycardi" loading="lazy">
+						<div><h3>Juan Carlos Aycardi</h3><p>Director médico Rogans</p><span class="av-ph">ReTHUS / Reg. médico: ____</span></div>
+					</article>
+					<article class="av-card av-doc">
+						<img src="assets/dra-ana-milena.webp" alt="Ana Milena Cáceres" loading="lazy">
+						<div><h3>Ana Milena Cáceres</h3><p>Médica tricóloga</p><span class="av-ph">ReTHUS / Reg. médico: ____</span></div>
+					</article>
+					<article class="av-card av-doc">
+						<img src="assets/dra-anamaria-romero.webp" alt="Anamaria Romero" loading="lazy">
+						<div><h3>Anamaria Romero</h3><p>Médica tricóloga</p><span class="av-ph">ReTHUS / Reg. médico: ____</span></div>
+					</article>
+					<article class="av-card av-doc">
+						<img src="assets/tatiana-calonje.webp" alt="Tatiana Calonje" loading="lazy">
+						<div><h3>Tatiana Calonje</h3><p>Gerente médico administrativo</p><span class="av-ph">ReTHUS / Reg.: ____</span></div>
+					</article>
+				</div>
+				<div class="av-tags"><span class="av-tag av-legal">Confirmar títulos y registros antes de usar</span></div>
+			</div>
+			<p class="av-src">Nombres, cargos y fotos: rogansya.com/especialistas y /nosotros. Registros: consultar en rethus.minsalud.gov.co.</p>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Legítimo" aria-labelledby="av-h-legal">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Todo es verificable</p>
+						<h2 class="av-title" id="av-h-legal">Una IPS <em>habilitada</em> y registrada</h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-LEGAL" data-go="2">← Volver a preguntas</button>
+				</div>
+				<div class="av-legalgrid">
+					<article class="av-card">
+						<div class="av-lh">
+							<img src="assets/logo-certificado.webp" alt="" loading="lazy">
+							<div>
+								<h3>Habilitación en salud (REPS)</h3>
+								<p>Ministerio de Salud · Secretaría Distrital de Salud de Bogotá</p>
+							</div>
+						</div>
+						<dl class="av-kv">
+							<dt>Prestador</dt><dd><b>ROGANS S.A.S.</b></dd>
+							<dt>Código de prestador</dt><dd><b>1100139502</b></dd>
+							<dt>Sede</dt><dd>110013950201 · Ak 45 #106-71, of. 401</dd>
+							<dt>Servicios habilitados</dt><dd>Consulta externa: Medicina general (DHSS0566094), Dermatología (DHSS0567423), Nutrición (DHSS0567424), Psicología (DHSS0567425), Psiquiatría (DHSS0567426), Urología (DHSS0567427)</dd>
+						</dl>
+						<span class="av-tag av-legal">Confirmar habilitación de procedimientos capilares</span>
+					</article>
+					<div class="av-lcol">
+						<article class="av-card">
+							<h3>Cámara de Comercio</h3>
+							<p>ROGANS S.A.S. · NIT 901.502.763-4<br>Registro RUES activo · Bogotá D.C.</p>
+							<span class="av-ph">Adjuntar certificado de existencia vigente</span>
+						</article>
+						<article class="av-card">
+							<h3>INVIMA</h3>
+							<p>Registro sanitario de los medicamentos y productos que usamos, y laboratorio que prepara tu fórmula.</p>
+							<span class="av-ph">N.º de registros / certificación: ____</span>
+						</article>
+						<div class="av-card av-qrrow">
+							<img src="assets/qr_reps.svg" alt="QR MinSalud" loading="lazy">
+							<p><b>Verifícalo tú mismo</b> con el número de distintivo en la consulta pública del Ministerio de Salud.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="av-src">Fuente: distintivos de habilitación publicados en rogansya.com/nosotros (PDF MinSalud, mayo 2023); NIT: términos y condiciones de rogansya.com y RUES (vía empresas.larepublica.co).</p>
+		</section>
+
+		<section class="av-slide" data-chip="Moléculas" aria-labelledby="av-h-moleculas">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Información educativa</p>
+						<h2 class="av-title" id="av-h-moleculas">Qué hay en tu <em>tratamiento</em></h2>
+					</div>
+					<div class="av-headr">
+						<div class="av-tags"><span class="av-tag av-med">Pendiente revisión médica</span></div>
+						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-MOLECULAS" data-go="2">← Volver a preguntas</button>
+					</div>
+				</div>
+				<div class="av-card av-darkband">
+					<b>¿Por qué se cae?</b>
+					<p>En la alopecia androgenética, la causa más común, algunos folículos son sensibles a una hormona llamada <b>DHT</b>. Con el tiempo el cabello se afina hasta que el folículo deja de producir cabello visible.</p>
+				</div>
+				<div class="av-three">
+					<article class="av-card"><h3>Mesoterapia capilar</h3><p>Microinyecciones superficiales en el cuero cabelludo con vitaminas, minerales, aminoácidos y factores de crecimiento.</p></article>
+					<article class="av-card"><h3>Plasma rico en plaquetas</h3><p>Se usa tu propia sangre para concentrar plaquetas con factores de crecimiento que estimulan el folículo.</p></article>
+					<article class="av-card"><h3>Fototerapia</h3><p>Luz láser de baja intensidad, no invasiva, que estimula la actividad del folículo.</p></article>
+				</div>
+				<div class="av-card av-outline av-formula">
+					<div>
+						<h3>Tu fórmula médica personalizada</h3>
+						<p>Solo la formula un médico después de valorarte. Te explicará qué contiene, cómo actúa cada componente y cómo tomarla.</p>
+					</div>
+					<ul class="av-comps">
+						<li>Componente 1: <span class="av-ph">nombre y función · Medical</span></li>
+						<li>Componente 2: <span class="av-ph">nombre y función · Medical</span></li>
+						<li>Componente 3: <span class="av-ph">nombre y función · Medical</span></li>
+					</ul>
+				</div>
+			</div>
+			<p class="av-src">Fuente: rogansya.com/tratamiento-capilar y /cuidado-capilar. Los medicamentos de venta con fórmula no se promocionan: su uso lo decide el médico tratante.</p>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Seguridad" aria-labelledby="av-h-seguridad">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Sin letra pequeña</p>
+						<h2 class="av-title" id="av-h-seguridad">Qué esperar y <em>qué puede pasar</em></h2>
+					</div>
+					<div class="av-headr">
+						<div class="av-tags"><span class="av-tag av-med">Pendiente revisión médica</span></div>
+						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-SEGURIDAD" data-go="2">← Volver a preguntas</button>
+					</div>
+				</div>
+				<div class="av-card av-tablewrap">
+					<table class="av-tbl">
+						<thead>
+							<tr><th>Componente</th><th>Efectividad reportada</th><th>Efectos secundarios posibles</th><th>Fuente</th></tr>
+						</thead>
+						<tbody>
+							<tr><td><b>Componente 1</b></td><td><span class="av-ph">__ % de pacientes …</span></td><td><span class="av-ph">3 % reporta …</span></td><td><span class="av-ph">estudio / ficha técnica</span></td></tr>
+							<tr><td><b>Componente 2</b></td><td><span class="av-ph">__ %</span></td><td><span class="av-ph">__ % reporta …</span></td><td><span class="av-ph">estudio / ficha técnica</span></td></tr>
+							<tr><td><b>Mesoterapia / PRP</b></td><td><span class="av-ph">dato con fuente</span></td><td><span class="av-ph">molestias locales …</span></td><td><span class="av-ph">guía clínica</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="av-four">
+					<article class="av-card"><h3>Valoración previa</h3><p>El médico revisa tu historia clínica antes de formular.</p></article>
+					<article class="av-card"><h3>Controles</h3><p>Seguimiento médico y ajuste del plan cuando hace falta.</p></article>
+					<article class="av-card"><h3>Fotos de progreso</h3><p>Registro fotográfico de cada etapa en la app.</p></article>
+					<article class="av-card"><h3>Contacto directo</h3><p>WhatsApp 24/7 si notas algo que te preocupa.</p></article>
+				</div>
+			</div>
+			<p class="av-src">Los valores de efectividad y efectos secundarios los debe completar el equipo médico con fuentes científicas citadas. Cuidados: rogansya.com (app y atención).</p>
+		</section>
+
+		<section class="av-slide" data-chip="Precio" aria-labelledby="av-h-precio">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Compara con calma</p>
+						<h2 class="av-title" id="av-h-precio">Lo que pagas y <em>lo que incluye</em></h2>
+					</div>
+					<div class="av-headr">
+						<div class="av-tags"><span class="av-tag av-legal">Revisión legal · publicidad comparativa</span></div>
+						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-PRECIO" data-go="2">← Volver a preguntas</button>
+					</div>
+				</div>
+				<div class="av-prices">
+					<article class="av-card">
+						<h3 class="av-teal">Tratamiento sin cirugía en Rogans</h3>
+						<div class="av-tablewrap">
+							<table class="av-tbl av-price">
+								<thead><tr><th>Plan</th><th>Incluye</th><th class="av-r">Precio</th></tr></thead>
+								<tbody>
+									<tr><td><b>Sesión única</b></td><td>Consulta, 1 mesoterapia, 1 PRP, fototerapia si se requiere</td><td class="av-r"><b>$350.000</b></td></tr>
+									<tr><td><b>Starter</b></td><td>5 mesoterapias, 5 PRP, seguimiento, kit casa 3 meses</td><td class="av-r"><b>$1.650.000</b></td></tr>
+									<tr><td><b>Advanced</b></td><td>10 mesoterapias, 10 PRP, seguimiento, kit casa 6 meses</td><td class="av-r"><b>$2.800.000</b></td></tr>
+								</tbody>
+							</table>
+						</div>
+					</article>
+					<article class="av-card">
+						<h3>Implante capilar: referencias públicas en Bogotá</h3>
+						<div class="av-tablewrap">
+							<table class="av-tbl av-price">
+								<thead><tr><th>Clínica</th><th>Alcance publicado</th><th class="av-r">Precio (COP)</th></tr></thead>
+								<tbody>
+									<tr><td>Clínica A</td><td>3.000 folículos</td><td class="av-r">$17.500.000</td></tr>
+									<tr><td>Clínica B</td><td>1.000–3.000 injertos</td><td class="av-r">$8–11 millones</td></tr>
+									<tr><td>Clínica C</td><td>2.001–3.000 folículos</td><td class="av-r">desde $7.500.000</td></tr>
+									<tr class="av-hl"><td><b>Rogans</b></td><td>1.500–4.000 injertos, 2 PRP y seguimiento</td><td class="av-r"><b>$9.000.000</b></td></tr>
+								</tbody>
+							</table>
+						</div>
+						<p class="av-small">Rogans: precio promocional online; la FAQ indica “desde $10.000.000”. El precio final depende de tu caso: pide siempre una cotización escrita con número de injertos, técnica y qué incluye.</p>
+					</article>
+				</div>
+			</div>
+			<p class="av-src">Rogans: rogansya.com/cuidado-capilar y /tratamiento-capilar (precios promocionales online, oct. 2026; confirmar precio en sede). A: mediarte.co/precios-implante-de-cabello · B: innovartmedical.com (guía 2026) · C: almoclinic.com (FUE, act. 07/2026).</p>
+		</section>
+
+		<section class="av-slide av-dark" data-chip="Financiación" aria-labelledby="av-h-financia">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Que el precio no te frene</p>
+						<h2 class="av-title" id="av-h-financia">Financia tu implante <em>con 0 % de interés</em></h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-FINANCIA" data-go="2">← Volver a preguntas</button>
+				</div>
+				<div class="av-four av-stats">
+					<div class="av-stat"><b>0 %</b><p>de interés en implante capilar, desde $7.000.000</p></div>
+					<div class="av-stat"><b>Cédula</b><p>y tu número de celular: es todo lo que necesitas</p></div>
+					<div class="av-stat"><b>24 h</b><p>hábiles para darte respuesta</p></div>
+					<div class="av-stat"><b>+1.750</b><p>créditos desembolsados</p></div>
+				</div>
+				<div class="av-band">
+					<p>¿Historial de crédito negativo? <b>Evaluamos tu solicitud con una mirada diferente.</b></p>
+					<span class="av-tag av-legal">Confirmar entidad aliada y condiciones</span>
+				</div>
+				<ol class="av-flow">
+					<li><span class="av-num">1</span>Valoración médica</li>
+					<li><span class="av-num">2</span>Recibes tu plan y su valor</li>
+					<li><span class="av-num">3</span>Revisamos tu financiación con tu cédula</li>
+					<li><span class="av-num">4</span>Empiezas y llevas tus controles</li>
+				</ol>
+			</div>
+			<p class="av-src">Fuente: rogansya.com/implantes-capilares, /cuidado-capilar y /financiamiento. Crédito sujeto a aprobación de la entidad aliada.</p>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Garantía" aria-labelledby="av-h-garantia">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Tu tranquilidad</p>
+						<h2 class="av-title" id="av-h-garantia">¿Y si no me <em>funciona?</em></h2>
+					</div>
+					<div class="av-headr">
+						<div class="av-tags">
+							<span class="av-tag av-med">Pendiente revisión médica</span>
+							<span class="av-tag av-legal">Pendiente legal</span>
+						</div>
+						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-GARANTIA" data-go="2">← Volver a preguntas</button>
+					</div>
+				</div>
+				<div class="av-two">
+					<article class="av-card">
+						<p class="av-kicker av-sm">Publicada hoy en rogansya.com</p>
+						<h3>Garantía de respaldo</h3>
+						<p>Si tu tratamiento no funciona, te damos hasta <b>$2.800.000</b> para tu implante capilar.</p>
+						<hr>
+						<h3>Garantía de implante</h3>
+						<p>10 % de repoblamiento folicular en la zona implantada.</p>
+						<hr>
+						<p class="av-muted">Siempre con condiciones escritas, entregadas antes de pagar.</p>
+						<span class="av-ph">Condiciones escritas: enlace / documento</span>
+					</article>
+					<article class="av-card av-outline">
+						<p class="av-kicker av-sm">Propuesta nueva</p>
+						<h3>Garantía con fotos antes / después</h3>
+						<p>Medimos tu avance con fotos clínicas estandarizadas. Si en el control acordado no hay cambio, aplicamos la garantía.</p>
+						<ul class="av-comps">
+							<li>Foto inicial y de control a los <span class="av-ph">__ meses</span></li>
+							<li>Qué se considera “sin cambio”: <span class="av-ph">criterio médico</span></li>
+							<li>Requisito: <span class="av-ph">adherencia y controles</span></li>
+							<li>Devolución o beneficio: <span class="av-ph">monto / %</span></li>
+						</ul>
+					</article>
+				</div>
+			</div>
+			<p class="av-src">Fuente: rogansya.com/tratamiento-capilar (“Garantía de Respaldo”) y /implantes-capilares (“Garantía de Implante Capilar”). La propuesta nueva no está vigente hasta que Medical y Legal aprueben las condiciones.</p>
+		</section>
+
+		<section class="av-slide av-dark" data-chip="Tu siguiente paso" aria-labelledby="av-h-cierre">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Cuando estés listo</p>
+						<h2 class="av-title" id="av-h-cierre">¿Empezamos <em>tu plan?</em></h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-CIERRE" data-go="2">← Volver a preguntas</button>
+				</div>
+				<p class="av-lead">Puedes decidir hoy o tomarte tu tiempo. Antes de pagar te entregamos todo por escrito.</p>
+				<div class="av-options">
+					<button type="button" class="av-opt av-hi" id="CTA-ROGANS-AYUDAVENTAS-V1-EMPIEZO" data-open="av-o1">
+						<span class="av-num">1</span><span class="av-opt-title">Empiezo hoy</span><span class="av-opt-text">Agendamos tu primera sesión y te enviamos el plan y la factura.</span>
+					</button>
+					<button type="button" class="av-opt" id="CTA-ROGANS-AYUDAVENTAS-V1-MEDICO" data-open="av-o2">
+						<span class="av-num">2</span><span class="av-opt-title">Hablo con el médico</span><span class="av-opt-text">Resolvemos dudas clínicas antes de decidir.</span>
+					</button>
+					<button type="button" class="av-opt" id="CTA-ROGANS-AYUDAVENTAS-V1-MELOLLEVO" data-open="av-o3">
+						<span class="av-num">3</span><span class="av-opt-title">Me lo llevo</span><span class="av-opt-text">Te enviamos esta información por WhatsApp para revisarla con calma.</span>
+					</button>
+				</div>
+				<div class="av-contact">
+					<a class="av-wa" id="WHATSAPP-ROGANS-AYUDAVENTAS-V1-QR" href="https://wa.me/573209234629" target="_blank" rel="noopener">
+						<img src="assets/qr_whatsapp.svg" alt="QR WhatsApp" loading="lazy">
+					</a>
+					<div><b>WhatsApp 24/7</b><a id="WHATSAPP-ROGANS-AYUDAVENTAS-V1-NUMERO" href="https://wa.me/573209234629" target="_blank" rel="noopener">(+57) 320 923 4629</a></div>
+					<div><b>Correo</b><a id="CTA-ROGANS-AYUDAVENTAS-V1-CORREO" href="mailto:salud@rogansya.com">salud@rogansya.com</a></div>
+					<div><b>Sede</b><span>Autopista Norte #106-71, of. 401, Bogotá</span></div>
+				</div>
+			</div>
+			<p class="av-src">Datos de contacto: rogansya.com. Los resultados varían según cada paciente y requieren valoración médica.</p>
+		</section>
+	</div>
+
+	<div class="av-ov" id="av-menu" hidden>
+		<div class="av-sheet" role="dialog" aria-modal="true" aria-labelledby="av-menu-title">
+			<div class="av-sh">
+				<h2 id="av-menu-title">Contenido</h2>
+				<button type="button" class="av-ib" id="NAV-ROGANS-AYUDAVENTAS-V1-CERRAR-MENU" data-close aria-label="Cerrar">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+				</button>
+			</div>
+			<ol class="av-toc" id="av-toc"></ol>
+			<div class="av-offline">
+				<button type="button" class="av-btn av-sm av-ghost" id="CTA-ROGANS-AYUDAVENTAS-V1-GUARDAR-VIDEOS">Guardar videos para usar sin internet</button>
+				<span id="av-cache-msg" role="status"></span>
+			</div>
+		</div>
+	</div>
+
+	<div class="av-ov av-vmodal" id="av-vmodal" hidden>
+		<div class="av-vbox" role="dialog" aria-modal="true" aria-labelledby="av-vtitle">
+			<div class="av-sh">
+				<h2 id="av-vtitle">Video</h2>
+				<button type="button" class="av-ib av-light" id="CERRARVIDEO-ROGANS-AYUDAVENTAS-V1-MODAL" data-close aria-label="Cerrar">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+				</button>
+			</div>
+			<video id="av-vplayer" controls playsinline preload="none"></video>
+			<p class="av-vnote" id="av-vnote">Video publicado en rogansya.com. <a href="https://rogansya.com/cuidado-capilar/" target="_blank" rel="noopener">Ver en la web</a></p>
+		</div>
+	</div>
+
+	<div class="av-ov" id="av-o1" hidden>
+		<div class="av-sheet av-small" role="dialog" aria-modal="true" aria-labelledby="av-o1-title">
+			<div class="av-sh">
+				<h2 id="av-o1-title">Empiezo hoy</h2>
+				<button type="button" class="av-ib" id="NAV-ROGANS-AYUDAVENTAS-V1-CERRAR-EMPIEZO" data-close aria-label="Cerrar">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+				</button>
+			</div>
+			<p class="av-lead">Nury agenda contigo tu primera sesión ahora mismo y te entrega por escrito el plan, el precio y las condiciones.</p>
+			<a class="av-btn" id="WHATSAPP-ROGANS-AYUDAVENTAS-V1-AGENDAR" href="https://wa.me/573209234629?text=Hola%20Rogans%2C%20quiero%20agendar%20mi%20primera%20sesi%C3%B3n%20del%20tratamiento%20capilar" target="_blank" rel="noopener">Agendar por WhatsApp</a>
+		</div>
+	</div>
+
+	<div class="av-ov" id="av-o2" hidden>
+		<div class="av-sheet av-small" role="dialog" aria-modal="true" aria-labelledby="av-o2-title">
+			<div class="av-sh">
+				<h2 id="av-o2-title">Hablo con el médico</h2>
+				<button type="button" class="av-ib" id="NAV-ROGANS-AYUDAVENTAS-V1-CERRAR-MEDICO" data-close aria-label="Cerrar">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+				</button>
+			</div>
+			<p class="av-lead">Pídele a Nury que te conecte con el médico para resolver tus dudas clínicas antes de decidir. Las preguntas sobre medicamentos y efectos las responde siempre un médico.</p>
+			<button type="button" class="av-btn" id="CTA-ROGANS-AYUDAVENTAS-V1-VER-EQUIPO" data-go="7" data-closeall>Ver el equipo médico</button>
+		</div>
+	</div>
+
+	<div class="av-ov" id="av-o3" hidden>
+		<div class="av-sheet av-small" role="dialog" aria-modal="true" aria-labelledby="av-o3-title">
+			<div class="av-sh">
+				<h2 id="av-o3-title">Me lo llevo</h2>
+				<button type="button" class="av-ib" id="NAV-ROGANS-AYUDAVENTAS-V1-CERRAR-LLEVAR" data-close aria-label="Cerrar">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+				</button>
+			</div>
+			<div class="av-melollevo">
+				<img src="assets/qr_melollevo.svg" alt="QR WhatsApp" loading="lazy">
+				<p class="av-lead">Escanea con tu celular: se abre un chat de WhatsApp con Rogans y te enviamos la información para revisarla con calma.<br><small>Tú decides si escribes; usamos tu número solo con tu autorización.</small></p>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<footer class="av-sitefoot">
+  <img src="assets/logo-blanco.svg" alt="Rogans">
+  <p>Autopista Norte #106-71, oficina 401, Bogotá. Herramienta interna de cierre. Los resultados varían según cada paciente y requieren valoración médica.</p>
+</footer>
+<script src="assets/ayuda-ventas.js"></script>
+</body>
+</html>
