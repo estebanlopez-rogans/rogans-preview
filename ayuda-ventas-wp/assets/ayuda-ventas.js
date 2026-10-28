@@ -307,8 +307,26 @@
 
     function fromHash(focus) {
       var n = parseInt((location.hash || '').replace('#', ''), 10);
-      if (n >= 1 && n <= N) go(n - 1, { instant: !focus, focus: !!focus });
+      if (!(n >= 1 && n <= N)) n = 1;
+      go(n - 1, { instant: !focus, focus: !!focus });
     }
+    var lines = app.querySelector('[data-av-lines]');
+    if (lines) {
+      lines.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-av-line]');
+        if (!btn || !lines.contains(btn)) return;
+        var id = btn.getAttribute('data-av-line');
+        [].forEach.call(lines.querySelectorAll('[data-av-line]'), function (b) {
+          var on = b === btn;
+          b.classList.toggle('is-on', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        [].forEach.call(lines.querySelectorAll('[data-av-panel]'), function (p) {
+          p.hidden = p.getAttribute('data-av-panel') !== id;
+        });
+      });
+    }
+
     fit();
     fromHash(false);
     window.addEventListener('hashchange', function () { fromHash(false); });

@@ -18,19 +18,14 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 .main-header img { height: 32px; width: auto; }
 .main-header nav { margin-left: auto; color: #616161; font-size: .9rem; }
 .av-sitefoot { background: #262626; color: #f6f6f6; padding: 1.25rem 1.5rem 1.5rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
-.av-sitefoot img { height: 28px; width: auto; background: transparent; }
+.av-sitefoot img { height: 28px; width: auto; }
 .av-sitefoot p { margin: 0; font-size: .8rem; line-height: 1.4; max-width: 40rem; }
 </style>
 <link rel="stylesheet" href="assets/ayuda-ventas.css">
 </head>
 <body>
-<div class="sub-header">
-  <img src="assets/logo-sobre-negro.svg" alt="Rogans Care">
-</div>
-<header class="main-header">
-  <img src="assets/logo-rogans-negro.svg" alt="Rogans">
-  <nav aria-label="Principal">Cuidado capilar</nav>
-</header>
+<div class="sub-header"><img src="assets/logo-sobre-negro.svg" alt="Rogans Care"></div>
+<header class="main-header"><img src="assets/logo-rogans-negro.svg" alt="Rogans"><nav aria-label="Principal">Cuidado capilar</nav></header>
 <div
 	id="ayuda-ventas"
 	class="av-app is-cover is-dark"
@@ -44,7 +39,7 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 		</button>
 		<img class="av-barlogo" id="av-logo" src="assets/logo-blanco.svg" alt="">
 		<span class="av-barchip" id="av-chip">Portada</span>
-		<span class="av-barpn" id="av-pn">1 / 14</span>
+		<span class="av-barpn" id="av-pn">1 / 15</span>
 		<button type="button" class="av-ib" id="av-menu-btn" aria-label="Menú" aria-expanded="false" aria-controls="av-menu">
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
 		</button>
@@ -112,36 +107,37 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 						</button>
 						<div class="av-subs">
 							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-EQUIPO-MEDICOS" data-go="7">Equipo</button>
-							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-EQUIPO-LEGAL" data-go="8">Respaldo legal</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-EQUIPO-LEGAL" data-go="9">Respaldo legal</button>
 						</div>
 					</div>
 					<div class="av-tile">
-						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO" data-go="9">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO" data-go="10">
 							<span class="av-num" aria-hidden="true">⚗</span>
 							<span class="av-tt"><b>¿Qué me aplican? ¿Es seguro?</b><small>Componentes y seguridad</small></span>
 						</button>
 						<div class="av-subs">
-							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO-COMPONENTES" data-go="9">Componentes</button>
-							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO-SEGURIDAD" data-go="10">Seguridad</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO-COMPONENTES" data-go="10">Componentes</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-SEGURO-SEGURIDAD" data-go="11">Seguridad</button>
 						</div>
 					</div>
 					<div class="av-tile">
-						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO" data-go="11">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO" data-go="12">
 							<span class="av-num" aria-hidden="true">$</span>
 							<span class="av-tt"><b>¿Cuánto cuesta?</b><small>Precio y financiación</small></span>
 						</button>
 						<div class="av-subs">
-							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-PLANES" data-go="11">Precio</button>
-							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-FINANCIACION" data-go="12">Financiación</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-PLANES" data-go="12">Precio</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-LINEAS" data-go="8">Líneas</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-PRECIO-FINANCIACION" data-go="13">Financiación</button>
 						</div>
 					</div>
 					<div class="av-tile">
-						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-GARANTIA" data-go="13">
+						<button type="button" class="av-tile-hit" id="CTA-ROGANS-AYUDAVENTAS-V1-GARANTIA" data-go="14">
 							<span class="av-num" aria-hidden="true">✓</span>
 							<span class="av-tt"><b>¿Y si no me funciona?</b><small>Garantía</small></span>
 						</button>
 						<div class="av-subs">
-							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-GARANTIA-DETALLE" data-go="13">Garantía</button>
+							<button type="button" id="CTA-ROGANS-AYUDAVENTAS-V1-GARANTIA-DETALLE" data-go="14">Garantía</button>
 						</div>
 					</div>
 				</div>
@@ -284,8 +280,45 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 						<p>Ver más en tu celular</p>
 					</div>
 				</div>
+				<div class="av-more">
+					<article class="av-card av-tcard">
+						<img src="assets/testimonio-esteban-lopez.webp" alt="Esteban López Salcedo" loading="lazy">
+						<div>
+							<p class="av-quote">Después de mi implante capilar recuperé no solo mi cabello, sino también mi confianza. El cambio ha sido increíble, ahora me siento mucho mejor conmigo mismo.</p>
+							<footer class="av-who">Esteban López Salcedo · Implante capilar · rogansya.com</footer>
+						</div>
+					</article>
+					<article class="av-card av-tcard">
+						<img src="assets/testimonio-cristian-garcia.jpg" alt="Cristian García" loading="lazy">
+						<div>
+							<p class="av-quote">¡Estoy absolutamente impresionado con los resultados de mi implante capilar! Después de años de sentirme inseguro por mi pérdida de cabello, finalmente me siento como yo mismo de nuevo. El proceso fue sencillo y los resultados son increíbles. ¡Gracias a todo el equipo por devolverme la confianza!</p>
+							<footer class="av-who">Cristian García · Implante capilar · rogansya.com</footer>
+						</div>
+					</article>
+					<article class="av-card av-tcard">
+						<img src="assets/testimonio-daniela-hernandez.jpg" alt="Daniela Hernández" loading="lazy">
+						<div>
+							<p class="av-quote">Después de años de sentirme insegura por mi pérdida de cabello, finalmente me decidí a dar el paso y ¡no puedo estar más feliz con los resultados! El equipo médico fue increíblemente profesional y comprensivo, y el proceso fue mucho más sencillo de lo que imaginaba.</p>
+							<footer class="av-who">Daniela Hernández · rogansya.com</footer>
+						</div>
+					</article>
+					<article class="av-card av-tcard">
+						<img src="assets/testimonio-ramiro.jpg" alt="Ramiro" loading="lazy">
+						<div>
+							<p class="av-quote">No puedo creer lo natural que se ve mi nuevo cabello después del implante. Honestamente, ni siquiera mis amigos más cercanos notaron que había hecho algo hasta que se los mencioné.</p>
+							<footer class="av-who">Ramiro · Implante capilar · rogansya.com</footer>
+						</div>
+					</article>
+					<article class="av-card av-tcard">
+						<img src="assets/testimonio-ana-julieth.jpg" alt="Ana Julieth" loading="lazy">
+						<div>
+							<p class="av-quote">La Doctora Diana ha sido una persona fundamental en mi proceso agradezco todo su apoyo y ayuda.</p>
+							<footer class="av-who">Ana Julieth · rogansya.com</footer>
+						</div>
+					</article>
+				</div>
 			</div>
-			<p class="av-src">Videos, fotos y citas: rogansya.com (secciones “Testimonios reales”). Cada testimonio es una experiencia individual.</p>
+			<p class="av-src">Videos y citas de arriba: rogansya.com (secciones “Testimonios reales”). Fotos y textos nuevos: fichas públicas de testimonios en rogansya.com (Esteban López Salcedo, Cristian García, Daniela Hernández, Ramiro y Ana Julieth), leídas el 28 oct 2026. Instagram @rogans.capilar no dejó ver las historias destacadas. Cada testimonio es una experiencia individual.</p>
 		</section>
 
 		<section class="av-slide av-mint" data-chip="Credibilidad" aria-labelledby="av-h-credibilidad">
@@ -345,12 +378,8 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 					</div>
 					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-EQUIPO" data-go="2">← Volver a preguntas</button>
 				</div>
-				<p class="av-lead">Puedes verificar el registro de cada profesional en ReTHUS, el registro oficial del talento humano en salud.</p>
+				<p class="av-lead">Aquí ves algunos de nuestros doctores. Puedes verificar el registro de cada profesional en ReTHUS, el registro oficial del talento humano en salud.</p>
 				<div class="av-team">
-					<article class="av-card av-doc">
-						<img src="assets/dr-aycardi.webp" alt="Juan Carlos Aycardi" loading="lazy">
-						<div><h3>Juan Carlos Aycardi</h3><p>Director médico Rogans</p><span class="av-ph">ReTHUS / Reg. médico: ____</span></div>
-					</article>
 					<article class="av-card av-doc">
 						<img src="assets/dra-ana-milena.webp" alt="Ana Milena Cáceres" loading="lazy">
 						<div><h3>Ana Milena Cáceres</h3><p>Médica tricóloga</p><span class="av-ph">ReTHUS / Reg. médico: ____</span></div>
@@ -363,10 +392,81 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 						<img src="assets/tatiana-calonje.webp" alt="Tatiana Calonje" loading="lazy">
 						<div><h3>Tatiana Calonje</h3><p>Gerente médico administrativo</p><span class="av-ph">ReTHUS / Reg.: ____</span></div>
 					</article>
+					<article class="av-card av-doc av-doc-ph">
+						<div class="av-ph-photo" aria-hidden="true">S</div>
+						<div><h3>Simón</h3><p><span class="av-ph">Nombre completo, cargo y foto: pendiente</span></p></div>
+					</article>
+					<article class="av-card av-doc av-doc-ph">
+						<div class="av-ph-photo" aria-hidden="true">L</div>
+						<div><h3>Lina</h3><p><span class="av-ph">Nombre completo, cargo y foto: pendiente</span></p></div>
+					</article>
+					<article class="av-card av-doc av-doc-ph">
+						<div class="av-ph-photo" aria-hidden="true">M</div>
+						<div><h3>Mauricio</h3><p><span class="av-ph">Nombre completo, cargo y foto: pendiente</span></p></div>
+					</article>
 				</div>
 				<div class="av-tags"><span class="av-tag av-legal">Confirmar títulos y registros antes de usar</span></div>
 			</div>
-			<p class="av-src">Nombres, cargos y fotos: rogansya.com/especialistas y /nosotros. Registros: consultar en rethus.minsalud.gov.co.</p>
+			<p class="av-src">Ana Milena Cáceres, Anamaria Romero y Tatiana Calonje: rogansya.com/especialistas y /nosotros. Simón, Lina y Mauricio no aparecen con nombre completo ni foto en esas páginas (revisado el 28 oct 2026). Registros: rethus.minsalud.gov.co.</p>
+		</section>
+
+		<section class="av-slide av-mint" data-chip="Líneas médicas" aria-labelledby="av-h-lineas">
+			<div class="av-in">
+				<div class="av-head">
+					<div>
+						<p class="av-kicker">Lo que ofrece Rogans</p>
+						<h2 class="av-title" id="av-h-lineas">Elige una <em>línea médica</em></h2>
+					</div>
+					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-LINEAS" data-go="2">← Volver a preguntas</button>
+				</div>
+				<p class="av-lead">Precios publicados en rogansya.com. Si la página no muestra un valor, queda en consultar. El precio de promoción es el que está en oferta hoy.</p>
+				<div class="av-lines" data-av-lines>
+					<div class="av-line-tabs" role="tablist" aria-label="Líneas médicas">
+						<button type="button" class="is-on" id="TAB-ROGANS-AYUDAVENTAS-V1-CAPILAR" role="tab" aria-selected="true" data-av-line="capilar">Capilar</button>
+						<button type="button" id="TAB-ROGANS-AYUDAVENTAS-V1-PSICOLOGIA" role="tab" aria-selected="false" data-av-line="psicologia">Psicología</button>
+						<button type="button" id="TAB-ROGANS-AYUDAVENTAS-V1-DERMATOLOGIA" role="tab" aria-selected="false" data-av-line="dermatologia">Dermatología</button>
+						<button type="button" id="TAB-ROGANS-AYUDAVENTAS-V1-FACIAL" role="tab" aria-selected="false" data-av-line="facial">Facial</button>
+						<button type="button" id="TAB-ROGANS-AYUDAVENTAS-V1-SEXUAL" role="tab" aria-selected="false" data-av-line="sexual">Salud sexual</button>
+						<button type="button" id="TAB-ROGANS-AYUDAVENTAS-V1-FUNCIONAL" role="tab" aria-selected="false" data-av-line="funcional">Medicina funcional</button>
+						<button type="button" id="TAB-ROGANS-AYUDAVENTAS-V1-OTRAS" role="tab" aria-selected="false" data-av-line="otras">Otras líneas</button>
+					</div>
+					<div class="av-line-panel" data-av-panel="capilar">
+						<article class="av-card av-line-card"><h3>Telemedicina capilar</h3><p>Consulta virtual.</p><b>$50.000</b></article>
+						<article class="av-card av-line-card"><h3>Sesión única</h3><p>Consulta inicial gratis, 1 mesoterapia y 1 PRP.</p><b>$350.000</b><small>Antes $520.000</small></article>
+						<article class="av-card av-line-card"><h3>Starter</h3><p>5 mesoterapias, 5 PRP y luz LED si se requiere.</p><b>$1.650.000</b><small>Antes $2.290.000</small></article>
+						<article class="av-card av-line-card"><h3>Advanced</h3><p>10 mesoterapias y 10 PRP, con seguimiento.</p><b>$2.800.000</b><small>Antes $4.240.000</small></article>
+						<article class="av-card av-line-card"><h3>Implante capilar</h3><p>1.500 a 4.000 injertos, sala de cirugía, 2 PRP y seguimiento.</p><b>$9.000.000 a $13.000.000</b><small>Promoción $9.000.000 · precio publicado $13.000.000</small></article>
+					</div>
+					<div class="av-line-panel" data-av-panel="psicologia" hidden>
+						<article class="av-card av-line-card"><h3>Valoración inicial</h3><p>Primera consulta de 1 hora.</p><b>$50.000</b><small>Antes $85.000</small></article>
+						<article class="av-card av-line-card"><h3>Básico</h3><p>4 sesiones individuales de 1 hora.</p><b>$300.000</b><small>Antes $380.000</small></article>
+						<article class="av-card av-line-card"><h3>Crecimiento</h3><p>8 sesiones individuales de 1 hora.</p><b>$575.000</b><small>Antes $680.000</small></article>
+						<article class="av-card av-line-card"><h3>Transformación</h3><p>12 sesiones individuales de 1 hora.</p><b>$810.000</b><small>Antes $1.020.000</small></article>
+					</div>
+					<div class="av-line-panel" data-av-panel="dermatologia" hidden>
+						<article class="av-card av-line-card"><h3>Consulta dermatológica</h3><p>Valoración de la piel. La página la marca por tiempo limitado.</p><b>$80.000</b></article>
+						<article class="av-card av-line-card"><h3>Otros procedimientos de dermatología</h3><p>La página no publica el resto de tarifas.</p><b class="av-ph">consultar</b></article>
+					</div>
+					<div class="av-line-panel" data-av-panel="facial" hidden>
+						<article class="av-card av-line-card"><h3>Valoración de rejuvenecimiento</h3><p>Pómulos, mentón o rostro, según la página.</p><b>$75.000</b></article>
+						<article class="av-card av-line-card"><h3>Valoración presencial de cuidado de la piel</h3><p>En Bogotá.</p><b>$100.000</b></article>
+						<article class="av-card av-line-card"><h3>Procedimientos faciales</h3><p>La página de facial no publica el precio de cada procedimiento. Sí publica financiación a 0 % de interés a 2 meses, hasta $14.000.000.</p><b class="av-ph">consultar</b></article>
+					</div>
+					<div class="av-line-panel" data-av-panel="sexual" hidden>
+						<article class="av-card av-line-card"><h3>Valoración</h3><p>Consulta de valoración en rendimiento sexual masculino.</p><b>$60.000</b></article>
+						<article class="av-card av-line-card"><h3>Abono para separar la cita</h3><p>Publicado en la misma página.</p><b>$20.000</b></article>
+						<article class="av-card av-line-card"><h3>Fórmulas y tratamientos</h3><p>No hay una tarifa única publicada en esa landing.</p><b class="av-ph">consultar</b></article>
+					</div>
+					<div class="av-line-panel" data-av-panel="funcional" hidden>
+						<article class="av-card av-line-card"><h3>Valoración en medicina funcional</h3><p>Con especialista, presencial o por telemedicina según la página.</p><b>$80.000</b></article>
+					</div>
+					<div class="av-line-panel" data-av-panel="otras" hidden>
+						<article class="av-card av-line-card"><h3>Nutrición</h3><p>La página existe. No publica una tarifa propia, distinta del formulario de agenda.</p><b class="av-ph">consultar</b></article>
+						<article class="av-card av-line-card"><h3>Cirugía plástica y odontología</h3><p>Rogans las nombra entre sus servicios en la página de inicio. No hay tarifa publicada en las páginas revisadas.</p><b class="av-ph">consultar</b></article>
+					</div>
+				</div>
+			</div>
+			<p class="av-src">Capilar: rogansya.com/tratamiento-capilar/, /cuidado-capilar/ y /telemedicina-cuidado-capilar/. Psicología: /psicologia/. Dermatología: /dermatologia/. Facial: /facial/, /rejuvenecimiento-facial/ y /cuidado-de-la-piel/. Salud sexual: /rendimiento-sexual-masculino/. Medicina funcional: /medicina-funcional-alternativa/. Nutrición: /nutricion/. Cirugía plástica y odontología: nombradas en rogansya.com (preguntas de inicio). Precios leídos el 28 oct 2026.</p>
 		</section>
 
 		<section class="av-slide av-mint" data-chip="Legítimo" aria-labelledby="av-h-legal">
@@ -464,15 +564,60 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 						<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-SEGURIDAD" data-go="2">← Volver a preguntas</button>
 					</div>
 				</div>
-				<div class="av-card av-tablewrap">
+				<div class="av-card av-tablewrap av-safe">
 					<table class="av-tbl">
 						<thead>
 							<tr><th>Componente</th><th>Efectividad reportada</th><th>Efectos secundarios posibles</th><th>Fuente</th></tr>
 						</thead>
 						<tbody>
-							<tr><td><b>Componente 1</b></td><td><span class="av-ph">__ % de pacientes …</span></td><td><span class="av-ph">3 % reporta …</span></td><td><span class="av-ph">estudio / ficha técnica</span></td></tr>
-							<tr><td><b>Componente 2</b></td><td><span class="av-ph">__ %</span></td><td><span class="av-ph">__ % reporta …</span></td><td><span class="av-ph">estudio / ficha técnica</span></td></tr>
-							<tr><td><b>Mesoterapia / PRP</b></td><td><span class="av-ph">dato con fuente</span></td><td><span class="av-ph">molestias locales …</span></td><td><span class="av-ph">guía clínica</span></td></tr>
+							<tr>
+								<td data-label="Componente"><b>Minoxidil tópico 5 %</b></td>
+								<td data-label="Efectividad">En hombres, 45 % más recrecimiento que el minoxidil al 2 % a las 48 semanas.</td>
+								<td data-label="Efectos">Más prurito e irritación local que con el 2 %. Sin efectos sistémicos en ese ensayo.</td>
+								<td data-label="Fuente"><a href="https://www.jaad.org/article/S0190-9622(02)00124-X/abstract" target="_blank" rel="noopener">Olsen et al., JAAD 2002</a></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Minoxidil oral en dosis baja</b></td>
+								<td data-label="Efectividad">En un ensayo pequeño, 6 de 22 hombres (27 %) mejoraron el grado de alopecia a las 32 semanas con 2,5 mg al día.</td>
+								<td data-label="Efectos">Hipertricosis en el 15,1 % de 1.404 pacientes. Mareo 1,7 %, retención de líquidos 1,3 %, taquicardia 0,9 %.</td>
+								<td data-label="Fuente"><a href="https://doi.org/10.1093/bjd/ljae090.137" target="_blank" rel="noopener">BJD 2024, resumen P110</a> · <a href="https://www.jaad.org/article/S0190-9622(21)00418-7/abstract" target="_blank" rel="noopener">Vañó-Galván et al., JAAD 2021</a></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Finasteride tópico</b></td>
+								<td data-label="Efectividad">En hombres, +20,2 cabellos en el área medida a las 24 semanas, frente a +6,7 con placebo.</td>
+								<td data-label="Efectos">Eventos sexuales relacionados con el tratamiento en el 2,8 % (placebo 3,3 %). Prurito 2,2 % y eritema 2,2 %.</td>
+								<td data-label="Fuente"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9297965/" target="_blank" rel="noopener">Piraccini et al., JEADV 2022</a></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Finasteride oral 1 mg</b></td>
+								<td data-label="Efectividad">En el mismo ensayo, el brazo oral sumó 21,1 cabellos a las 24 semanas. A 5 años, el tratamiento se asoció a mejoría duradera frente a placebo, que siguió perdiendo cabello.</td>
+								<td data-label="Efectos">En ese ensayo, eventos sexuales relacionados en el 4,8 % del brazo oral. El estudio a 5 años lo describe como bien tolerado, sin nuevas alertas de seguridad.</td>
+								<td data-label="Fuente"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9297965/" target="_blank" rel="noopener">Piraccini et al., JEADV 2022</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/11809594/" target="_blank" rel="noopener">Kaufman et al., seguimiento a 5 años</a></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Dutasteride oral 0,5 mg</b></td>
+								<td data-label="Efectividad">En 917 hombres, 0,5 mg al día aumentó el conteo de cabello a las 24 semanas más que finasteride 1 mg y que placebo.</td>
+								<td data-label="Efectos">El número y la gravedad de los eventos adversos fueron similares entre dutasteride, finasteride y placebo. El resumen no da un porcentaje aparte.</td>
+								<td data-label="Fuente"><a href="https://www.jaad.org/article/S0190-9622(13)01171-7/abstract" target="_blank" rel="noopener">Gubelin Harcha et al., JAAD 2014</a></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Dutasteride en mesoterapia</b></td>
+								<td data-label="Efectividad">Una serie de 10 pacientes no mostró un aumento consistente de densidad. <span class="av-ph">Pendiente un ensayo más grande con porcentaje</span></td>
+								<td data-label="Efectos"><span class="av-ph">Pendiente: esa serie no publica un porcentaje de efectos</span></td>
+								<td data-label="Fuente"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11647129/" target="_blank" rel="noopener">Nohria et al., serie de 10 pacientes</a></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Mesoterapia con vitaminas y aminoácidos</b></td>
+								<td data-label="Efectividad"><span class="av-ph">Pendiente: no hay un porcentaje de un ensayo o metaanálisis para este cóctel</span></td>
+								<td data-label="Efectos"><span class="av-ph">Pendiente: porcentaje de molestia local con fuente</span></td>
+								<td data-label="Fuente"><span class="av-ph">Pendiente de cita</span></td>
+							</tr>
+							<tr>
+								<td data-label="Componente"><b>Plasma rico en plaquetas</b></td>
+								<td data-label="Efectividad">En un ensayo de 72 personas, prueba de tracción negativa en el 91,7 % a las 12 semanas, frente al 69,4 % con minoxidil tópico al 5 %.</td>
+								<td data-label="Efectos"><span class="av-ph">Pendiente: el resumen del ensayo no publica el porcentaje de efectos</span></td>
+								<td data-label="Fuente"><a href="https://doi.org/10.36849/JDD.7031" target="_blank" rel="noopener">Shah et al., J Drugs Dermatol 2023</a></td>
+							</tr>
 						</tbody>
 					</table>
 				</div>
@@ -483,7 +628,7 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 					<article class="av-card"><h3>Contacto directo</h3><p>WhatsApp 24/7 si notas algo que te preocupa.</p></article>
 				</div>
 			</div>
-			<p class="av-src">Los valores de efectividad y efectos secundarios los debe completar el equipo médico con fuentes científicas citadas. Cuidados: rogansya.com (app y atención).</p>
+			<p class="av-src">Cifras de los estudios enlazados, en las poblaciones de cada ensayo (varios son solo de hombres). No son una promesa para un paciente. Los huecos en amarillo siguen pendientes de una cita con porcentaje. Cuidados de la app: rogansya.com. Pendiente revisión médica.</p>
 		</section>
 
 		<section class="av-slide" data-chip="Precio" aria-labelledby="av-h-precio">
@@ -518,18 +663,18 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 							<table class="av-tbl av-price">
 								<thead><tr><th>Clínica</th><th>Alcance publicado</th><th class="av-r">Precio (COP)</th></tr></thead>
 								<tbody>
-									<tr><td>Clínica A</td><td>3.000 folículos</td><td class="av-r">$17.500.000</td></tr>
-									<tr><td>Clínica B</td><td>1.000–3.000 injertos</td><td class="av-r">$8–11 millones</td></tr>
-									<tr><td>Clínica C</td><td>2.001–3.000 folículos</td><td class="av-r">desde $7.500.000</td></tr>
-									<tr class="av-hl"><td><b>Rogans</b></td><td>1.500–4.000 injertos, 2 PRP y seguimiento</td><td class="av-r"><b>$9.000.000</b></td></tr>
+									<tr><td>Clínica A</td><td>3.000 folículos. Incluye honorarios, insumos, medicamentos posoperatorios, controles y una sesión de plasma. Valoración por fotos sin costo.</td><td class="av-r">$17.500.000</td></tr>
+									<tr><td>Clínica B</td><td>3.000 unidades foliculares. Incluye valoración, cirugía, insumos, anestesia, primer lavado y controles del primer año.</td><td class="av-r">$15.000.000 a $21.000.000</td></tr>
+									<tr><td>Clínica C</td><td>Hasta 4.000 folículos. Incluye técnica DHI o FUE zafiro, primer lavado y seguimiento presencial y en línea.</td><td class="av-r">$19.990.000</td></tr>
+									<tr class="av-hl"><td><b>Rogans</b></td><td>1.500–4.000 injertos, sala de cirugía, 2 PRP y seguimiento</td><td class="av-r"><b>$9.000.000 a $13.000.000</b></td></tr>
 								</tbody>
 							</table>
 						</div>
-						<p class="av-small">Rogans: precio promocional online; la FAQ indica “desde $10.000.000”. El precio final depende de tu caso: pide siempre una cotización escrita con número de injertos, técnica y qué incluye.</p>
+						<p class="av-small">Rogans publica $13.000.000 y una promoción de $9.000.000. La FAQ de implantes dice “desde $10.000.000”. A, B y C son paquetes publicados más altos, con el procedimiento y el seguimiento incluidos. El precio final depende de tu caso: pide siempre una cotización escrita con número de injertos, técnica y qué incluye.</p>
 					</article>
 				</div>
 			</div>
-			<p class="av-src">Rogans: rogansya.com/cuidado-capilar y /tratamiento-capilar (precios promocionales online, oct. 2026; confirmar precio en sede). A: mediarte.co/precios-implante-de-cabello · B: innovartmedical.com (guía 2026) · C: almoclinic.com (FUE, act. 07/2026).</p>
+			<p class="av-src">Rogans: rogansya.com/cuidado-capilar/ ($13.000.000 y promoción $9.000.000) y la FAQ de rogansya.com/implantes-capilares/ (“desde $10.000.000”), leídos el 28 oct 2026. Clínica A: mediarte.co/precios-implante-de-cabello/ y el apartado de precio en mediarte.co/ (plasma y valoración por fotos). Clínica B: estudioderma.com/post/implante-capilar-precio-colombia (Bogotá). Clínica C: capilclinic.co/implante-capilar-precios/ (pack 4000, Bogotá).</p>
 		</section>
 
 		<section class="av-slide av-dark" data-chip="Financiación" aria-labelledby="av-h-financia">
@@ -537,12 +682,12 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 				<div class="av-head">
 					<div>
 						<p class="av-kicker">Que el precio no te frene</p>
-						<h2 class="av-title" id="av-h-financia">Financia tu implante <em>con 0 % de interés</em></h2>
+						<h2 class="av-title" id="av-h-financia">Financiamos todos los tratamientos <em>con 0 % de interés</em></h2>
 					</div>
 					<button type="button" class="av-back" id="NAV-ROGANS-AYUDAVENTAS-V1-VOLVER-FINANCIA" data-go="2">← Volver a preguntas</button>
 				</div>
 				<div class="av-four av-stats">
-					<div class="av-stat"><b>0 %</b><p>de interés en implante capilar, desde $7.000.000</p></div>
+					<div class="av-stat"><b>0 %</b><p>de interés en todos los tratamientos: capilar, facial, salud sexual y las demás líneas publicadas</p></div>
 					<div class="av-stat"><b>Cédula</b><p>y tu número de celular: es todo lo que necesitas</p></div>
 					<div class="av-stat"><b>24 h</b><p>hábiles para darte respuesta</p></div>
 					<div class="av-stat"><b>+1.750</b><p>créditos desembolsados</p></div>
@@ -558,7 +703,7 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 					<li><span class="av-num">4</span>Empiezas y llevas tus controles</li>
 				</ol>
 			</div>
-			<p class="av-src">Fuente: rogansya.com/implantes-capilares, /cuidado-capilar y /financiamiento. Crédito sujeto a aprobación de la entidad aliada.</p>
+			<p class="av-src">0 % en el tratamiento médico: rogansya.com/financiamiento/ (“Financiamos tu Tratamiento Médico con 0% de interés”; líneas de capilar, piel, vida íntima, peso y estética corporal). Variedad de procedimientos: rogansya.com/landing/financiacion/ (implantes, faciales, odontología, rendimiento sexual y más). El “desde $7.000.000” de la página de implantes aplica al implante, no a todos los planes. Crédito sujeto a aprobación de la entidad aliada, que sigue pendiente de confirmar.</p>
 		</section>
 
 		<section class="av-slide av-mint" data-chip="Garantía" aria-labelledby="av-h-garantia">
@@ -710,10 +855,7 @@ html, body { margin: 0; background: #fff; font-family: Poppins, system-ui, sans-
 </div>
 
 
-<footer class="av-sitefoot">
-  <img src="assets/logo-blanco.svg" alt="Rogans">
-  <p>Autopista Norte #106-71, oficina 401, Bogotá. Herramienta interna de cierre. Los resultados varían según cada paciente y requieren valoración médica.</p>
-</footer>
+<footer class="av-sitefoot"><img src="assets/logo-blanco.svg" alt="Rogans"><p>Autopista Norte #106-71, oficina 401, Bogotá. Herramienta interna. Los resultados varían según cada paciente y requieren valoración médica.</p></footer>
 <script src="assets/ayuda-ventas.js"></script>
 </body>
 </html>
