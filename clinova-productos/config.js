@@ -1,24 +1,22 @@
 /*
  * Configuración de la landing "Clinova · Productos".
- * Todo lo que depende de negocio/legal/backend vive aquí para cambiarlo sin tocar app.js.
+ * Todo lo que depende de negocio/legal/enlaces vive aquí para cambiarlo sin tocar app.js.
  */
 window.CLINOVA_LANDING_CONFIG = {
   /*
-   * A dónde se envía el formulario de demo.
-   *  - null  => MODO VISTA PREVIA: no se envía ningún dato a ningún lado; solo se muestra la pantalla de éxito.
-   *  - "https://…" => POST con el cuerpo en el formato de DEMO_ENDPOINT_FORMAT.
-   * Pendiente de backend. Candidatos encontrados (no conectados):
-   *  - clinova24.com (WordPress): admin-ajax.php, action "clinova24_demo_lead" + nonce "clinova24_demo_lead_nonce"
-   *    (es el formulario "Solicitar demo de Clinova"; solo funciona desde el mismo dominio clinova24.com).
-   *  - rogansya.com/externals-api.php?action=captura-datos-contacto-clinova (espera nombre, correo, telefono, clinica, utm).
+   * Registro de demo: se usa el formulario EXISTENTE de clinova24.com (no se duplica ni se envían datos desde aquí).
+   * Ese formulario (3 pasos, action AJAX "clinova24_demo_lead", solo mismo dominio) guarda page_url y los UTM,
+   * así que el producto elegido en el quiz viaja en utm_content (clinova | notes | extension | asesoria).
    */
-  DEMO_ENDPOINT: null,
-  DEMO_ENDPOINT_FORMAT: "json", // "json" | "form"
+  DEMO_URL: "https://clinova24.com/solicitar-demo/",
+  DEMO_UTM: { utm_source: "clinova-productos", utm_medium: "landing", utm_campaign: "productos-clinova" },
+  DEMO_UTM_CONTENT: { pro: "clinova", notes: "notes", extension: "extension", "no-se": "asesoria" },
 
-  /* Responsable del tratamiento de datos que aparece en la autorización (Ley 1581 de 2012). */
+  /* Responsable del tratamiento de datos (Ley 1581 de 2012). NIT verificado en RUES: 901906889, DV 8. */
   LEGAL_ENTITY: "Ro Medical S.A.S.",
 
   /* Enlaces de producto */
   NOTES_REGISTER_URL: "https://notes.clinova24.com/register",
+  CHROME_STORE_URL: "https://chromewebstore.google.com/detail/clinova-notes-%E2%80%94-autollena/nodeodcobaohjebegajgbbbjijipdfka",
   WHATSAPP_URL: "https://wa.me/573189010159"
 };
