@@ -146,7 +146,7 @@
     S = {
       id: uid(), fase: 'inicio', history: [],
       edad: '', pais: '', sexo: '', relato: '',
-      alarmas: [], qi: 0, resp: {},
+      alarmas: [], qi: 0, resp: {}, notas: {},
       antecedentes: [], quirurgicos: '', toxicos: [], gineco: [], familiares: '',
       alergias: '', medicamentos: '',
       tratamientos: '', tratResultado: '', tratDetalle: '',
@@ -332,15 +332,16 @@
     var optionsHtml = '';
 
     if (m.tipo === 'chips' || m.tipo === 'confirm') {
-      // Few chips → keep in sticky footer for one-tap; many → scrollable options
+      // Few chips → keep in sticky footer for one-tap; many → scrollable options.
+      // Con texto libre, los chips van arriba y el campo queda en el pie.
       var n = (m.opciones || []).length;
-      var chips = '<div class="os-chips' + (n > 4 ? ' os-chips-stack' : '') + '" role="group">';
+      var chips = '<div class="os-chips' + (n > 4 || m.textoLibre ? ' os-chips-stack' : '') + '" role="group">';
       (m.opciones || []).forEach(function (o) {
         chips += '<button type="button" class="os-chip' + (o.primary ? ' os-chip-primary' : '') + (o.sugerido ? ' is-sugerido' : '') + '" data-os="chip" data-v="' + esc(o.v) + '">' + esc(o.t) +
           (o.sugerido ? ' <span class="os-tag-sug">Sugerido</span>' : '') + '</button>';
       });
       chips += '</div>';
-      if (n > 4) {
+      if (n > 4 || m.textoLibre) {
         optionsHtml = chips;
       } else {
         foot += chips;
@@ -365,6 +366,12 @@
         foot += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="1">' + esc(o.t) + '</button>';
       });
       foot += '<button type="button" class="os-chip os-chip-primary" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button></div>';
+    }
+    if (m.textoLibre && (m.tipo === 'chips' || m.tipo === 'chips_multi' || m.tipo === 'confirm')) {
+      foot += '<form data-os="text-form" class="os-text-form os-text-libre">' +
+        '<label class="os-libre-label" for="os-text">Si no aparece, escríbalo con sus palabras</label>' +
+        '<textarea id="os-text" class="os-text" rows="2" maxlength="500" placeholder="' + esc(m.placeholder || 'Escríbalo aquí') + '"></textarea>' +
+        '<button type="submit" class="os-chip os-chip-primary os-send">Enviar</button></form>';
     } else if (m.tipo === 'text' || m.tipo === 'text_optional') {
       foot += '<form data-os="text-form" class="os-text-form">' +
         '<label class="sr-only" for="os-text">Tu respuesta</label>' +
@@ -457,6 +464,7 @@
     S.history.push({
       fase: S.fase, edad: S.edad, pais: S.pais, sexo: S.sexo, relato: S.relato,
       alarmas: S.alarmas.slice(), qi: S.qi, resp: JSON.parse(JSON.stringify(S.resp)),
+      notas: JSON.parse(JSON.stringify(S.notas || {})),
       antecedentes: S.antecedentes.slice(), quirurgicos: S.quirurgicos,
       toxicos: S.toxicos.slice(), gineco: S.gineco.slice(), familiares: S.familiares,
       alergias: S.alergias, medicamentos: S.medicamentos,
@@ -566,28 +574,108 @@
     });
     return best;
   }
-  function categoriaOpciones() {
-    var sug = sugerirCategoria(S.relato);
-    var list = D.categorias.slice();
-    if (sug) {
-      var i = -1;
-      list.forEach(function (c, j) { if (c.id === sug) i = j; });
-      if (i > 0) list.unshift(list.splice(i, 1)[0]);
-      // Medicina general sigue de segunda (si no es la sugerida).
-      if (sug !== 'medicina_general') {
-        var k = -1;
-        list.forEach(function (c, j) { if (c.id === 'medicina_general') k = j; });
-        if (k > 1) list.splice(1, 0, list.splice(k, 1)[0]);
-      }
+  // Áreas que coinciden con el relato y con las respuestas ya elegidas.
+  // Las específicas (espalda, manchas, caída) tapan a las amplias (cara).
+  function textoParaAreas() {
+    var partes = [S.relato || ''];
+    Object.keys(S.notas || {}).forEach(function (k) { partes.push(S.notas[k] || ''); });
+    return partes.join(' ');
+  }
+  function clavesEnTexto(claves, txt) {
+    var padded = txt.charAt(0) === ' ' ? txt : (' ' + txt + ' ');
+    for (var i = 0; i < claves.length; i++) {
+      var c = normTxt(claves[i]);
+      if (!c) continue;
+      if (c.length < 5) {
+        if (padded.indexOf(' ' + c + ' ') !== -1) return true;
+      } else if (padded.indexOf(c) !== -1) return true;
     }
-    return list.map(function (c) { return { v: c.id, t: c.titulo, sugerido: c.id === sug }; });
+    return false;
+  }
+  function areasActivas() {
+    var R = D.relevancia || {};
+    var def = R.areas || {};
+    var txt = ' ' + normTxt(textoParaAreas()).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+    var desdeTexto = [];
+    Object.keys(def).forEach(function (id) {
+      if (clavesEnTexto(def[id].claves || [], txt)) desdeTexto.push(id);
+    });
+    var desdeResp = [];
+    var mapa = R.respuestaArea || {};
+    if (S.cat) {
+      Object.keys(S.resp || {}).forEach(function (pid) {
+        [].concat(S.resp[pid] || []).forEach(function (v) {
+          var area = mapa[S.cat.id + '.' + pid + '.' + v];
+          if (area && desdeResp.indexOf(area) === -1) desdeResp.push(area);
+        });
+      });
+    }
+    // La respuesta elegida manda sobre el texto para los pasos siguientes.
+    var base = desdeResp.length ? desdeResp : desdeTexto;
+    var especificas = base.filter(function (id) { return def[id] && def[id].especifico; });
+    var usar = especificas.length ? especificas : base;
+    return { usar: usar, huboTexto: desdeTexto.length > 0 || desdeResp.length > 0 };
+  }
+  function categoriasRelevantes() {
+    var R = D.relevancia || {};
+    var info = areasActivas();
+    var ids = [];
+    var def = R.areas || {};
+    if (info.huboTexto && info.usar.length) {
+      info.usar.forEach(function (id) {
+        ((def[id] && def[id].categorias) || []).forEach(function (cid) {
+          if (ids.indexOf(cid) === -1) ids.push(cid);
+        });
+      });
+    }
+    if (!ids.length) ids = (R.categoriasFallback || []).slice();
+    return { ids: ids, sugerido: info.huboTexto && info.usar.length ? ids[0] : '' };
+  }
+  function filtrarOpciones(catId, pregId, opciones) {
+    var mapa = ((((D.relevancia || {}).opciones || {})[catId] || {})[pregId]);
+    if (!mapa) return opciones;
+    var info = areasActivas();
+    if (!info.usar.length) {
+      if (mapa._fallback && mapa._fallback.length) {
+        return opciones.filter(function (o) { return o.exclusiva || mapa._fallback.indexOf(o.v) !== -1; });
+      }
+      return opciones;
+    }
+    var allowed = {};
+    var algunaLista = false;
+    info.usar.forEach(function (area) {
+      if (!Object.prototype.hasOwnProperty.call(mapa, area)) return;
+      algunaLista = true;
+      (mapa[area] || []).forEach(function (v) { allowed[v] = 1; });
+    });
+    if (!algunaLista) {
+      if (mapa._fallback && mapa._fallback.length) {
+        return opciones.filter(function (o) { return o.exclusiva || mapa._fallback.indexOf(o.v) !== -1; });
+      }
+      return opciones;
+    }
+    return opciones.filter(function (o) { return o.exclusiva || allowed[o.v]; });
+  }
+  function opcionesDePregunta(p) {
+    var ops = (p.opciones || []).map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; });
+    return filtrarOpciones(S.cat ? S.cat.id : '', p.id, ops);
+  }
+  function categoriaOpciones() {
+    var rel = categoriasRelevantes();
+    var list = [];
+    rel.ids.forEach(function (id) {
+      var c = catById(id);
+      if (c) list.push(c);
+    });
+    if (!list.length) list = D.categorias.slice();
+    return list.map(function (c) { return { v: c.id, t: c.titulo, sugerido: c.id === rel.sugerido }; });
   }
 
   function askCategoria() {
     S.fase = 'categoria';
     track('categoria');
     botThen(esc(T.categoria || ''), function () {
-      ask({ tipo: 'chips', q: T.categoria || '', opciones: categoriaOpciones() });
+      ask({ tipo: 'chips', q: T.categoria || '', textoLibre: true, placeholder: 'Si no es ninguna, escríbalo aquí', opciones: categoriaOpciones() });
     });
   }
 
@@ -713,14 +801,53 @@
     S.fase = 'pregunta';
     var p = qs[S.qi];
     botThen(esc(p.texto), function () {
+      var ops = opcionesDePregunta(p);
       var isMulti = !!(p.multi || p.tipo === 'multi');
       if (isMulti) {
-        var ops = p.opciones.map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; });
-        ask({ tipo: 'chips_multi', q: p.texto, selected: [], opciones: ops });
+        ask({ tipo: 'chips_multi', q: p.texto, selected: [], textoLibre: true, placeholder: 'O escríbalo con sus palabras', opciones: ops });
       } else {
-        ask({ tipo: 'chips', q: p.texto, opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t }; }) });
+        ask({ tipo: 'chips', q: p.texto, textoLibre: true, placeholder: 'O escríbalo con sus palabras', opciones: ops });
       }
     });
+  }
+
+  function afterCategoriaLibre(text) {
+    pushHist();
+    var prev = S.relato;
+    S.relato = text;
+    var solo = categoriasRelevantes();
+    S.relato = (prev ? prev + ' ' : '') + text;
+    var id = solo.sugerido;
+    if (!id) {
+      var rel = categoriasRelevantes();
+      id = rel.sugerido || 'medicina_general';
+    }
+    var c = catById(id);
+    if (!c) return;
+    sayUser(text);
+    S.cat = c;
+    askAlarmas();
+  }
+
+  function afterPreguntaLibre(text) {
+    pushHist();
+    var qs = S.cat.preguntas;
+    var p = qs[S.qi];
+    var txt = ' ' + normTxt(text).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+    var hits = [];
+    opcionesDePregunta(p).forEach(function (o) {
+      if (o.exclusiva) return;
+      if (clavesEnTexto([o.v, o.t], txt)) hits.push(o.v);
+    });
+    sayUser(text);
+    if (hits.length) {
+      S.resp[p.id] = (p.tipo === 'multi' || p.multi) ? hits : [hits[0]];
+    } else {
+      S.notas[p.id] = text;
+      S.relato = (S.relato ? S.relato + ' ' : '') + text;
+    }
+    S.qi++;
+    askPregunta();
   }
 
   function afterPregunta(val) {
@@ -952,6 +1079,10 @@
     if (!S.cat) return rows;
     (S.cat.preguntas || []).forEach(function (p) {
       var sel = [].concat(S.resp[p.id] || []);
+      if (!sel.length && S.notas && S.notas[p.id]) {
+        rows.push({ q: p.texto || p.t || p.id, a: S.notas[p.id] });
+        return;
+      }
       if (!sel.length) return;
       var labels = [];
       (p.opciones || []).forEach(function (o) {
@@ -1400,6 +1531,7 @@
     S.fase = snap.fase;
     S.edad = snap.edad; S.pais = snap.pais; S.sexo = snap.sexo; S.relato = snap.relato;
     S.alarmas = snap.alarmas; S.qi = snap.qi; S.resp = snap.resp;
+    S.notas = snap.notas || {};
     S.antecedentes = snap.antecedentes; S.quirurgicos = snap.quirurgicos;
     S.toxicos = snap.toxicos; S.gineco = snap.gineco; S.familiares = snap.familiares;
     S.alergias = snap.alergias; S.medicamentos = snap.medicamentos;
@@ -1423,7 +1555,7 @@
     } else if (f === 'motivo') {
       ask({ tipo: 'text', q: T.motivo || '¿Qué te trae por aquí?', max: 1000, placeholder: '…', value: S.relato });
     } else if (f === 'categoria') {
-      ask({ tipo: 'chips', q: T.categoria || '', opciones: categoriaOpciones() });
+      ask({ tipo: 'chips', q: T.categoria || '', textoLibre: true, placeholder: 'Si no es ninguna, escríbalo aquí', opciones: categoriaOpciones() });
     } else if (f === 'alarmas') {
       var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });
@@ -1440,9 +1572,9 @@
       if (!p) { askAntecedentes(); return; }
       var isMulti = !!(p.multi || p.tipo === 'multi');
       if (isMulti) {
-        ask({ tipo: 'chips_multi', q: p.texto, selected: [], opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; }) });
+        ask({ tipo: 'chips_multi', q: p.texto, selected: [], textoLibre: true, placeholder: 'O escríbalo con sus palabras', opciones: opcionesDePregunta(p) });
       } else {
-        ask({ tipo: 'chips', q: p.texto, opciones: p.opciones.map(function (o) { return { v: o.v, t: o.t }; }) });
+        ask({ tipo: 'chips', q: p.texto, textoLibre: true, placeholder: 'O escríbalo con sus palabras', opciones: opcionesDePregunta(p) });
       }
     } else if (f === 'antecedentes') {
       ask({ tipo: 'chips_multi', q: T.antecedentes || '', selected: [], opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
@@ -1547,6 +1679,7 @@
     var ta = form.querySelector('#os-text');
     var text = (ta && ta.value || '').trim();
     if (inputMode.tipo === 'text' && text.length < 3) { ta.focus(); return; }
+    if (!text) { ta.focus(); return; }
     clearComposer();
     handleText(text);
   });
@@ -1573,6 +1706,8 @@
 
   function handleText(text) {
     if (S.fase === 'motivo') { afterMotivo(text); return; }
+    if (S.fase === 'categoria') { afterCategoriaLibre(text); return; }
+    if (S.fase === 'pregunta') { afterPreguntaLibre(text); return; }
     if (S.fase === 'tratamientos') { afterTratamientos(text); return; }
     if (S.fase === 'trat_detalle') { afterTratDetalle(text); return; }
     if (S.fase === 'quirurgicos') { afterQuirurgicos(text); return; }
