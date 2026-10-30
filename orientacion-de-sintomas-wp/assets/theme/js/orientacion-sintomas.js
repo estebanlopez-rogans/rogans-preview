@@ -656,6 +656,21 @@
     }
     return opciones.filter(function (o) { return o.exclusiva || allowed[o.v]; });
   }
+  function antecedentesFiltrados() {
+    var ops = (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; });
+    var mapa = ((D.relevancia || {}).antecedentes) || {};
+    var info = areasActivas();
+    if (!info.usar.length || !mapa) return ops;
+    var allowed = {};
+    var alguna = false;
+    info.usar.forEach(function (area) {
+      if (!mapa[area]) return;
+      alguna = true;
+      (mapa[area] || []).forEach(function (v) { allowed[v] = 1; });
+    });
+    if (!alguna) return ops;
+    return ops.filter(function (o) { return o.exclusiva || allowed[o.v]; });
+  }
   function opcionesDePregunta(p) {
     var ops = (p.opciones || []).map(function (o) { return { v: o.v, t: o.t, exclusiva: !!o.exclusiva }; });
     return filtrarOpciones(S.cat ? S.cat.id : '', p.id, ops);
@@ -872,7 +887,9 @@
       ask({
         tipo: 'chips_multi',
         selected: [],
-        opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; })
+        textoLibre: true,
+        placeholder: 'Otra enfermedad, o escríbala aquí',
+        opciones: antecedentesFiltrados()
       });
     });
   }
@@ -1414,7 +1431,7 @@
       return '<p class="os-result-brief">Con lo que nos contaste no hay una causa única clara. <strong>Un médico revisa tu caso y define el diagnóstico</strong>; ya tiene tus respuestas.</p>';
     }
     var area = S.cat ? S.cat.titulo : '';
-    var top = r.causas.length ? causaLabel(r.causas[0]) : '';
+    var top = (arguments[2] && arguments[2].diffs && arguments[2].diffs[0]) ? arguments[2].diffs[0].nombre : (r.causas.length ? causaLabel(r.causas[0]) : '');
     var txt = mot ? 'Nos contaste: «' + esc(mot) + '»' + (dur ? ' (' + esc(lc1(dur.t)) + ')' : '') + '. ' : '';
     txt += 'Según tus respuestas' + (area ? ' sobre <strong>' + esc(area) + '</strong>' : '');
     txt += top ? ', lo más probable es <strong>' + esc(top) + '</strong>.' : '.';
@@ -1422,22 +1439,206 @@
     return '<p class="os-result-brief">' + txt + '</p>';
   }
 
+  function textoClinico() {
+    var bits = [S.relato || '', S.alergias || '', S.medicamentos || '', S.familiares || '', S.quirurgicos || '', S.tratamientos || ''];
+    Object.keys(S.notas || {}).forEach(function (k) { bits.push(S.notas[k] || ''); });
+    (S.antecedentes || []).forEach(function (id) { bits.push(id); });
+    (S.toxicos || []).forEach(function (id) { bits.push(id); });
+    if (S.cat) {
+      (S.cat.preguntas || []).forEach(function (p) {
+        [].concat(S.resp[p.id] || []).forEach(function (v) { bits.push(v); bits.push(p.id); });
+      });
+    }
+    return ' ' + normTxt(bits.join(' ')).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+  }
+  function correrMotor() {
+    var M = D.motor;
+    if (!M || !(M.condiciones || []).length) return null;
+    var txt = textoClinico();
+    var banderas = [];
+    (M.banderas || []).forEach(function (b) {
+      var ok = clavesEnTexto(b.claves || [], txt);
+      if (ok && b.y && b.y.length) ok = clavesEnTexto(b.y, txt);
+      if (ok) banderas.push(b);
+    });
+    if ((S.alarmas || []).length) {
+      banderas.unshift({ nivel: 'urgencias', razon: 'Marcó una señal de alarma. Eso va primero, antes que cualquier medicamento.' });
+    }
+    var scored = [];
+    (M.condiciones || []).forEach(function (c) {
+      var hit = clavesEnTexto(c.claves || [], txt);
+      if (c.y && c.y.length) hit = hit && clavesEnTexto(c.y, txt);
+      if (!hit) return;
+      var peso = c.peso || 40;
+      var extra = '';
+      (c.modificadores || []).forEach(function (m) {
+        var keys = m.si || [];
+        var hit = m.todos
+          ? keys.every(function (k) { return clavesEnTexto([k], txt); })
+          : keys.some(function (k) { return clavesEnTexto([k], txt); });
+        if (hit) {
+          peso += m.delta || 0;
+          if (!extra && m.nota) extra = m.nota;
+        }
+      });
+      scored.push({ c: c, peso: peso, extra: extra });
+    });
+    scored.sort(function (a, b) { return b.peso - a.peso; });
+    if (scored.length && scored[0].c.explicito) {
+      var top = scored[0];
+      scored = scored.filter(function (s, i) {
+        return i === 0 || s.c.linea === top.c.linea || s.peso >= top.peso - 20;
+      });
+    }
+    var diffs = [];
+    scored.slice(0, 3).forEach(function (s, i) {
+      var nivel = s.peso >= 80 ? 'alta' : (s.peso >= 50 ? 'media' : 'baja');
+      if (i === 0 && (s.c.explicito || s.peso >= 70)) nivel = 'alta';
+      if (i > 0 && nivel === 'alta') nivel = 'media';
+      var porQue = s.c.porQue || '';
+      if (s.extra) porQue = (porQue ? porQue + ' ' : '') + s.extra;
+      diffs.push({ nombre: s.c.nombre, nivel: nivel, porQue: porQue });
+    });
+    var lead = scored.length ? scored[0].c : null;
+    if (lead && lead.acompanantes) {
+      lead.acompanantes.forEach(function (a) {
+        if (a.si && a.si.length && !a.si.some(function (k) { return clavesEnTexto([k], txt); })) return;
+        if (!a.si && diffs.length >= 3) return;
+        diffs.push({ nombre: a.nombre, nivel: a.nivel || 'baja', porQue: a.porQue || '' });
+      });
+    }
+    diffs = diffs.slice(0, 4);
+    var triage = 'programada';
+    var triageRazon = 'Con lo que contó, se organiza una cita. No es una urgencia si no aparecen las señales de alarma.';
+    var triageNivel = 'programada';
+    if (banderas.length) {
+      triageNivel = 'urgencias';
+      triage = 'Urgencias ya';
+      triageRazon = banderas[0].razon;
+    } else if (lead) {
+      triageNivel = lead.triage || 'programada';
+      triageRazon = lead.triageRazon || triageRazon;
+      (lead.triageSi || []).forEach(function (t) {
+        if ((t.si || []).some(function (k) { return clavesEnTexto([k], txt); })) {
+          triageNivel = t.nivel;
+          triageRazon = t.razon;
+        }
+      });
+      triage = { urgencias: 'Urgencias ya', pronto: 'Consulta pronto (24 a 72 horas)', programada: 'Consulta programada', autocuidado: 'Autocuidado y vigilancia' }[triageNivel] || 'Consulta programada';
+    }
+    return {
+      diffs: diffs,
+      lead: lead,
+      triage: triage,
+      triageNivel: triageNivel,
+      triageRazon: triageRazon,
+      examenes: lead ? (lead.examenes || []) : [],
+      especialistas: lead ? (lead.especialistas || []) : [],
+      otc: lead ? (lead.otc || []) : null,
+      rxNota: lead ? (lead.rxNota || '') : '',
+      urgencias: triageNivel === 'urgencias'
+    };
+  }
+  function triageCardHtml(motor) {
+    if (!motor) return '';
+    var html = '<section class="os-triage is-' + esc(motor.triageNivel) + '" role="status">';
+    html += '<p class="os-triage-kicker">Prioridad</p>';
+    html += '<p class="os-triage-level">' + esc(motor.triage) + '</p>';
+    html += '<p class="os-triage-why">' + esc(motor.triageRazon) + '</p>';
+    html += '</section>';
+    return html;
+  }
+  function diffsCardHtml(motor) {
+    if (!motor || !motor.diffs.length) return '';
+    var html = '<section class="os-card os-card-causas">';
+    html += '<header class="os-card-head">' + iconHtml('stethoscope') + '<div><p class="os-card-kicker">Orientación</p><h3 class="os-card-title">Qué puede estar pasando</h3></div></header>';
+    html += '<ul class="os-causa-list">';
+    motor.diffs.forEach(function (d) {
+      html += '<li class="os-causa-item"><div class="os-causa-top"><strong>' + esc(d.nombre) + '</strong>';
+      html += '<span class="os-likeli os-likeli-' + esc(d.nivel) + '">' + esc(d.nivel === 'alta' ? 'Probabilidad alta' : (d.nivel === 'media' ? 'Probabilidad media' : 'Probabilidad baja')) + '</span></div>';
+      html += '<div class="os-likeli-bar is-' + esc(d.nivel) + '" aria-hidden="true"><span></span></div>';
+      if (d.porQue) html += '<p class="os-causa-desc">' + esc(d.porQue) + '</p>';
+      html += '</li>';
+    });
+    html += '</ul>';
+    html += '<p class="os-card-note">No es un diagnóstico. Es el orden en que un médico revisaría sus respuestas. La consulta lo confirma o lo cambia.</p>';
+    html += '</section>';
+    return html;
+  }
+  function examsMotorHtml(motor) {
+    var list = (motor && motor.examenes) || [];
+    if (!list.length) return '';
+    var html = '<section class="os-card os-card-exams">';
+    html += '<header class="os-card-head">' + iconHtml('flask-conical') + '<div><p class="os-card-kicker">Estudios</p><h3 class="os-card-title">Exámenes que podría considerar</h3></div></header>';
+    html += '<p class="os-card-lead">Son ideas para conversar con el médico, no una orden. El médico decide cuáles pedir.</p><ul class="os-exam-list">';
+    list.forEach(function (x, i) {
+      html += '<li><span>' + esc(x.nombre) + '</span>';
+      if (x.buscar) {
+        html += ' <a class="os-pharm-link" id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '">Ver en Farminova</a>';
+      }
+      html += '</li>';
+    });
+    html += '</ul><p class="os-card-note">El enlace abre la búsqueda en Farminova24, la farmacia aliada. No todos los estudios se compran ahí; si no aparece, el médico le indica dónde hacerlo.</p></section>';
+    return html;
+  }
+  function specsMotorHtml(motor) {
+    var list = (motor && motor.especialistas) || [];
+    if (!list.length) return '';
+    var html = '<section class="os-card os-card-ref">';
+    html += '<header class="os-card-head">' + iconHtml('user-round') + '<div><p class="os-card-kicker">Remisión</p><h3 class="os-card-title">A quién consultar</h3></div></header><ul class="os-causa-list">';
+    list.forEach(function (s) {
+      html += '<li class="os-causa-item"><strong>' + esc(s.nombre) + '</strong>';
+      if (s.porQue) html += '<p class="os-causa-desc">' + esc(s.porQue) + '</p>';
+      html += '</li>';
+    });
+    html += '</ul></section>';
+    return html;
+  }
+  function medsMotorHtml(r, motor) {
+    if (!motor || !motor.lead) return medsCardHtml(r);
+    if (motor.urgencias) {
+      return '<section class="os-card os-card-meds"><header class="os-card-head">' + iconHtml('pill') + '<div><p class="os-card-kicker">Cuidados</p><h3 class="os-card-title">Medicamentos</h3></div></header>' +
+        '<p class="os-card-lead os-alerta">No se automedique. Con esta prioridad, el siguiente paso es urgencias, no una pastilla en casa.</p></section>';
+    }
+    var ids = motor.otc || [];
+    var fake = { embarazo: r.embarazo, nivel: r.nivel, otc: [], rx: [] };
+    ids.forEach(function (id) {
+      var prod = (D.otc || {})[id];
+      if (!prod) return;
+      var seg = seguridadIds();
+      if ((prod.excluir_si || []).some(function (x) { return seg.indexOf(x) !== -1; })) return;
+      fake.otc.push(prod);
+    });
+    var html = medsCardHtml(fake);
+    if (motor.rxNota) {
+      html = html.replace('</section>', '<p class="os-card-note">' + esc(motor.rxNota) + '</p></section>');
+    }
+    return html;
+  }
+
   function buildResultHtml(r, e) {
+    var motor = correrMotor();
     var html = '<div class="os-result" id="os-result-panel" data-os-result="1">';
-    var indef = esIndefinido(r);
+    var indef = !motor || !motor.diffs.length ? esIndefinido(r) : false;
     var titulo = indef ? headlineParts().slice(0, 4).join(', ') : 'Recomendaciones y próximos pasos';
     html += '<h2 class="os-result-hero-title' + (indef ? ' is-relato' : '') + '">' + esc(titulo || 'Recomendaciones y próximos pasos') + '</h2>';
-    html += briefHtml(r, indef);
-    if (r.nivel === 'prioritaria') html += warningCardHtml(r);
+    html += triageCardHtml(motor);
+    if (motor && motor.lead && motor.lead.agenda) e = espInfo(motor.lead.agenda);
+    html += briefHtml(r, indef, motor);
+    if (motor && motor.urgencias) html += warningCardHtml(r);
+    else if (r.nivel === 'prioritaria') html += warningCardHtml(r);
     html += bookingHeroHtml(e, indef);
-    html += indef ? contasteCardHtml(r) : causasCardHtml(r);
-    html += medsCardHtml(r);
-    html += examsCardHtml(r);
+    if (motor && motor.diffs.length) html += diffsCardHtml(motor);
+    else html += indef ? contasteCardHtml(r) : causasCardHtml(r);
+    html += medsMotorHtml(r, motor);
+    if (motor && motor.examenes.length) html += examsMotorHtml(motor);
+    else html += examsCardHtml(r);
     if (!indef) html += summaryCardHtml();
-    html += referralCardHtml(e);
-    if (r.nivel !== 'prioritaria') html += warningCardHtml(r);
+    if (motor && motor.especialistas.length) html += specsMotorHtml(motor);
+    else html += referralCardHtml(e);
+    if (!(motor && motor.urgencias) && r.nivel !== 'prioritaria') html += warningCardHtml(r);
     html += bookingCardHtml(e);
-    html += '<p class="os-result-disc">Orientación general basada en tus respuestas. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
+    html += '<p class="os-result-disc">Orientación general basada en tus respuestas. No es un diagnóstico ni una orden de exámenes. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
     html += '</div>';
     return html;
   }
@@ -1577,7 +1778,7 @@
         ask({ tipo: 'chips', q: p.texto, textoLibre: true, placeholder: 'O escríbalo con sus palabras', opciones: opcionesDePregunta(p) });
       }
     } else if (f === 'antecedentes') {
-      ask({ tipo: 'chips_multi', q: T.antecedentes || '', selected: [], opciones: (D.antecedentes || []).map(function (a) { return { v: a.id, t: a.texto, exclusiva: !!a.exclusiva }; }) });
+      ask({ tipo: 'chips_multi', q: T.antecedentes || '', selected: [], textoLibre: true, placeholder: 'Otra enfermedad, o escríbala aquí', opciones: antecedentesFiltrados() });
     } else if (f === 'quirurgicos') {
       ask({ tipo: 'text_optional', q: T.quirurgicos || '', max: 300, value: S.quirurgicos });
     } else if (f === 'toxicos') {
