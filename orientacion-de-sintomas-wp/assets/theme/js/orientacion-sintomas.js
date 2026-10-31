@@ -469,7 +469,8 @@
       toxicos: S.toxicos.slice(), gineco: S.gineco.slice(), familiares: S.familiares,
       alergias: S.alergias, medicamentos: S.medicamentos,
       tratamientos: S.tratamientos, tratResultado: S.tratResultado, tratDetalle: S.tratDetalle,
-      catId: S.cat ? S.cat.id : null
+      catId: S.cat ? S.cat.id : null,
+      lugar: S.lugar || null
     });
   }
 
@@ -550,12 +551,54 @@
     });
   }
 
-  function afterMotivo(text) {
+  function despuesDeMotivo(text) {
     pushHist();
     sayUser(text);
     S.relato = text;
     focusHtml = '';
-    askCategoria();
+    var lugar = inferirLugar(text);
+    var catId = (lugar && lugar.categoria) || '';
+    if (!catId) {
+      var rel = categoriasRelevantes();
+      catId = rel.sugerido || 'medicina_general';
+    }
+    S.lugar = lugar;
+    S.cat = catById(catId) || catById('medicina_general');
+    askAlarmas();
+  }
+  function afterMotivo(text) {
+    despuesDeMotivo(text);
+  }
+  function dist1(a, b) {
+    if (a === b) return true;
+    if (Math.abs(a.length - b.length) > 1 || a.length < 5) return false;
+    var i = 0, j = 0, mal = 0;
+    while (i < a.length && j < b.length) {
+      if (a.charAt(i) === b.charAt(j)) { i++; j++; continue; }
+      mal++;
+      if (mal > 1) return false;
+      if (a.length === b.length) { i++; j++; }
+      else if (a.length > b.length) i++;
+      else j++;
+    }
+    return true;
+  }
+  function inferirLugar(texto) {
+    var txt = ' ' + normTxt(texto).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+    var palabras = txt.trim().split(/\s+/);
+    var best = null, bestLen = 0;
+    (D.lugares || []).forEach(function (lugar) {
+      (lugar.claves || []).forEach(function (raw) {
+        var c = normTxt(raw);
+        if (!c) return;
+        var ok = c.length < 5 ? txt.indexOf(' ' + c + ' ') !== -1 : txt.indexOf(c) !== -1;
+        if (!ok && c.length >= 5) {
+          ok = palabras.some(function (w) { return dist1(w, c); });
+        }
+        if (ok && c.length >= bestLen) { best = lugar; bestLen = c.length; }
+      });
+    });
+    return best;
   }
 
   function normTxt(s) {
@@ -687,11 +730,9 @@
   }
 
   function askCategoria() {
-    S.fase = 'categoria';
-    track('categoria');
-    botThen(esc(T.categoria || ''), function () {
-      ask({ tipo: 'chips', q: T.categoria || '', textoLibre: true, placeholder: 'Si no es ninguna, escríbalo aquí', opciones: categoriaOpciones() });
-    });
+    // La pregunta de área se eliminó: si el relato no alcanza, queda medicina general.
+    if (!S.cat) S.cat = catById('medicina_general');
+    askAlarmas();
   }
 
   function afterCategoria(id) {
@@ -705,6 +746,7 @@
 
   function askAlarmas() {
     S.fase = 'alarmas';
+    focusHtml = '';
     track('alarmas');
     botThen(esc(T.alarmas || ''), function () {
       var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
@@ -807,13 +849,29 @@
     });
   }
 
+  function respuestaYaDicha(p) {
+    if (!p) return '';
+    var lugar = S.lugar;
+    var mapa = (lugar && lugar.respuestas) || {};
+    var v = mapa[p.id] || '';
+    if (!v) return '';
+    var existe = (p.opciones || []).some(function (o) { return o.v === v; });
+    return existe ? v : '';
+  }
   function askPregunta() {
     var qs = (S.cat && S.cat.preguntas) || [];
+    while (S.qi < qs.length) {
+      var previa = respuestaYaDicha(qs[S.qi]);
+      if (!previa) break;
+      S.resp[qs[S.qi].id] = [previa];
+      S.qi++;
+    }
     if (S.qi >= qs.length) {
       askAntecedentes();
       return;
     }
     S.fase = 'pregunta';
+    focusHtml = '';
     var p = qs[S.qi];
     botThen(esc(p.texto), function () {
       var ops = opcionesDePregunta(p);
@@ -1439,36 +1497,58 @@
     return '<p class="os-result-brief">' + txt + '</p>';
   }
 
-  function textoClinico() {
-    var bits = [S.relato || '', S.alergias || '', S.medicamentos || '', S.familiares || '', S.quirurgicos || '', S.tratamientos || ''];
+  function textoPlano(bits) {
+    return ' ' + normTxt(bits.join(' ')).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+  }
+  function textoMotivo() {
+    var bits = [S.relato || '', S.tratamientos || ''];
     Object.keys(S.notas || {}).forEach(function (k) { bits.push(S.notas[k] || ''); });
-    (S.antecedentes || []).forEach(function (id) { bits.push(id); });
-    (S.toxicos || []).forEach(function (id) { bits.push(id); });
     if (S.cat) {
       (S.cat.preguntas || []).forEach(function (p) {
-        [].concat(S.resp[p.id] || []).forEach(function (v) { bits.push(v); bits.push(p.id); });
+        [].concat(S.resp[p.id] || []).forEach(function (v) { bits.push(v); });
       });
     }
-    return ' ' + normTxt(bits.join(' ')).replace(/[^a-z0-9 ]+/g, ' ') + ' ';
+    return textoPlano(bits);
+  }
+  function textoHistoria() {
+    var bits = [S.familiares || '', S.alergias || '', S.quirurgicos || '', S.medicamentos || ''];
+    (S.antecedentes || []).forEach(function (id) {
+      var a = (D.antecedentes || []).filter(function (x) { return x.id === id; })[0];
+      bits.push(id);
+      if (a) bits.push(a.texto || '');
+    });
+    (S.toxicos || []).forEach(function (id) { bits.push(id); });
+    return textoPlano(bits);
+  }
+  function textoClinico() {
+    return textoPlano([textoMotivo(), textoHistoria()]);
   }
   function correrMotor() {
     var M = D.motor;
     if (!M || !(M.condiciones || []).length) return null;
-    var txt = textoClinico();
+    var motivo = textoMotivo();
+    var historia = textoHistoria();
+    var txt = textoPlano([motivo, historia]);
     var banderas = [];
     (M.banderas || []).forEach(function (b) {
-      var ok = clavesEnTexto(b.claves || [], txt);
-      if (ok && b.y && b.y.length) ok = clavesEnTexto(b.y, txt);
+      var ok = clavesEnTexto(b.claves || [], motivo);
+      if (ok && b.y && b.y.length) ok = clavesEnTexto(b.y, motivo);
       if (ok) banderas.push(b);
     });
     if ((S.alarmas || []).length) {
       banderas.unshift({ nivel: 'urgencias', razon: 'Marcó una señal de alarma. Eso va primero, antes que cualquier medicamento.' });
     }
     var scored = [];
+    var otros = [];
     (M.condiciones || []).forEach(function (c) {
-      var hit = clavesEnTexto(c.claves || [], txt);
-      if (c.y && c.y.length) hit = hit && clavesEnTexto(c.y, txt);
-      if (!hit) return;
+      var hit = clavesEnTexto(c.claves || [], motivo);
+      if (c.y && c.y.length) hit = hit && clavesEnTexto(c.y, motivo);
+      if (!hit) {
+        if (c.explicito && clavesEnTexto(c.claves || [], historia)) {
+          otros.push(c.nombre);
+        }
+        return;
+      }
       var peso = c.peso || 40;
       var extra = '';
       (c.modificadores || []).forEach(function (m) {
@@ -1483,6 +1563,9 @@
       });
       scored.push({ c: c, peso: peso, extra: extra });
     });
+    if (scored.some(function (s) { return s.c.id === 'cefalea_subita'; })) {
+      scored = scored.filter(function (s) { return s.c.id !== 'cefalea_comun'; });
+    }
     scored.sort(function (a, b) { return b.peso - a.peso; });
     if (scored.length && scored[0].c.explicito) {
       var top = scored[0];
@@ -1528,6 +1611,7 @@
     }
     return {
       diffs: diffs,
+      otros: otros,
       lead: lead,
       triage: triage,
       triageNivel: triageNivel,
@@ -1551,7 +1635,7 @@
   function diffsCardHtml(motor) {
     if (!motor || !motor.diffs.length) return '';
     var html = '<section class="os-card os-card-causas">';
-    html += '<header class="os-card-head">' + iconHtml('stethoscope') + '<div><p class="os-card-kicker">Orientación</p><h3 class="os-card-title">Qué puede estar pasando</h3></div></header>';
+    html += '<header class="os-card-head">' + iconHtml('stethoscope') + '<div><p class="os-card-kicker">Orientación</p><h3 class="os-card-title">' + esc(motor.titulo || 'Qué puede estar pasando') + '</h3></div></header>';
     html += '<ul class="os-causa-list">';
     motor.diffs.forEach(function (d) {
       html += '<li class="os-causa-item"><div class="os-causa-top"><strong>' + esc(d.nombre) + '</strong>';
@@ -1616,26 +1700,54 @@
     return html;
   }
 
+  function dxHeroHtml(motor) {
+    if (!motor || !motor.diffs.length) return '';
+    var d = motor.diffs[0];
+    var etiqueta = d.nivel === 'alta' ? 'Lo más probable' : (d.nivel === 'media' ? 'Posible' : 'A considerar');
+    var html = '<section class="os-dx">';
+    html += '<p class="os-dx-kicker">' + esc(etiqueta) + '</p>';
+    html += '<h2 class="os-dx-title">' + esc(d.nombre) + '</h2>';
+    html += '<p class="os-dx-level">Probabilidad ' + esc(d.nivel) + '</p>';
+    html += '<div class="os-likeli-bar is-' + esc(d.nivel) + '" aria-hidden="true"><span></span></div>';
+    if (d.porQue) html += '<p class="os-dx-why">' + esc(d.porQue) + '</p>';
+    html += '</section>';
+    return html;
+  }
+  function otrosTemasHtml(motor) {
+    var list = (motor && motor.otros) || [];
+    if (!list.length) return '';
+    var html = '<section class="os-card os-card-otros">';
+    html += '<header class="os-card-head"><div><p class="os-card-kicker">Aparte</p><h3 class="os-card-title">Otros temas para hablar con su médico</h3></div></header>';
+    html += '<p class="os-card-lead">No están relacionados con la consulta de hoy. No cambian la prioridad de este motivo.</p><ul class="os-exam-list">';
+    list.forEach(function (n) { html += '<li>' + esc(n) + '</li>'; });
+    html += '</ul></section>';
+    return html;
+  }
   function buildResultHtml(r, e) {
     var motor = correrMotor();
     var html = '<div class="os-result" id="os-result-panel" data-os-result="1">';
     var indef = !motor || !motor.diffs.length ? esIndefinido(r) : false;
-    var titulo = indef ? headlineParts().slice(0, 4).join(', ') : 'Recomendaciones y próximos pasos';
-    html += '<h2 class="os-result-hero-title' + (indef ? ' is-relato' : '') + '">' + esc(titulo || 'Recomendaciones y próximos pasos') + '</h2>';
-    html += triageCardHtml(motor);
     if (motor && motor.lead && motor.lead.agenda) e = espInfo(motor.lead.agenda);
-    html += briefHtml(r, indef, motor);
+    if (motor && motor.diffs.length) html += dxHeroHtml(motor);
+    else {
+      var titulo = indef ? headlineParts().slice(0, 4).join(', ') : 'Recomendaciones y próximos pasos';
+      html += '<h2 class="os-result-hero-title' + (indef ? ' is-relato' : '') + '">' + esc(titulo || 'Recomendaciones y próximos pasos') + '</h2>';
+    }
+    html += triageCardHtml(motor);
     if (motor && motor.urgencias) html += warningCardHtml(r);
     else if (r.nivel === 'prioritaria') html += warningCardHtml(r);
-    html += bookingHeroHtml(e, indef);
-    if (motor && motor.diffs.length) html += diffsCardHtml(motor);
-    else html += indef ? contasteCardHtml(r) : causasCardHtml(r);
-    html += medsMotorHtml(r, motor);
+    if (motor && motor.diffs.length > 1) {
+      var resto = { diffs: motor.diffs.slice(1), titulo: 'Otras posibilidades' };
+      html += diffsCardHtml(resto);
+    } else if (!motor || !motor.diffs.length) {
+      html += indef ? contasteCardHtml(r) : causasCardHtml(r);
+    }
     if (motor && motor.examenes.length) html += examsMotorHtml(motor);
     else html += examsCardHtml(r);
-    if (!indef) html += summaryCardHtml();
+    html += medsMotorHtml(r, motor);
     if (motor && motor.especialistas.length) html += specsMotorHtml(motor);
     else html += referralCardHtml(e);
+    html += otrosTemasHtml(motor);
     if (!(motor && motor.urgencias) && r.nivel !== 'prioritaria') html += warningCardHtml(r);
     html += bookingCardHtml(e);
     html += '<p class="os-result-disc">Orientación general basada en tus respuestas. No es un diagnóstico ni una orden de exámenes. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
@@ -1738,6 +1850,7 @@
     S.alergias = snap.alergias; S.medicamentos = snap.medicamentos;
     S.tratamientos = snap.tratamientos; S.tratResultado = snap.tratResultado; S.tratDetalle = snap.tratDetalle;
     S.cat = snap.catId ? catById(snap.catId) : null;
+    S.lugar = snap.lugar || null;
     inputMode = null;
     if (S.fase !== 'resultado' && S.fase !== 'agendar') setResultMode(false);
     renderChrome();
@@ -1756,7 +1869,8 @@
     } else if (f === 'motivo') {
       ask({ tipo: 'text', q: T.motivo || '¿Qué te trae por aquí?', max: 1000, placeholder: '…', value: S.relato });
     } else if (f === 'categoria') {
-      ask({ tipo: 'chips', q: T.categoria || '', textoLibre: true, placeholder: 'Si no es ninguna, escríbalo aquí', opciones: categoriaOpciones() });
+      if (!S.cat) S.cat = catById('medicina_general');
+      askAlarmas();
     } else if (f === 'alarmas') {
       var ops = (D.alarmas || []).map(function (a) { return { v: a.id, t: a.texto }; });
       ops.push({ v: 'ninguna', t: 'Ninguna de estas', exclusiva: true });
@@ -1840,6 +1954,11 @@
       if (!inputMode) return;
       if (inputMode.tipo === 'chips_multi') {
         var exclusiva = b.getAttribute('data-excl') === '1';
+        if (exclusiva) {
+          clearComposer();
+          handleMulti([v]);
+          return;
+        }
         inputMode.selected = toggleMulti(inputMode.selected || [], v, exclusiva);
         paintComposer();
         return;
