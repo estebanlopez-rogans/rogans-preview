@@ -264,10 +264,15 @@
     var fs = document.getElementById('os-focus-sub');
     if (!hist) return;
 
-    // Last bot message becomes focus; earlier go to history (above, out of view until scroll up)
+    // Last bot message becomes focus; earlier go to history (above, out of view until scroll up).
+    // En el resultado el hilo se queda completo y la respuesta va debajo, como un mensaje más.
+    var shellNow = document.getElementById('os-shell');
+    var resultMode = !!(shellNow && shellNow.classList.contains('is-result'));
     var focusIdx = -1;
-    for (var i = msgs.length - 1; i >= 0; i--) {
-      if (msgs[i].role === 'bot' && !msgs[i].typing) { focusIdx = i; break; }
+    if (!resultMode) {
+      for (var i = msgs.length - 1; i >= 0; i--) {
+        if (msgs[i].role === 'bot' && !msgs[i].typing) { focusIdx = i; break; }
+      }
     }
     var html = '';
     var histCount = 0;
@@ -1723,58 +1728,417 @@
     html += '</ul></section>';
     return html;
   }
+  var lastMotor = null;
+
+  function etiquetaProb(n) {
+    if (n === 'alta') return 'probabilidad alta';
+    if (n === 'media') return 'probabilidad media';
+    return 'probabilidad baja';
+  }
+  function fraseTriage(nivel) {
+    return {
+      urgencias: 'Esto es urgente: hay que atenderlo ya, no en una cita programada.',
+      pronto: 'Conviene una consulta pronto, en las próximas 24 a 72 horas.',
+      programada: 'No parece una urgencia. Se puede organizar una cita.',
+      autocuidado: 'Por ahora puede vigilarse en casa y consultar si no cede.'
+    }[nivel] || 'Se puede organizar una cita.';
+  }
+  function familiaresEnOtros(motor) {
+    var fam = textoPlano([S.familiares || '']);
+    if (!fam || /^ ningun/.test(fam)) return false;
+    var nombres = {};
+    ((motor && motor.otros) || []).forEach(function (n) { nombres[n] = 1; });
+    var hit = false;
+    (((D.motor && D.motor.condiciones) || [])).forEach(function (c) {
+      if (!nombres[c.nombre]) return;
+      if (clavesEnTexto(c.claves || [], fam)) hit = true;
+    });
+    return hit;
+  }
+  function listaLabels(pid, saltar) {
+    return respLabels(pid).filter(function (x) { return !saltar || saltar.indexOf(x.v) === -1; });
+  }
+  function unirBajo(list) {
+    return list.map(function (x) { return lc1(x.t); }).join(' y ');
+  }
+  function reflejoPaciente(motor) {
+    var partes = [];
+    var mot = String(S.relato || '').trim().replace(/[.]+$/, '');
+    if (mot) partes.push('me cuenta que «' + mot + '»');
+    var dur = listaLabels('desde');
+    if (dur.length) partes.push('lleva así ' + unirBajo(dur));
+    var inicio = listaLabels('inicio');
+    if (inicio.length) partes.push('empezó ' + unirBajo(inicio));
+    var mejora = listaLabels('mejora', ['nada']);
+    if (mejora.length) partes.push('le alivia ' + unirBajo(mejora));
+    var empeora = listaLabels('empeora', ['nada']);
+    if (empeora.length) partes.push('lo empeora ' + unirBajo(empeora));
+    var inten = listaLabels('intensidad')[0];
+    if (inten) partes.push('la intensidad que marcó es ' + lc1(inten.t));
+    if (S.tratamientos && !/^nada/i.test(S.tratamientos)) {
+      var tr = 'ya probó ' + S.tratamientos;
+      if (S.tratResultado && S.tratResultado !== 'nada') tr += ' (' + lc1(tratResultadoLabel(S.tratResultado)) + ')';
+      partes.push(tr);
+    }
+    var ants = (S.antecedentes || []).filter(function (id) { return id && id !== 'ninguna'; });
+    if (ants.length) {
+      var labels = ants.map(function (id) {
+        var a = (D.antecedentes || []).filter(function (x) { return x.id === id; })[0];
+        return a ? lc1(a.texto) : id;
+      });
+      partes.push('de su historia sí puede importar ' + labels.join(', '));
+    }
+    var fam = String(S.familiares || '').trim();
+    if (fam && !/^ningun/i.test(fam)) {
+      if (familiaresEnOtros(motor)) partes.push('hay un antecedente familiar que no explica este motivo; lo dejo al final');
+      else partes.push('en la familia refiere «' + fam + '»');
+    }
+    var empatia = '';
+    if (!(motor && motor.urgencias)) {
+      var t = normTxt(mot);
+      empatia = /duele|dolor|cabeza|espalda|caida|cabello|pelo/.test(t)
+        ? 'Lamento que esté pasando por esto. '
+        : 'Gracias por contarlo con ese detalle. ';
+    }
+    if (!partes.length) return empatia + 'Con lo que respondió armo una orientación, no un diagnóstico.';
+    var cuerpo = partes[0].charAt(0).toUpperCase() + partes[0].slice(1);
+    if (partes.length > 1) cuerpo += ': ' + partes.slice(1).join('; ');
+    return empatia + cuerpo + '.';
+  }
+  function diffsEfectivos(r, motor) {
+    if (motor && motor.diffs && motor.diffs.length) return motor.diffs;
+    if (!r || esIndefinido(r)) return [];
+    return (r.causas || []).slice(0, 4).map(function (k, i) {
+      return { nombre: causaLabel(k), nivel: i === 0 ? 'alta' : (i === 1 ? 'media' : 'baja'), porQue: causaDesc(k) };
+    });
+  }
+  function productosOtc(r, motor) {
+    var seg = seguridadIds();
+    var out = [];
+    function pushProd(prod) {
+      if (!prod) return;
+      if ((prod.excluir_si || []).some(function (x) { return seg.indexOf(x) !== -1; })) return;
+      out.push(prod);
+    }
+    if (motor && motor.lead) {
+      (motor.otc || []).forEach(function (id) { pushProd((D.otc || {})[id]); });
+      return out;
+    }
+    (r.otc || []).forEach(pushProd);
+    return out;
+  }
+  function bloque(html) {
+    return '<div class="os-stream-block">' + html + '</div>';
+  }
+  function seccionProbable(diffs) {
+    var html = '<h3>Lo más probable</h3>';
+    if (!diffs.length) {
+      html += '<p>Con lo que contó <strong>no hay una sola posibilidad clara</strong>. Un médico revisa el caso en la consulta; esta orientación no cierra un diagnóstico.</p>';
+      var pos = posiblesGenerales(evaluar());
+      if (pos.length) {
+        html += '<p>Mientras tanto, el médico suele revisar:</p><ul>';
+        pos.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
+        html += '</ul>';
+      }
+      return bloque(html);
+    }
+    var d = diffs[0];
+    html += '<p>Lo que más encaja con lo que usted contó es <strong>' + esc(d.nombre) + '</strong>, con <strong>' + esc(etiquetaProb(d.nivel)) + '</strong>.';
+    if (d.porQue) html += ' ' + esc(d.porQue);
+    html += '</p>';
+    if (diffs.length > 1) {
+      html += '<p>Otras posibilidades, de mayor a menor:</p><ul>';
+      diffs.slice(1).forEach(function (o) {
+        html += '<li><strong>' + esc(o.nombre) + '</strong> — ' + esc(etiquetaProb(o.nivel)) + '.';
+        if (o.porQue) html += ' ' + esc(o.porQue);
+        html += '</li>';
+      });
+      html += '</ul>';
+    }
+    html += '<p>Es un orden para la consulta, <strong>no un diagnóstico</strong>.</p>';
+    return bloque(html);
+  }
+  function seccionUrgencia(r, motor) {
+    var nivel = (motor && motor.triageNivel) || 'programada';
+    var html = '<h3>Qué tan urgente es</h3>';
+    html += '<p><strong>' + esc(motor ? motor.triage : 'Consulta programada') + '.</strong> ' + esc(fraseTriage(nivel)) + '</p>';
+    if (motor && motor.triageRazon) html += '<p>' + esc(motor.triageRazon) + '</p>';
+    if (r && r.nivel === 'prioritaria' && nivel !== 'urgencias') {
+      html += '<p>Marcó un dato que <strong>conviene valorar pronto</strong>, sin dejarlo pasar varias semanas.</p>';
+    }
+    return bloque(html);
+  }
+  function seccionMientras(r, motor) {
+    var html = '<h3>Qué puede hacer mientras tanto</h3>';
+    if (motor && motor.urgencias) {
+      html += '<p><strong>No se automedique.</strong> Con esta prioridad el siguiente paso es urgencias, no una pastilla en casa.</p>';
+      return bloque(html);
+    }
+    if (r.embarazo) {
+      html += '<p>En embarazo o lactancia <strong>no orientamos automedicación</strong>. Su médico le indica qué puede usar.</p>';
+      return bloque(html);
+    }
+    var cuidado = (motor && motor.lead && motor.lead.cuidados) || (S.cat && S.cat.nota) || '';
+    if (cuidado) html += '<p>' + esc(cuidado) + '</p>';
+    if (S.tratResultado === 'funciono' && S.tratamientos && !/^nada/i.test(S.tratamientos)) {
+      html += '<p>Como le funcionó <strong>' + esc(S.tratamientos) + '</strong>' +
+        (S.tratDetalle ? ' (' + esc(S.tratDetalle) + ')' : '') +
+        ', si es de venta libre puede seguirlo <strong>como indica la etiqueta</strong>, sin alargar el tiempo máximo.</p>';
+    } else if (S.tratResultado === 'efectos' && S.tratamientos) {
+      html += '<p>Por los efectos que notó con <strong>' + esc(S.tratamientos) + '</strong>, no lo repita. Si usa otra opción de venta libre, lea antes el inserto.</p>';
+    }
+    var prods = productosOtc(r, motor);
+    if (prods.length) {
+      html += '<p>De <strong>venta libre</strong>, si la etiqueta no se lo contraindica:</p><ul>';
+      prods.forEach(function (p) {
+        html += '<li><strong>' + esc(p.nombre) + '</strong>.';
+        if (p.uso) html += ' ' + esc(p.uso);
+        html += ' Siga la <strong>dosis y los días que indica la etiqueta</strong>; esta orientación no formula.';
+        var avisos = p.advertencias || p.avisos || [];
+        if (avisos.length) html += ' ' + esc(avisos[0]);
+        html += ' <a class="os-answer-link" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '">Ver en Farminova</a>';
+        html += '</li>';
+      });
+      html += '</ul>';
+      html += '<p>No lo combine con otro producto del mismo principio activo. Si no mejora, empeora o aparece algo nuevo, consulte.</p>';
+    } else if (!cuidado) {
+      html += '<p>No hay un cuidado de venta libre claro para esta combinación de respuestas.</p>';
+    }
+    var rx = (motor && motor.rxNota) || '';
+    if (!rx && r.rx && r.rx.length) {
+      rx = 'Su médico podría considerar ' + r.rx.map(function (p) { return p.nombre; }).join(', ') + '. No los empiece por su cuenta ni calcule una dosis.';
+    }
+    if (rx) {
+      var rxHtml = esc(rx).replace(/su médico podría considerar/gi, '<strong>$&</strong>');
+      html += /^si\b/i.test(rx) ? '<p>' + rxHtml + '</p>' : '<p><strong>Si no mejora:</strong> ' + rxHtml + '</p>';
+      html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-src="rx" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-5">Hablarlo en la consulta</button></p>';
+    }
+    if (prods.length || cuidado) {
+      html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-src="meds" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-4">Agendar si prefiere que un médico lo revise antes</button></p>';
+    }
+    return bloque(html);
+  }
+  function seccionExamenes(r, motor) {
+    var list = (motor && motor.examenes && motor.examenes.length) ? motor.examenes : null;
+    var html = '<h3 id="os-examenes">Exámenes que podrían pedirle</h3>';
+    html += '<p>No es una orden. Son estudios para <strong>conversarlos con el médico</strong>. Si ya se hizo alguno, llévelo a la cita.</p>';
+    if (list) {
+      html += '<ul>';
+      list.forEach(function (x, i) {
+        html += '<li>' + esc(x.nombre);
+        if (x.buscar) {
+          html += ' <a class="os-answer-link" id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '">Ver en Farminova</a>';
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+      html += '<p>El enlace abre la búsqueda en Farminova24. No todos los estudios se compran ahí; si no aparece, el médico le indica dónde hacerlo.</p>';
+    } else if (r.examenes && r.examenes.length) {
+      html += '<ul>';
+      r.examenes.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
+      html += '</ul>';
+      html += '<p>El médico decide cuáles pedir.</p>';
+    } else {
+      html += '<p>Con lo que contó, <strong>no suele hacer falta un examen de entrada</strong>. Si el cuadro cambia, el médico le dice cuáles considerar.</p>';
+    }
+    return bloque(html);
+  }
+  function seccionConsulta(e, motor) {
+    var pr = precioPromo();
+    var html = '<h3>Con quién consultar</h3>';
+    var specs = (motor && motor.especialistas) || [];
+    if (motor && motor.urgencias) {
+      html += '<p>El primer lugar es <strong>urgencias</strong> (o el <strong>123</strong>). La cita se agenda después de esa valoración, no en vez de ella.</p>';
+    } else {
+      html += '<p>Empiece por <strong>medicina general</strong>. Esa consulta ordena el primer plan y decide si hace falta otro especialista.</p>';
+    }
+    if (specs.length) {
+      html += '<ul>';
+      specs.forEach(function (s) {
+        html += '<li><strong>' + esc(s.nombre) + '</strong>';
+        if (s.porQue) html += '. ' + esc(s.porQue);
+        html += '</li>';
+      });
+      html += '</ul>';
+    } else if (e && e.nombre) {
+      html += '<p>Según sus respuestas, la orientación apunta a <strong>' + esc(e.nombre) + '</strong>. El médico de la primera consulta puede confirmarlo.</p>';
+    }
+    html += '<p>Consulta de seguimiento con <strong>' + esc(e.nombre) + '</strong>: <s>' + esc(pr.regular) + '</s> <strong>' + esc(pr.promo) + '</strong> con el código <strong>' + esc(pr.code) + '</strong>.</p>';
+    html += '<p><button type="button" class="os-chip os-chip-primary os-answer-cta" data-os="agendar" data-src="consulta" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-1">Agendar consulta de seguimiento</button></p>';
+    html += '<p class="os-answer-fine">Al agendar puede autorizar el envío de sus respuestas (y adjuntos) al profesional. Si no autoriza, no salen de su navegador.</p>';
+    return bloque(html);
+  }
+  function seccionBanderas(motor) {
+    var html = '<h3>Vaya a urgencias si…</h3>';
+    var list = (motor && motor.lead && motor.lead.urgenciasSi) || [];
+    if (motor && motor.urgencias) {
+      html += '<p>Además de lo que ya está pasando, <strong>no se quede en casa</strong> si aparece o empeora cualquiera de estas:</p>';
+    } else if (!list.length) {
+      html += '<p>Llame al <strong>123</strong> o vaya a urgencias si el cuadro cambia de golpe, no tolera líquidos, se confunde o le cuesta respirar.</p>';
+      return bloque(html);
+    } else {
+      html += '<p>Llame al <strong>123</strong> o vaya a urgencias si aparece:</p>';
+    }
+    if (list.length) {
+      html += '<ul>';
+      list.forEach(function (t) { html += '<li>' + esc(t) + '</li>'; });
+      html += '</ul>';
+    }
+    return bloque(html);
+  }
+  function seccionCita() {
+    var html = '<h3>Para su cita</h3>';
+    html += '<p>Lleve esto anotado. La consulta rinde más si ya está a la mano:</p><ul>';
+    var dur = listaLabels('desde');
+    var inicioCita = listaLabels('inicio');
+    var tiempo = [];
+    if (dur.length) tiempo.push(unirBajo(dur));
+    if (inicioCita.length) tiempo.push('empezó ' + unirBajo(inicioCita));
+    html += '<li><strong>El tiempo:</strong> ' + (tiempo.length ? esc(tiempo.join(', ')) : 'desde cuándo empezó, con la fecha aproximada') + '.</li>';
+    var mejora = listaLabels('mejora', ['nada']);
+    var empeora = listaLabels('empeora', ['nada']);
+    var cron = [];
+    if (mejora.length) cron.push('mejora con ' + unirBajo(mejora));
+    if (empeora.length) cron.push('empeora con ' + unirBajo(empeora));
+    html += '<li><strong>Qué lo cambia:</strong> ' + (cron.length ? esc(cron.join('; ')) : 'qué lo alivia y qué lo empeora') + '.</li>';
+    if (S.tratamientos && !/^nada/i.test(S.tratamientos)) {
+      var med = S.tratamientos;
+      if (S.tratResultado && S.tratResultado !== 'nada') med += ' (' + tratResultadoLabel(S.tratResultado) + ')';
+      if (S.tratDetalle) med += ', ' + S.tratDetalle;
+      html += '<li><strong>Lo que ya probó:</strong> ' + esc(med) + '.</li>';
+    } else {
+      html += '<li><strong>Lo que ya probó:</strong> aún nada. Si toma algo antes de la cita, anote el nombre y si le sirvió.</li>';
+    }
+    html += '<li><strong>Exámenes que ya tenga</strong>, aunque sean de otra fecha. No hace falta pedírselos por su cuenta antes de que el médico los indique.</li>';
+    html += '</ul>';
+    return bloque(html);
+  }
+  function seccionOtros(motor) {
+    var list = (motor && motor.otros) || [];
+    if (!list.length) return '';
+    var html = '<details class="os-answer-otros">';
+    html += '<summary>Otros temas para hablar con su médico</summary>';
+    html += '<p>No están relacionados con el motivo de hoy y <strong>no cambian la prioridad</strong>. Menciónelos en la consulta, aparte:</p><ul>';
+    list.forEach(function (n) { html += '<li>' + esc(n) + '</li>'; });
+    html += '</ul></details>';
+    return bloque(html);
+  }
+  function herramientasHtml() {
+    return '<div class="os-answer-tools">' +
+      '<button type="button" class="os-answer-tool" data-os="copiar">Copiar</button>' +
+      '<button type="button" class="os-answer-tool" data-os="imprimir">Descargar resumen</button>' +
+      '</div>';
+  }
+  function seguimientoHtml() {
+    return '<div class="os-chips os-followups" role="group" aria-label="Siguientes pasos">' +
+      '<button type="button" class="os-chip" data-os="examenes-primero">¿Qué exámenes me hago primero?</button>' +
+      '<button type="button" class="os-chip os-chip-primary" data-os="agendar" data-src="chip" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-2">Agendar cita</button>' +
+      '<button type="button" class="os-chip" data-os="reiniciar">Tengo otro síntoma</button>' +
+      '</div>';
+  }
   function buildResultHtml(r, e) {
     var motor = correrMotor();
-    var html = '<div class="os-result" id="os-result-panel" data-os-result="1">';
-    var indef = !motor || !motor.diffs.length ? esIndefinido(r) : false;
+    lastMotor = motor;
     if (motor && motor.lead && motor.lead.agenda) e = espInfo(motor.lead.agenda);
-    if (motor && motor.diffs.length) html += dxHeroHtml(motor);
-    else {
-      var titulo = indef ? headlineParts().slice(0, 4).join(', ') : 'Recomendaciones y próximos pasos';
-      html += '<h2 class="os-result-hero-title' + (indef ? ' is-relato' : '') + '">' + esc(titulo || 'Recomendaciones y próximos pasos') + '</h2>';
+    var diffs = diffsEfectivos(r, motor);
+    var urgent = '';
+    if (motor && motor.urgencias) {
+      urgent = '<div class="os-stream-block os-answer-urgent"><p><strong>Vaya a urgencias ahora</strong> o llame al <strong>123</strong>. ' +
+        esc(motor.triageRazon || 'No espere a una cita ni a que se le pase con un analgésico.') + '</p></div>';
     }
-    html += triageCardHtml(motor);
-    if (motor && motor.urgencias) html += warningCardHtml(r);
-    else if (r.nivel === 'prioritaria') html += warningCardHtml(r);
-    if (motor && motor.diffs.length > 1) {
-      var resto = { diffs: motor.diffs.slice(1), titulo: 'Otras posibilidades' };
-      html += diffsCardHtml(resto);
-    } else if (!motor || !motor.diffs.length) {
-      html += indef ? contasteCardHtml(r) : causasCardHtml(r);
-    }
-    if (motor && motor.examenes.length) html += examsMotorHtml(motor);
-    else html += examsCardHtml(r);
-    html += medsMotorHtml(r, motor);
-    if (motor && motor.especialistas.length) html += specsMotorHtml(motor);
-    else html += referralCardHtml(e);
-    html += otrosTemasHtml(motor);
-    if (!(motor && motor.urgencias) && r.nivel !== 'prioritaria') html += warningCardHtml(r);
-    html += bookingCardHtml(e);
-    html += '<p class="os-result-disc">Orientación general basada en tus respuestas. No es un diagnóstico ni una orden de exámenes. El diagnóstico y las fórmulas las emite el profesional en consulta. Urgencias: línea local (Colombia 123).</p>';
-    html += '</div>';
+    var html = '<div class="os-row os-row-answer"><div class="os-avatar" aria-hidden="true">R</div>';
+    html += '<article class="os-bubble os-bubble-bot os-bubble-answer os-answer is-pending" id="os-result-panel" data-os-result="1" aria-label="Orientación">';
+    html += urgent;
+    html += bloque('<p class="os-answer-open">' + esc(reflejoPaciente(motor)) + '</p>');
+    html += seccionProbable(diffs);
+    html += seccionUrgencia(r, motor);
+    html += seccionMientras(r, motor);
+    html += seccionExamenes(r, motor);
+    html += seccionConsulta(e, motor);
+    html += seccionBanderas(motor);
+    html += seccionCita();
+    html += seccionOtros(motor);
+    html += bloque('<p class="os-answer-disc">Orientación informativa: <strong>no reemplaza la consulta médica</strong> ni es un diagnóstico o una fórmula. Sus respuestas se procesan en su navegador y solo se envían si agenda y autoriza el tratamiento de sus datos de salud. Urgencias: línea local (Colombia 123).</p>');
+    html += herramientasHtml();
+    html += seguimientoHtml();
+    html += '</article></div>';
     return html;
+  }
+  function revealAnswer() {
+    var panel = document.getElementById('os-result-panel');
+    if (!panel) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var blocks = panel.querySelectorAll('.os-stream-block');
+    if (reduce) {
+      panel.classList.remove('is-pending');
+      for (var k = 0; k < blocks.length; k++) blocks[k].classList.add('is-in');
+      return;
+    }
+    var i = 0;
+    function step() {
+      if (!panel.isConnected) return;
+      if (i >= blocks.length) {
+        panel.classList.remove('is-pending');
+        return;
+      }
+      blocks[i].classList.add('is-in');
+      i++;
+      setTimeout(step, 130);
+    }
+    step();
+  }
+  function copiarResumen(btn) {
+    var el = document.getElementById('os-result-panel');
+    var text = el ? (el.innerText || '').replace(/\n{3,}/g, '\n\n').trim() : '';
+    var done = function () {
+      if (!btn) return;
+      var prev = btn.textContent;
+      btn.textContent = 'Copiado';
+      setTimeout(function () { if (btn.isConnected) btn.textContent = prev; }, 1600);
+    };
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      ta.remove();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); done(); });
+    } else {
+      fallback();
+      done();
+    }
   }
 
   function showResultado() {
     S.fase = 'resultado';
     track('resultado');
     setResultMode(true);
-    var r = evaluar();
-    var e = espInfo(r.esp);
-    botThen(esc(T.cierre || 'Listo. Aquí van tus recomendaciones y próximos pasos…'), function () {
-      say(esc('Tu orientación'), { plain: 'Tu orientación' });
-      ask({
-        tipo: 'result_actions',
-        html: buildResultHtml(r, e)
-      });
-      mountSticky();
+    busy = true;
+    clearComposer();
+    typing(true);
+    var espera = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 0 : 420;
+    setTimeout(function () {
+      typing(false);
+      busy = false;
+      var r = evaluar();
+      var e = espInfo(r.esp);
+      ask({ tipo: 'result_actions', html: buildResultHtml(r, e) });
+      if (lastMotor && lastMotor.urgencias) removeSticky();
+      else mountSticky();
+      revealAnswer();
       requestAnimationFrame(function () {
         var panel = document.getElementById('os-result-panel');
         if (panel) {
-          try { panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) {}
+          try { panel.scrollIntoView({ block: 'start', behavior: espera ? 'smooth' : 'auto' }); } catch (err) {}
         }
       });
-    });
+    }, espera);
   }
 
   function showAgendar() {
@@ -1783,7 +2147,8 @@
     removeSticky();
     setResultMode(true);
     var r = evaluar();
-    var e = espInfo(r.esp);
+    var key = (lastMotor && lastMotor.lead && lastMotor.lead.agenda) || r.esp;
+    var e = espInfo(key);
     if (!e.especialidad) {
       var msg = 'Hola, hice la orientación de síntomas en la web y quiero agendar una cita de medicina general.';
       botThen('<p class="m-0">Para <strong>medicina general</strong> te atendemos por WhatsApp. El mensaje no incluye tus síntomas.</p>', function () {
@@ -1925,6 +2290,17 @@
       var src = b.getAttribute('data-src');
       if (src) track('agendar_' + src);
       showAgendar();
+      return;
+    }
+    if (a === 'copiar') { copiarResumen(b); return; }
+    if (a === 'imprimir') { window.print(); return; }
+    if (a === 'examenes-primero') {
+      var ex = document.getElementById('os-examenes');
+      if (ex) {
+        ex.classList.add('is-marked');
+        var reduceEx = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try { ex.scrollIntoView({ block: 'start', behavior: reduceEx ? 'auto' : 'smooth' }); } catch (err) {}
+      }
       return;
     }
     if (a === 'mod-hero') {
