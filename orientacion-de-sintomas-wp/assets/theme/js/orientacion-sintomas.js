@@ -180,15 +180,24 @@
   }
   function mountSticky() {
     removeSticky();
-    var pr = precioPromo();
     var el = document.createElement('div');
     el.id = 'os-sticky-book';
     el.className = 'os-sticky-book';
     el.setAttribute('role', 'region');
-    el.setAttribute('aria-label', 'Agendar consulta de seguimiento');
-    el.innerHTML = '<div class="os-sticky-price"><s>' + esc(pr.regularCop) + '</s> <strong>' + esc(pr.promoCop) + '</strong>' +
-      '<span class="os-sticky-code">código ' + esc(pr.code) + '</span></div>' +
-      '<button type="button" class="os-sticky-cta" data-os="agendar" data-src="sticky" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-STICKY">Agendar consulta de seguimiento</button>';
+    if (lastMotor && lastMotor.urgencias) {
+      el.setAttribute('aria-label', 'Ir a urgencias');
+      el.innerHTML = '<a class="os-sticky-cta os-sticky-urgent" id="URGENCIAS-ROGANS-ORIENTACIONSINTOMAS-V1-STICKY" href="tel:123">Ir a urgencias / llamar al 123</a>';
+    } else {
+      el.setAttribute('aria-label', 'Agendar cita con medicina general');
+      var price = '';
+      if (tienePrecio()) {
+        var pr = precioPromo();
+        price = '<div class="os-sticky-price"><s>' + esc(pr.regularCop) + '</s> <strong>' + esc(pr.promoCop) + '</strong>' +
+          '<span class="os-sticky-code">código ' + esc(pr.code) + '</span></div>';
+      }
+      el.innerHTML = price +
+        '<button type="button" class="os-sticky-cta" data-os="agendar" data-agenda="general" data-src="sticky" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-STICKY">Agendar cita con medicina general</button>';
+    }
     root.appendChild(el);
     document.body.classList.add('os-has-sticky');
   }
@@ -335,6 +344,7 @@
       foot += '<button type="button" class="os-back" data-os="atras">← Atrás</button>';
     }
     var optionsHtml = '';
+    var multiActions = '';
 
     if (m.tipo === 'chips' || m.tipo === 'confirm') {
       // Few chips → keep in sticky footer for one-tap; many → scrollable options.
@@ -365,19 +375,31 @@
         optionsHtml += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="0">' + esc(o.t) + '</button>';
       });
       optionsHtml += '</div>';
-      foot += '<div class="os-composer-actions">';
+      var exclHtml = '';
       exclOps.forEach(function (o) {
         var on = (m.selected || []).indexOf(o.v) !== -1;
-        foot += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="1">' + esc(o.t) + '</button>';
+        exclHtml += '<button type="button" class="os-chip' + (on ? ' is-on' : '') + '" data-os="chip" data-v="' + esc(o.v) + '" data-excl="1">' + esc(o.t) + '</button>';
       });
-      foot += '<button type="button" class="os-chip os-chip-primary" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button></div>';
+      var contBtn = '<button type="button" class="os-chip os-chip-primary os-send-block" data-os="multi-ok"' + ((m.selected || []).length ? '' : ' disabled') + '>Continuar</button>';
+      multiActions = m.textoLibre
+        ? { excl: exclHtml, cont: contBtn }
+        : '<div class="os-composer-actions">' + exclHtml + contBtn + '</div>';
     }
     if (m.textoLibre && (m.tipo === 'chips' || m.tipo === 'chips_multi' || m.tipo === 'confirm')) {
-      foot += '<form data-os="text-form" class="os-text-form os-text-libre">' +
+      // Campo primero. Los botones van al final y ocupan todo el ancho.
+      var pack = (m.tipo === 'chips_multi' && multiActions && multiActions.excl) ? multiActions : null;
+      if (pack && pack.excl) foot += '<div class="os-composer-actions">' + pack.excl + '</div>';
+      foot += '<form data-os="text-form" class="os-text-form os-text-libre os-text-stack">' +
         '<label class="os-libre-label" for="os-text">Si no aparece, escríbalo con sus palabras</label>' +
         '<textarea id="os-text" class="os-text" rows="2" maxlength="500" placeholder="' + esc(m.placeholder || 'Escríbalo aquí') + '"></textarea>' +
-        '<button type="submit" class="os-chip os-chip-primary os-send">Enviar</button></form>';
-    } else if (m.tipo === 'text' || m.tipo === 'text_optional') {
+        '<div class="os-actions-last">';
+      if (pack) foot += pack.cont;
+      foot += '<button type="submit" class="os-chip os-chip-primary os-send os-send-block">Enviar</button></div></form>';
+      multiActions = '';
+    } else if (multiActions) {
+      foot += multiActions;
+    }
+    if (!m.textoLibre && (m.tipo === 'text' || m.tipo === 'text_optional')) {
       foot += '<form data-os="text-form" class="os-text-form">' +
         '<label class="sr-only" for="os-text">Tu respuesta</label>' +
         '<textarea id="os-text" class="os-text" rows="2" maxlength="' + (m.max || 500) + '" placeholder="' + esc(m.placeholder || '') + '">' + esc(m.value || '') + '</textarea>' +
@@ -1830,8 +1852,31 @@
   function bloque(html) {
     return '<div class="os-stream-block">' + html + '</div>';
   }
+  function tienePrecio() {
+    var p = C.precio || D.precio || {};
+    return p.cop != null || p.usd != null;
+  }
+  function svgIcon(name) {
+    var paths = {
+      pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+      clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/>',
+      hand: '<path d="M8 11V6.5a1.5 1.5 0 0 1 3 0V11"/><path d="M11 10.5V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V7.5a1.5 1.5 0 0 1 3 0V13c0 3-2 6-5.5 6S6 16 6 13v-2.5a1.5 1.5 0 0 1 3 0V11"/>',
+      flask: '<path d="M9 3h6"/><path d="M10 3v5L5.5 18A3 3 0 0 0 8 22h8a3 3 0 0 0 2.5-4L14 8V3"/>',
+      user: '<circle cx="12" cy="8" r="3"/><path d="M5 19c1.5-3 3.8-4.5 7-4.5S17.5 16 19 19"/>',
+      alert: '<path d="M12 4 3 19h18L12 4z"/><path d="M12 10v4"/><path d="M12 16.5h.01"/>',
+      list: '<path d="M8 7h11M8 12h11M8 17h11"/><path d="M4 7h.01M4 12h.01M4 17h.01"/>',
+      shield: '<path d="M12 3 5 6v6c0 4 3 6.5 7 8 4-1.5 7-4 7-8V6l-7-3z"/><path d="m9 12 2 2 4-4"/>'
+    };
+    return '<span class="os-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (paths[name] || paths.pulse) + '</svg></span>';
+  }
+  function secHead(icon, title, id) {
+    return '<header class="os-sec-head">' + svgIcon(icon) + '<h3' + (id ? ' id="' + id + '"' : '') + '>' + title + '</h3></header>';
+  }
+  function ctaAgenda(label, agenda, id) {
+    return '<button type="button" class="os-cta" data-os="agendar" data-agenda="' + esc(agenda || 'general') + '" data-src="consulta" id="' + id + '">' + esc(label) + '</button>';
+  }
   function seccionProbable(diffs) {
-    var html = '<h3>Lo más probable</h3>';
+    var html = '<section class="os-sec">' + secHead('pulse', 'Lo más probable');
     if (!diffs.length) {
       html += '<p>Con lo que contó <strong>no hay una sola posibilidad clara</strong>. Un médico revisa el caso en la consulta; esta orientación no cierra un diagnóstico.</p>';
       var pos = posiblesGenerales(evaluar());
@@ -1840,6 +1885,7 @@
         pos.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
         html += '</ul>';
       }
+      html += '</section>';
       return bloque(html);
     }
     var d = diffs[0];
@@ -1855,27 +1901,28 @@
       });
       html += '</ul>';
     }
-    html += '<p>Es un orden para la consulta, <strong>no un diagnóstico</strong>.</p>';
+    html += '<p>Es un orden para la consulta, <strong>no un diagnóstico</strong>.</p></section>';
     return bloque(html);
   }
   function seccionUrgencia(r, motor) {
     var nivel = (motor && motor.triageNivel) || 'programada';
-    var html = '<h3>Qué tan urgente es</h3>';
+    var html = '<section class="os-sec">' + secHead('clock', 'Qué tan urgente es');
     html += '<p><strong>' + esc(motor ? motor.triage : 'Consulta programada') + '.</strong> ' + esc(fraseTriage(nivel)) + '</p>';
     if (motor && motor.triageRazon) html += '<p>' + esc(motor.triageRazon) + '</p>';
     if (r && r.nivel === 'prioritaria' && nivel !== 'urgencias') {
       html += '<p>Marcó un dato que <strong>conviene valorar pronto</strong>, sin dejarlo pasar varias semanas.</p>';
     }
+    html += '</section>';
     return bloque(html);
   }
   function seccionMientras(r, motor) {
-    var html = '<h3>Qué puede hacer mientras tanto</h3>';
+    var html = '<section class="os-sec">' + secHead('hand', 'Qué puede hacer mientras tanto');
     if (motor && motor.urgencias) {
-      html += '<p><strong>No se automedique.</strong> Con esta prioridad el siguiente paso es urgencias, no una pastilla en casa.</p>';
+      html += '<p><strong>No se automedique.</strong> Con esta prioridad el siguiente paso es urgencias, no una pastilla en casa.</p></section>';
       return bloque(html);
     }
     if (r.embarazo) {
-      html += '<p>En embarazo o lactancia <strong>no orientamos automedicación</strong>. Su médico le indica qué puede usar.</p>';
+      html += '<p>En embarazo o lactancia <strong>no orientamos automedicación</strong>. Su médico le indica qué puede usar.</p></section>';
       return bloque(html);
     }
     var cuidado = (motor && motor.lead && motor.lead.cuidados) || (S.cat && S.cat.nota) || '';
@@ -1914,41 +1961,43 @@
       html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-src="rx" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-5">Hablarlo en la consulta</button></p>';
     }
     if (prods.length || cuidado) {
-      html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-src="meds" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-4">Agendar si prefiere que un médico lo revise antes</button></p>';
+      html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-agenda="general" data-src="meds" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-4">Agendar si prefiere que un médico lo revise antes</button></p>';
     }
+    html += '</section>';
     return bloque(html);
   }
   function seccionExamenes(r, motor) {
     var list = (motor && motor.examenes && motor.examenes.length) ? motor.examenes : null;
-    var html = '<h3 id="os-examenes">Exámenes que podrían pedirle</h3>';
+    var html = '<section class="os-sec" id="os-examenes">' + secHead('flask', 'Exámenes que podrían pedirle');
     html += '<p>No es una orden. Son estudios para <strong>conversarlos con el médico</strong>. Si ya se hizo alguno, llévelo a la cita.</p>';
     if (list) {
-      html += '<ul>';
       list.forEach(function (x, i) {
-        html += '<li>' + esc(x.nombre);
         if (x.buscar) {
-          html += ' <a class="os-answer-link" id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '">Ver en Farminova</a>';
+          html += '<a class="os-exam-card" id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '">';
+          html += '<span class="os-exam-name">' + esc(x.nombre) + '</span>';
+          html += '<span class="os-exam-go">Ver en Farminova</span></a>';
+        } else {
+          html += '<div class="os-exam-card is-static"><span class="os-exam-name">' + esc(x.nombre) + '</span></div>';
         }
-        html += '</li>';
       });
-      html += '</ul>';
-      html += '<p>El enlace abre la búsqueda en Farminova24. No todos los estudios se compran ahí; si no aparece, el médico le indica dónde hacerlo.</p>';
+      html += '<p class="os-answer-fine">El botón abre la búsqueda en Farminova24. No todos los estudios se compran ahí; si no aparece, el médico le indica dónde hacerlo.</p>';
     } else if (r.examenes && r.examenes.length) {
-      html += '<ul>';
-      r.examenes.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
-      html += '</ul>';
-      html += '<p>El médico decide cuáles pedir.</p>';
+      r.examenes.forEach(function (x) {
+        html += '<div class="os-exam-card is-static"><span class="os-exam-name">' + esc(x) + '</span></div>';
+      });
+      html += '<p class="os-answer-fine">El médico decide cuáles pedir.</p>';
     } else {
       html += '<p>Con lo que contó, <strong>no suele hacer falta un examen de entrada</strong>. Si el cuadro cambia, el médico le dice cuáles considerar.</p>';
     }
+    html += '</section>';
     return bloque(html);
   }
   function seccionConsulta(e, motor) {
-    var pr = precioPromo();
-    var html = '<h3>Con quién consultar</h3>';
+    var html = '<section class="os-sec">' + secHead('user', 'Con quién consultar');
     var specs = (motor && motor.especialistas) || [];
     if (motor && motor.urgencias) {
       html += '<p>El primer lugar es <strong>urgencias</strong> (o el <strong>123</strong>). La cita se agenda después de esa valoración, no en vez de ella.</p>';
+      html += '<a class="os-cta os-cta-urgent" id="URGENCIAS-ROGANS-ORIENTACIONSINTOMAS-V1-1" href="tel:123">Ir a urgencias / llamar al 123</a>';
     } else {
       html += '<p>Empiece por <strong>medicina general</strong>. Esa consulta ordena el primer plan y decide si hace falta otro especialista.</p>';
     }
@@ -1963,18 +2012,32 @@
     } else if (e && e.nombre) {
       html += '<p>Según sus respuestas, la orientación apunta a <strong>' + esc(e.nombre) + '</strong>. El médico de la primera consulta puede confirmarlo.</p>';
     }
-    html += '<p>Consulta de seguimiento con <strong>' + esc(e.nombre) + '</strong>: <s>' + esc(pr.regular) + '</s> <strong>' + esc(pr.promo) + '</strong> con el código <strong>' + esc(pr.code) + '</strong>.</p>';
-    html += '<p><button type="button" class="os-chip os-chip-primary os-answer-cta" data-os="agendar" data-src="consulta" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-1">Agendar consulta de seguimiento</button></p>';
+    if (!(motor && motor.urgencias)) {
+      if (tienePrecio()) {
+        var pr = precioPromo();
+        html += '<p class="os-price-note">Consulta de seguimiento: <s>' + esc(pr.regular) + '</s> <strong>' + esc(pr.promo) + '</strong> con el código <strong>' + esc(pr.code) + '</strong>.</p>';
+      }
+      html += '<p class="os-trust-line">Rogans financia los tratamientos.</p>';
+      html += ctaAgenda('Agendar cita con medicina general', 'general', 'AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-1');
+      if (e && e.key && e.key !== 'general') {
+        html += ctaAgenda('Agendar cita con ' + e.nombre, e.key, 'AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-6');
+      }
+      html += '<ul class="os-trust">';
+      html += '<li>' + svgIcon('shield') + '<span>Médicos certificados</span></li>';
+      html += '<li>' + svgIcon('shield') + '<span>Financiación de tratamientos</span></li>';
+      html += '</ul>';
+    }
     html += '<p class="os-answer-fine">Al agendar puede autorizar el envío de sus respuestas (y adjuntos) al profesional. Si no autoriza, no salen de su navegador.</p>';
+    html += '</section>';
     return bloque(html);
   }
   function seccionBanderas(motor) {
-    var html = '<h3>Vaya a urgencias si…</h3>';
+    var html = '<section class="os-sec os-sec-alert">' + secHead('alert', 'Vaya a urgencias si…');
     var list = (motor && motor.lead && motor.lead.urgenciasSi) || [];
     if (motor && motor.urgencias) {
       html += '<p>Además de lo que ya está pasando, <strong>no se quede en casa</strong> si aparece o empeora cualquiera de estas:</p>';
     } else if (!list.length) {
-      html += '<p>Llame al <strong>123</strong> o vaya a urgencias si el cuadro cambia de golpe, no tolera líquidos, se confunde o le cuesta respirar.</p>';
+      html += '<p>Llame al <strong>123</strong> o vaya a urgencias si el cuadro cambia de golpe, no tolera líquidos, se confunde o le cuesta respirar.</p></section>';
       return bloque(html);
     } else {
       html += '<p>Llame al <strong>123</strong> o vaya a urgencias si aparece:</p>';
@@ -1984,10 +2047,11 @@
       list.forEach(function (t) { html += '<li>' + esc(t) + '</li>'; });
       html += '</ul>';
     }
+    html += '</section>';
     return bloque(html);
   }
   function seccionCita() {
-    var html = '<h3>Para su cita</h3>';
+    var html = '<section class="os-sec">' + secHead('list', 'Para su cita');
     html += '<p>Lleve esto anotado. La consulta rinde más si ya está a la mano:</p><ul>';
     var dur = listaLabels('desde');
     var inicioCita = listaLabels('inicio');
@@ -2010,7 +2074,21 @@
       html += '<li><strong>Lo que ya probó:</strong> aún nada. Si toma algo antes de la cita, anote el nombre y si le sirvió.</li>';
     }
     html += '<li><strong>Exámenes que ya tenga</strong>, aunque sean de otra fecha. No hace falta pedírselos por su cuenta antes de que el médico los indique.</li>';
-    html += '</ul>';
+    html += '</ul></section>';
+    return bloque(html);
+  }
+  function heroHtml(diffs, motor) {
+    var d = diffs && diffs.length ? diffs[0] : null;
+    var nivel = (motor && motor.triageNivel) || 'programada';
+    var triage = (motor && motor.triage) || 'Consulta programada';
+    var html = '<section class="os-dxhero' + (nivel === 'urgencias' ? ' is-urgent' : '') + '">';
+    html += '<div class="os-dxhero-badges">';
+    if (d) html += '<span class="os-pill">' + esc(etiquetaProb(d.nivel)) + '</span>';
+    html += '<span class="os-pill is-' + esc(nivel) + '">' + esc(triage) + '</span>';
+    html += '</div>';
+    html += '<h2 class="os-dxhero-title">' + esc(d ? d.nombre : 'Orientación según lo que contó') + '</h2>';
+    if (d && d.porQue) html += '<p class="os-dxhero-why">' + esc(d.porQue) + '</p>';
+    html += '</section>';
     return bloque(html);
   }
   function seccionOtros(motor) {
@@ -2049,6 +2127,7 @@
     var html = '<div class="os-row os-row-answer"><div class="os-avatar" aria-hidden="true">R</div>';
     html += '<article class="os-bubble os-bubble-bot os-bubble-answer os-answer is-pending" id="os-result-panel" data-os-result="1" aria-label="Orientación">';
     html += urgent;
+    html += heroHtml(diffs, motor);
     html += bloque('<p class="os-answer-open">' + esc(reflejoPaciente(motor)) + '</p>');
     html += seccionProbable(diffs);
     html += seccionUrgencia(r, motor);
@@ -2129,8 +2208,7 @@
       var r = evaluar();
       var e = espInfo(r.esp);
       ask({ tipo: 'result_actions', html: buildResultHtml(r, e) });
-      if (lastMotor && lastMotor.urgencias) removeSticky();
-      else mountSticky();
+      mountSticky();
       revealAnswer();
       requestAnimationFrame(function () {
         var panel = document.getElementById('os-result-panel');
@@ -2147,7 +2225,8 @@
     removeSticky();
     setResultMode(true);
     var r = evaluar();
-    var key = (lastMotor && lastMotor.lead && lastMotor.lead.agenda) || r.esp;
+    var key = S.agendaForzada || (lastMotor && lastMotor.lead && lastMotor.lead.agenda) || r.esp;
+    S.agendaForzada = '';
     var e = espInfo(key);
     if (!e.especialidad) {
       var msg = 'Hola, hice la orientación de síntomas en la web y quiero agendar una cita de medicina general.';
@@ -2289,6 +2368,7 @@
     if (a === 'agendar') {
       var src = b.getAttribute('data-src');
       if (src) track('agendar_' + src);
+      S.agendaForzada = b.getAttribute('data-agenda') || '';
       showAgendar();
       return;
     }
