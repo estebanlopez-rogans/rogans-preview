@@ -1878,11 +1878,11 @@
   function ctaAgenda(label, agenda, id) {
     return '<button type="button" class="os-cta" data-os="agendar" data-agenda="' + esc(agenda || 'general') + '" data-src="consulta" id="' + id + '">' + esc(label) + '</button>';
   }
-  function nombreCorto(nombre) {
-    return String(nombre || '').split('(')[0].replace(/\s+/g, ' ').trim();
-  }
   function btnSolido(label, extra) {
     return '<a class="os-btn os-btn-solid"' + extra + '>' + svgIcon('bag') + '<span>' + esc(label) + '</span>' + svgIcon('arrow') + '</a>';
+  }
+  function btnFarm(label, extra) {
+    return '<a class="os-btn os-btn-farm"' + extra + '>' + svgIcon('bag') + '<span>' + esc(label) + '</span>' + svgIcon('arrow') + '</a>';
   }
   function btnOutline(label, attrs) {
     return '<button type="button" class="os-btn os-btn-outline"' + attrs + '>' + svgIcon('cal') + '<span>' + esc(label) + '</span></button>';
@@ -1948,16 +1948,15 @@
     }
     var prods = productosOtc(r, motor);
     if (prods.length) {
-      html += '<p>De <strong>venta libre</strong>, si la etiqueta no se lo contraindica:</p>';
+      html += '<p>De <strong>venta libre</strong>, si la etiqueta no se lo contraindica. La compra es opcional y queda a su criterio.</p>';
       prods.forEach(function (p, i) {
-        var corto = nombreCorto(p.nombre);
         html += '<article class="os-med-card">';
         html += '<p class="os-med-name"><strong>' + esc(p.nombre) + '</strong></p>';
         if (p.uso) html += '<p>' + esc(p.uso) + '</p>';
         html += '<p>Siga la <strong>dosis y los días que indica la etiqueta</strong>; esta orientación no formula.</p>';
         var avisos = p.advertencias || p.avisos || [];
         if (avisos.length) html += '<p>' + esc(avisos[0]) + '</p>';
-        html += btnSolido('Ver ' + corto.toLowerCase() + ' en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-OTC' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '"');
+        html += btnFarm('Comprar en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-OTC' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '"');
         html += '</article>';
       });
       html += '<p>No lo combine con otro producto del mismo principio activo. Si no mejora, empeora o aparece algo nuevo, consulte.</p>';
@@ -1990,7 +1989,7 @@
         html += '<article class="os-med-card">';
         html += '<p class="os-med-name"><strong>' + esc(x.nombre) + '</strong></p>';
         if (x.buscar) {
-          html += btnSolido('Ver en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '"');
+          html += btnFarm('Comprar en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '"');
         }
         html += '</article>';
       });
@@ -2003,6 +2002,24 @@
     } else {
       html += '<p>Con lo que contó, <strong>no suele hacer falta un examen de entrada</strong>. Si el cuadro cambia, el médico le dice cuáles considerar.</p>';
     }
+    html += '</section>';
+    return bloque(html);
+  }
+  function seccionFarminova(r, motor) {
+    if (motor && motor.urgencias) return '';
+    var meds = (r && r.embarazo) ? [] : productosOtc(r, motor);
+    var exams = ((motor && motor.examenes) || []).filter(function (x) { return x.buscar; });
+    if (!meds.length && !exams.length) return '';
+    var html = '<section class="os-farm" id="os-farminova">';
+    html += '<header class="os-sec-head">' + svgIcon('bag') + '<h3>En Farminova</h3></header>';
+    html += '<p>Ahí puede ver los medicamentos de venta libre y los exámenes que el caso suele usar. La compra es opcional y queda a su criterio. Esta orientación no reemplaza una consulta médica; le sugerimos agendar una cita para confirmar el diagnóstico y el tratamiento.</p>';
+    if (meds.length) {
+      html += btnFarm('Ver medicamentos en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-MEDS" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(meds[0].busqueda || meds[0].nombre)) + '"');
+    }
+    if (exams.length) {
+      html += btnFarm('Ver exámenes en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EXS" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(exams[0].buscar)) + '"');
+    }
+    html += btnFarm('Ver todo lo recomendado en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-TODO" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl('')) + '"');
     html += '</section>';
     return bloque(html);
   }
@@ -2146,6 +2163,7 @@
     html += seccionProbable(diffs);
     html += seccionUrgencia(r, motor);
     html += seccionMientras(r, motor);
+    html += seccionFarminova(r, motor);
     html += seccionExamenes(r, motor);
     html += seccionConsulta(e, motor);
     html += seccionBanderas(motor);
