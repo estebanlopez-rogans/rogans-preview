@@ -1865,7 +1865,10 @@
       user: '<circle cx="12" cy="8" r="3"/><path d="M5 19c1.5-3 3.8-4.5 7-4.5S17.5 16 19 19"/>',
       alert: '<path d="M12 4 3 19h18L12 4z"/><path d="M12 10v4"/><path d="M12 16.5h.01"/>',
       list: '<path d="M8 7h11M8 12h11M8 17h11"/><path d="M4 7h.01M4 12h.01M4 17h.01"/>',
-      shield: '<path d="M12 3 5 6v6c0 4 3 6.5 7 8 4-1.5 7-4 7-8V6l-7-3z"/><path d="m9 12 2 2 4-4"/>'
+      shield: '<path d="M12 3 5 6v6c0 4 3 6.5 7 8 4-1.5 7-4 7-8V6l-7-3z"/><path d="m9 12 2 2 4-4"/>',
+      bag: '<path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>',
+      arrow: '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+      cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'
     };
     return '<span class="os-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (paths[name] || paths.pulse) + '</svg></span>';
   }
@@ -1874,6 +1877,15 @@
   }
   function ctaAgenda(label, agenda, id) {
     return '<button type="button" class="os-cta" data-os="agendar" data-agenda="' + esc(agenda || 'general') + '" data-src="consulta" id="' + id + '">' + esc(label) + '</button>';
+  }
+  function nombreCorto(nombre) {
+    return String(nombre || '').split('(')[0].replace(/\s+/g, ' ').trim();
+  }
+  function btnSolido(label, extra) {
+    return '<a class="os-btn os-btn-solid"' + extra + '>' + svgIcon('bag') + '<span>' + esc(label) + '</span>' + svgIcon('arrow') + '</a>';
+  }
+  function btnOutline(label, attrs) {
+    return '<button type="button" class="os-btn os-btn-outline"' + attrs + '>' + svgIcon('cal') + '<span>' + esc(label) + '</span></button>';
   }
   function seccionProbable(diffs) {
     var html = '<section class="os-sec">' + secHead('pulse', 'Lo más probable');
@@ -1916,7 +1928,7 @@
     return bloque(html);
   }
   function seccionMientras(r, motor) {
-    var html = '<section class="os-sec">' + secHead('hand', 'Qué puede hacer mientras tanto');
+    var html = '<section class="os-sec" id="os-mientras">' + secHead('hand', 'Qué puede hacer mientras tanto');
     if (motor && motor.urgencias) {
       html += '<p><strong>No se automedique.</strong> Con esta prioridad el siguiente paso es urgencias, no una pastilla en casa.</p></section>';
       return bloque(html);
@@ -1936,17 +1948,18 @@
     }
     var prods = productosOtc(r, motor);
     if (prods.length) {
-      html += '<p>De <strong>venta libre</strong>, si la etiqueta no se lo contraindica:</p><ul>';
-      prods.forEach(function (p) {
-        html += '<li><strong>' + esc(p.nombre) + '</strong>.';
-        if (p.uso) html += ' ' + esc(p.uso);
-        html += ' Siga la <strong>dosis y los días que indica la etiqueta</strong>; esta orientación no formula.';
+      html += '<p>De <strong>venta libre</strong>, si la etiqueta no se lo contraindica:</p>';
+      prods.forEach(function (p, i) {
+        var corto = nombreCorto(p.nombre);
+        html += '<article class="os-med-card">';
+        html += '<p class="os-med-name"><strong>' + esc(p.nombre) + '</strong></p>';
+        if (p.uso) html += '<p>' + esc(p.uso) + '</p>';
+        html += '<p>Siga la <strong>dosis y los días que indica la etiqueta</strong>; esta orientación no formula.</p>';
         var avisos = p.advertencias || p.avisos || [];
-        if (avisos.length) html += ' ' + esc(avisos[0]);
-        html += ' <a class="os-answer-link" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '">Ver en Farminova</a>';
-        html += '</li>';
+        if (avisos.length) html += '<p>' + esc(avisos[0]) + '</p>';
+        html += btnSolido('Ver ' + corto.toLowerCase() + ' en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-OTC' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(p.busqueda || p.nombre)) + '"');
+        html += '</article>';
       });
-      html += '</ul>';
       html += '<p>No lo combine con otro producto del mismo principio activo. Si no mejora, empeora o aparece algo nuevo, consulte.</p>';
     } else if (!cuidado) {
       html += '<p>No hay un cuidado de venta libre claro para esta combinación de respuestas.</p>';
@@ -1957,11 +1970,13 @@
     }
     if (rx) {
       var rxHtml = esc(rx).replace(/su médico podría considerar/gi, '<strong>$&</strong>');
+      html += '<article class="os-med-card">';
       html += /^si\b/i.test(rx) ? '<p>' + rxHtml + '</p>' : '<p><strong>Si no mejora:</strong> ' + rxHtml + '</p>';
-      html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-src="rx" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-5">Hablarlo en la consulta</button></p>';
+      html += btnOutline('Hablarlo en la consulta', ' data-os="agendar" data-src="rx" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-5"');
+      html += '</article>';
     }
     if (prods.length || cuidado) {
-      html += '<p><button type="button" class="os-answer-textbtn" data-os="agendar" data-agenda="general" data-src="meds" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-4">Agendar si prefiere que un médico lo revise antes</button></p>';
+      html += btnOutline('Agendar si prefiere que un médico lo revise antes', ' data-os="agendar" data-agenda="general" data-src="meds" id="AGENDA-ROGANS-ORIENTACIONSINTOMAS-V1-4"');
     }
     html += '</section>';
     return bloque(html);
@@ -1972,13 +1987,12 @@
     html += '<p>No es una orden. Son estudios para <strong>conversarlos con el médico</strong>. Si ya se hizo alguno, llévelo a la cita.</p>';
     if (list) {
       list.forEach(function (x, i) {
+        html += '<article class="os-med-card">';
+        html += '<p class="os-med-name"><strong>' + esc(x.nombre) + '</strong></p>';
         if (x.buscar) {
-          html += '<a class="os-exam-card" id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '">';
-          html += '<span class="os-exam-name">' + esc(x.nombre) + '</span>';
-          html += '<span class="os-exam-go">Ver en Farminova</span></a>';
-        } else {
-          html += '<div class="os-exam-card is-static"><span class="os-exam-name">' + esc(x.nombre) + '</span></div>';
+          html += btnSolido('Ver en Farminova', ' id="FARMACIA-ROGANS-ORIENTACIONSINTOMAS-V1-EX' + (i + 1) + '" target="_blank" rel="noopener nofollow" href="' + esc(farmaciaUrl(x.buscar)) + '"');
         }
+        html += '</article>';
       });
       html += '<p class="os-answer-fine">El botón abre la búsqueda en Farminova24. No todos los estudios se compran ahí; si no aparece, el médico le indica dónde hacerlo.</p>';
     } else if (r.examenes && r.examenes.length) {
