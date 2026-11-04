@@ -98,8 +98,8 @@
         def: 'Panel lateral para manejar la historia clínica en Chrome, Safari y Microsoft Edge.'
       },
       guia: {
-        name: 'Clinova Guía',
-        full: 'Clinova Guía',
+        name: 'Nova Guía',
+        full: 'Nova Guía',
         tag: 'Bot por chat',
         icon: 'guia',
         def: 'Bot por chat para toda la historia clínica: administración, configuración y el día a día de cada rol.'
@@ -206,7 +206,7 @@
       {
         id: 'operacion',
         q: 'Además de la nota clínica, ¿qué quiere resolver en la operación?',
-        help: 'Capitán, Kiosco, Guía e Inbox comparten el mismo perfil. Si no aplica, quédese con la historia clínica.',
+        help: 'Capitán, Kiosco, Nova Guía e Inbox comparten el mismo perfil. Si no aplica, quédese con la historia clínica.',
         opts: [
           { v: 'turnos', e: '🎫', t: 'El turno al llegar', s: 'Manejo de filas: se asigna un turno' },
           { v: 'kiosco', e: '🖥️', t: 'El check-in sin hablar con nadie', s: 'La persona se registra en un computador' },
