@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Política de privacidad — Clinova Notes · Autollenar</title>
+    <meta
+      name="description"
+      content="Política de privacidad de la extensión de Chrome Clinova Notes · Autollenar."
+    />
+    <style>
+      :root {
+        --primary: #3e6bf8;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --bg: #f7f8fb;
+        --border: #e5e7eb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        line-height: 1.6;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 40px 20px 64px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      header h1 {
+        font-size: 22px;
+        margin: 0;
+      }
+      .updated {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 28px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px 26px;
+        box-shadow:
+          0 1px 2px rgba(16, 24, 40, 0.04),
+          0 6px 20px rgba(16, 24, 40, 0.05);
+      }
+      h2 {
+        font-size: 16px;
+        margin: 26px 0 8px;
+      }
+      h2:first-of-type {
+        margin-top: 0;
+      }
+      p,
+      li {
+        font-size: 14.5px;
+        color: #374151;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      a {
+        color: var(--primary);
+      }
+      .foot {
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 28px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header><h1>Política de privacidad — Clinova Notes · Autollenar</h1></header>
+      <div class="updated">Última actualización: 19 de octubre de 2026</div>
+
+      <div class="card">
+        <p>
+          Esta extensión de Chrome ("la extensión") ayuda a los profesionales de salud a completar
+          los campos de la historia clínica de otros softwares usando la transcripción con
+          inteligencia artificial de Clinova Notes.
+        </p>
+
+        <h2>Quién puede usarla</h2>
+        <p>
+          La extensión requiere <strong>iniciar sesión con una cuenta de Clinova Notes</strong>.
+          Solo profesionales autenticados pueden usarla.
+        </p>
+
+        <h2>Qué datos se tratan y con qué fin</h2>
+        <ul>
+          <li>
+            <strong>Contenido del formulario de la página activa.</strong> Cuando el usuario pulsa
+            "Detectar campos" o "Autollenar", la extensión lee las etiquetas y campos del formulario
+            visible para saber qué completar. No lee la página de forma continua ni en segundo
+            plano.
+          </li>
+          <li>
+            <strong>Audio del micrófono.</strong> Solo mientras el usuario inicia y mantiene una
+            grabación. El audio se envía a la API de Clinova Notes para transcribirlo y se descarta
+            una vez procesado (no se almacena de forma permanente).
+          </li>
+          <li>
+            <strong>Transcripción y respuestas generadas.</strong> Se usan para rellenar los campos
+            y se guardan localmente en el dispositivo del usuario (almacenamiento del navegador)
+            para copiarlas o reaplicarlas; además pasan a formar parte de la historia clínica donde
+            el profesional las registre.
+          </li>
+          <li>
+            <strong>Sesión (token).</strong> Se guarda localmente para mantener la sesión iniciada.
+          </li>
+        </ul>
+
+        <h2>A dónde se envían</h2>
+        <p>
+          El audio, las transcripciones y el esquema de campos se envían únicamente a la API de
+          Clinova Notes (<code>https://notes.clinova24.com</code>) y, desde ahí, al servicio de
+          inteligencia artificial de Clinova para la transcripción y el mapeo de campos. La
+          extensión no envía datos a terceros ajenos a Clinova Notes.
+        </p>
+
+        <h2>Lo que no hacemos</h2>
+        <ul>
+          <li>No vendemos ni compartimos los datos con terceros.</li>
+          <li>No usamos los datos para publicidad ni para fines distintos del autollenado.</li>
+          <li>No capturamos contraseñas, campos de tipo contraseña ni medios de pago.</li>
+        </ul>
+
+        <h2>Datos de salud</h2>
+        <p>
+          La información clínica se trata con los mismos controles de seguridad que el resto de
+          Clinova Notes (cifrado en tránsito mediante HTTPS) y conforme a la normativa de protección
+          de datos aplicable (p. ej. Ley 1581 de 2012 en Colombia).
+        </p>
+
+        <h2>Tus controles</h2>
+        <ul>
+          <li>Puedes cerrar sesión en cualquier momento desde el panel de la extensión.</li>
+          <li>
+            Las transcripciones y respuestas guardadas localmente se eliminan al cerrar sesión o al
+            limpiar los datos de la extensión en el navegador.
+          </li>
+        </ul>
+
+        <h2>Contacto</h2>
+        <p>
+          Para solicitudes relacionadas con tus datos:
+          <a href="mailto:soporte@clinova24.com">soporte@clinova24.com</a>.
+        </p>
+      </div>
+
+      <div class="foot">
+        Clinova Notes · Autollenar — Política de privacidad de la extensión de Chrome.
+      </div>
+    </div>
+  </body>
+</html>

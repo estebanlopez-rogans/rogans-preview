@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clinova Notes · Referencia de la API</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #fafafa;
+      }
+      .topbar-wrap {
+        background: #3e6bf7;
+        color: #fff;
+        padding: 12px 20px;
+        font-family: system-ui, sans-serif;
+        font-weight: 600;
+      }
+      .topbar-wrap a {
+        color: #dbe4ff;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar-wrap">
+      Clinova Notes · Referencia de la API &nbsp;·&nbsp;
+      <a href="/integration/documentacion">← Volver a la guía</a>
+    </div>
+    <div id="swagger"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+      window.ui = SwaggerUIBundle({
+        url: '/api/integration/openapi.json',
+        dom_id: '#swagger',
+        deepLinking: true,
+        docExpansion: 'list',
+        defaultModelsExpandDepth: 0,
+        presets: [SwaggerUIBundle.presets.apis],
+      });
+    </script>
+  </body>
+</html>
