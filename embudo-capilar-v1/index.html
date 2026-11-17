@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Prototipo · Tratamiento capilar en línea | Rogans</title>
+  <meta name="description" content="Prototipo de prueba del nuevo embudo de compra capilar de Rogans. No es el sitio en vivo.">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/styles.css">
+  <!--
+    PROTOTIPO DE PRUEBA — NO ES EL SITIO EN VIVO.
+    Preguntas, criterios de "no apto", lógica de recomendación, textos de garantía,
+    testimonios y cifras: PENDIENTE VALIDACIÓN DEL ÁREA MÉDICA Y LEGAL (ver README.md).
+    El checkout es simulado: no cobra, no guarda ni envía datos.
+  -->
+</head>
+<body class="bg-white text-ink font-sans antialiased">
+  <div class="relative z-50 bg-amber-300 text-amber-950 text-center text-xs sm:text-sm font-semibold py-1.5 px-3" role="note">
+    Prototipo de prueba — no es el sitio en vivo · No se cobra ni se guarda nada
+  </div>
+  <header class="border-b border-slate-100 bg-white">
+    <div class="mx-auto max-w-5xl flex items-center justify-between px-4 h-14">
+      <a href="#inicio" class="flex items-center" aria-label="Rogans, inicio del prototipo">
+        <img src="./assets/logo-rogans.svg" alt="Rogans, salud y bienestar integral" width="101" height="33" class="h-8 w-auto">
+      </a>
+      <div class="flex items-center gap-3 text-xs text-slate-500">
+        <span class="hidden sm:inline">IPS habilitada en Bogotá</span>
+        <button id="cart-btn" type="button" class="relative rounded-full border border-slate-200 px-3 py-1.5 text-ink hover:border-primary-500" aria-label="Ver carrito">
+          Carrito <span id="cart-count" class="ml-1 inline-flex min-w-5 justify-center rounded-full bg-primary-500 px-1.5 text-[11px] font-bold text-primary-950">0</span>
+        </button>
+      </div>
+    </div>
+    <div id="progress-wrap" class="hidden h-1.5 bg-slate-100" aria-hidden="true">
+      <div id="progress" class="h-full bg-primary-500 transition-all duration-300" style="width:0%"></div>
+    </div>
+  </header>
+  <main id="app" class="mx-auto max-w-5xl px-4 pb-24" tabindex="-1" aria-live="polite"></main>
+  <footer class="border-t border-slate-100 bg-slate-50 text-xs text-slate-500">
+    <div class="mx-auto max-w-5xl px-4 py-6 space-y-1">
+      <p>Rogans · Autopista Norte #106-71, Of. 401, Bogotá · IPS habilitada.</p>
+      <p>Prototipo de prueba. Contenidos clínicos, garantía, testimonios y cifras pendientes de validación por el área médica y Legal. Este flujo no reemplaza la valoración médica.</p>
+    </div>
+  </footer>
+  <script src="./assets/app.js" defer></script>
+</body>
+</html>
