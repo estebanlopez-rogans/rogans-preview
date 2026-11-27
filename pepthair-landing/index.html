@@ -5,23 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>PEPTHAIR | Cóctel capilar con péptidos y vitaminas</title>
-<meta name="description" content="PEPTHAIR: cóctel capilar con péptidos de última generación, aminoácidos y vitaminas. Usado por miles de pacientes. Agenda tu valoración o escríbenos por WhatsApp.">
+<meta name="description" content="PEPTHAIR: cóctel capilar con péptidos de última generación, aminoácidos y vitaminas, para médicos y clínicas capilares. Usado por miles de pacientes. Pide tu muestra gratis.">
 <link rel="canonical" href="https://rogansya.com/pepthair/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CO">
 <meta property="og:title" content="PEPTHAIR | Cóctel capilar con péptidos y vitaminas">
-<meta property="og:description" content="PEPTHAIR: cóctel capilar con péptidos de última generación, aminoácidos y vitaminas. Usado por miles de pacientes. Agenda tu valoración o escríbenos por WhatsApp.">
+<meta property="og:description" content="PEPTHAIR: cóctel capilar con péptidos de última generación, aminoácidos y vitaminas, para médicos y clínicas capilares. Usado por miles de pacientes. Pide tu muestra gratis.">
 <meta property="og:url" content="https://rogansya.com/pepthair/">
 <meta property="og:image" content="./assets/pepthair-mockup-caja-viales.webp">
 <meta name="twitter:card" content="summary_large_image">
 <script>
-/* VISTA PREVIA ESTATICA: bloquea cualquier envio (POST) para no crear citas ni pagos reales. */
+/* VISTA PREVIA ESTATICA: bloquea envios reales (formularios, WhatsApp, POST). */
 (function(){
-  var _f=window.fetch; if(_f){window.fetch=function(u,o){if(o&&o.method&&o.method.toUpperCase()!=='GET'){alert('Vista previa: el agendamiento y envios estan desactivados.');return Promise.reject(new Error('preview'));}return _f.apply(this,arguments);};}
+  var _f=window.fetch; if(_f){window.fetch=function(u,o){if(o&&o.method&&o.method.toUpperCase()!=='GET'){alert('Vista previa: el envio esta desactivado.');return Promise.reject(new Error('preview'));}return _f.apply(this,arguments);};}
   var _o=XMLHttpRequest.prototype.open,_s=XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.open=function(m){this.__m=(m||'').toUpperCase();return _o.apply(this,arguments);};
-  XMLHttpRequest.prototype.send=function(){if(this.__m&&this.__m!=='GET'){alert('Vista previa: el agendamiento y envios estan desactivados.');return;}return _s.apply(this,arguments);};
-  document.addEventListener('submit',function(e){e.preventDefault();e.stopPropagation();alert('Vista previa: el agendamiento y envios estan desactivados.');},true);
+  XMLHttpRequest.prototype.send=function(){if(this.__m&&this.__m!=='GET'){alert('Vista previa: el envio esta desactivado.');return;}return _s.apply(this,arguments);};
+  var _open=window.open;
+  window.open=function(url){
+    var u=(url||'').toString();
+    if(/wa\.me|whatsapp/i.test(u)){alert('Vista previa: el envio por WhatsApp esta desactivado.');return null;}
+    return _open.apply(this,arguments);
+  };
+  document.addEventListener('submit',function(e){e.preventDefault();e.stopPropagation();alert('Vista previa: el envio esta desactivado.');},true);
 })();
 </script>
 <link rel="preload" as="image" href="./assets/pepthair-mockup-caja-viales.webp" media="(min-width: 768px)" fetchpriority="high">
@@ -36,7 +42,7 @@
             "@id": "https://rogansya.com/pepthair/#product",
             "name": "PEPTHAIR — Cóctel capilar con péptidos y vitaminas",
             "alternateName": "PeptHair",
-            "description": "PEPTHAIR: cóctel capilar con péptidos de última generación, aminoácidos y vitaminas. Usado por miles de pacientes. Agenda tu valoración o escríbenos por WhatsApp.",
+            "description": "PEPTHAIR: cóctel capilar con péptidos de última generación, aminoácidos y vitaminas, para médicos y clínicas capilares. Usado por miles de pacientes. Pide tu muestra gratis.",
             "category": "Cuidado capilar",
             "url": "https://rogansya.com/pepthair/",
             "image": [
@@ -104,15 +110,15 @@
                     "name": "Soy médico o profesional: ¿cómo lo incorporo en mi consulta?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "PEPTHAIR llega como una fórmula lista, fácil de incorporar a tu consulta. Escríbenos por WhatsApp al +57 320 923 4629 y te contamos cómo sumarlo a tu portafolio."
+                        "text": "PEPTHAIR llega como una fórmula lista, fácil de incorporar a tu consulta. Pide tu muestra gratis desde el formulario de esta página y te escribiremos por WhatsApp al +57 320 923 4629."
                     }
                 },
                 {
                     "@type": "Question",
-                    "name": "¿Cómo puedo agendar una valoración capilar?",
+                    "name": "¿Cómo pido mi muestra gratis?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "Puedes agendar tu valoración capilar desde los botones de esta página o por WhatsApp al +57 320 923 4629."
+                        "text": "Completa el formulario de esta página con tu nombre, especialidad, ciudad y consultorio o clínica. Al enviarlo, se abrirá WhatsApp con tu solicitud para el +57 320 923 4629."
                     }
                 }
             ]
@@ -227,14 +233,14 @@
 				<a href="#beneficios" class="hover:text-primary-700 transition-colors">Beneficios</a>
 				<a href="#activos" class="hover:text-primary-700 transition-colors">Cóctel de activos</a>
 				<a href="#sesion" class="hover:text-primary-700 transition-colors">Tu sesión</a>
-				<a href="#publicos" class="hover:text-primary-700 transition-colors">Pacientes y médicos</a>
+				<a href="#publicos" class="hover:text-primary-700 transition-colors">Para tu consulta</a>
 				<a href="#faq" class="hover:text-primary-700 transition-colors">FAQ</a>
 			</nav>
 
 			<div class="flex items-center gap-2.5 shrink-0">
-				<button type="button" class="open-sidebar-appointment-general inline-flex items-center justify-center rounded-full bg-primary-700 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer">
-					Agendar valoración
-				</button>
+				<a href="#contacto" class="inline-flex items-center justify-center rounded-full bg-primary-700 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity">
+					Quiero una muestra gratis
+				</a>
 			</div>
 		</div>
 	</div>
@@ -243,17 +249,26 @@
 	<section id="pepthair-top" class="pepthair-hero-bg pt-10 pb-14 md:pt-16 md:pb-20 border-b border-gray-100">
 		<div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 			<div class="lg:col-span-6 space-y-6">
-				<div class="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3.5 py-1.5 text-xs font-semibold text-emerald-950">
-					<span class="inline-block w-2 h-2 rounded-full bg-emerald-600" aria-hidden="true"></span>
-					<span>Usado por miles de pacientes</span>
+				<div class="flex flex-wrap items-center gap-2">
+					<div class="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3.5 py-1.5 text-xs font-semibold text-emerald-950">
+						<span class="inline-block w-2 h-2 rounded-full bg-emerald-600" aria-hidden="true"></span>
+						<span>Usado por miles de pacientes</span>
+					</div>
+					<div class="inline-flex flex-wrap items-center rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-800">
+						Para médicos y clínicas capilares
+					</div>
 				</div>
 
 				<h1 class="text-4xl md:text-5xl lg:text-[52px] font-bold tracking-tight leading-[1.1] text-[#111827]">
 					El cóctel completo para un cabello <span class="text-primary-700">más fuerte, nutrido y con brillo</span>
 				</h1>
 
+				<p class="text-base md:text-lg text-primary-800 font-semibold leading-relaxed max-w-xl">
+					Para médicos y clínicas capilares: pide tu muestra gratis.
+				</p>
+
 				<p class="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
-					<strong class="text-gray-900">PEPTHAIR</strong> es un cóctel capilar con péptidos de última generación, aminoácidos y vitaminas, aplicado por profesionales para cuidar tu cuero cabelludo y realzar el aspecto de tu cabello.
+					<strong class="text-gray-900">PEPTHAIR</strong> es un cóctel capilar con péptidos de última generación, aminoácidos y vitaminas, listo para incorporar a tu consulta y realzar el aspecto del cabello de tus pacientes.
 				</p>
 
 				<div class="grid grid-cols-3 gap-3 max-w-lg pt-1">
@@ -272,11 +287,8 @@
 				</div>
 
 				<div class="flex flex-wrap items-center gap-3 pt-2">
-					<button type="button" class="open-sidebar-appointment-general inline-flex items-center justify-center rounded-full bg-primary-700 px-6 py-3.5 text-sm md:text-base font-semibold text-white shadow-md hover:opacity-90 transition-opacity cursor-pointer">
-						Agendar valoración
-					</button>
-					<a href="https://wa.me/573209234629?text=Hola%2C%20quiero%20consultar%20sobre%20PEPTHAIR." target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3.5 text-sm md:text-base font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
-						Escribir por WhatsApp
+					<a href="#contacto" class="inline-flex items-center justify-center rounded-full bg-primary-700 px-6 py-3.5 text-sm md:text-base font-semibold text-white shadow-md hover:opacity-90 transition-opacity">
+						Quiero una muestra gratis
 					</a>
 				</div>
 
@@ -492,83 +504,33 @@
 		</div>
 	</section>
 
-	<!-- PACIENTES Y MÉDICOS -->
+	<!-- PARA TU CONSULTA -->
 	<section id="publicos" class="py-14 md:py-20 bg-white">
 		<div class="max-w-7xl mx-auto px-4 md:px-6">
 			<div class="max-w-3xl mb-10">
-				<span class="inline-block text-xs font-bold uppercase tracking-widest text-primary-700 mb-2">Pacientes y médicos</span>
+				<span class="inline-block text-xs font-bold uppercase tracking-widest text-primary-700 mb-2">Para médicos y clínicas capilares</span>
 				<h2 class="text-3xl md:text-4xl font-bold text-[#111827] tracking-tight mb-3">
-					PEPTHAIR, pensado para quien lo recibe y para quien lo aplica
+					Una fórmula lista para llevar a tu consulta
 				</h2>
 				<p class="text-base md:text-lg text-gray-600 leading-relaxed">
-					Si buscas cuidar tu cuero cabelludo, agenda tu valoración. Si eres médico o profesional, descubre cómo sumarlo a tu consulta.
+					PEPTHAIR reúne péptidos de última generación, aminoácidos y vitaminas en una solución fácil de incorporar a tu práctica. Pide tu muestra gratis y conócelo de primera mano.
 				</p>
 			</div>
 
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-7">
-				<!-- Pacientes -->
-				<article class="rounded-3xl border border-gray-200 bg-white p-7 md:p-9 shadow-xs flex flex-col justify-between space-y-6">
-					<div class="space-y-4">
-						<span class="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-900">
-							Para pacientes
-						</span>
-						<h3 class="text-2xl font-bold text-[#111827]">Cuida tu cuero cabelludo con una experiencia profesional</h3>
-						<p class="text-sm md:text-base text-gray-600 leading-relaxed">
-							En tu valoración inicial, tu especialista revisa tu cuero cabelludo y tu cabello y te recomienda el plan de cuidado que mejor se adapte a ti.
-						</p>
-						<ul class="space-y-2 text-sm text-gray-700">
-							<li>• Valoración con el equipo de especialistas capilares.</li>
-							<li>• Aplicación profesional en cabina, con presentación en vial de 5 mL y 10 mL.</li>
-							<li>• Sedes en Bogotá, Medellín, Cali y Bucaramanga.</li>
-						</ul>
-					</div>
-
-					<div class="space-y-4 pt-2 border-t border-gray-100">
-						<div class="flex flex-wrap gap-3">
-							<button type="button" class="open-sidebar-appointment-general inline-flex items-center justify-center rounded-full bg-primary-700 px-5 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity cursor-pointer">
-								Agendar valoración capilar
-							</button>
-							<a href="https://wa.me/573209234629?text=Hola%2C%20quiero%20agendar%20una%20valoraci%C3%B3n%20capilar%20y%20consultar%20sobre%20PEPTHAIR." target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
-								Escribir por WhatsApp
-							</a>
-						</div>
-						<div class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-primary-700">
-							<a href="https://rogansya.com/cuidado-capilar/" class="hover:underline">Ver Cuidado Capilar →</a>
-							<a href="https://rogansya.com/diagnostico-capilar/" class="hover:underline">Diagnóstico Capilar →</a>
-							<a href="https://rogansya.com/donde-estamos/" class="hover:underline">Nuestras Sedes →</a>
-						</div>
-					</div>
-				</article>
-
-				<!-- Médicos y profesionales -->
-				<article class="rounded-3xl border border-gray-200 bg-[#111827] text-white p-7 md:p-9 shadow-sm flex flex-col justify-between space-y-6">
-					<div class="space-y-4">
-						<span class="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs font-semibold text-emerald-200">
-							Para médicos y profesionales
-						</span>
-						<h3 class="text-2xl font-bold text-white">Una fórmula lista para llevar a tu consulta</h3>
-						<p class="text-sm md:text-base text-gray-300 leading-relaxed">
-							PEPTHAIR reúne péptidos de última generación, aminoácidos y vitaminas en una fórmula lista, fácil de incorporar a tu consulta.
-						</p>
-						<ul class="space-y-2 text-sm text-gray-200">
-							<li>• Fórmula lista para aplicar.</li>
-							<li>• Presentación en vial de 5 mL y 10 mL, lista para aplicar.</li>
-							<li>• Compatible con técnicas tópicas como microneedling cosmético, mesoterapia sin aguja o aplicación asistida.</li>
-													</ul>
-					</div>
-
-					<div class="space-y-4 pt-2 border-t border-white/15">
-						<div class="flex flex-wrap gap-3">
-							<a href="https://wa.me/573209234629?text=Hola%2C%20soy%20m%C3%A9dico%2Fprofesional%20y%20quiero%20informaci%C3%B3n%20sobre%20PEPTHAIR%20para%20mi%20consulta." target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#111827] hover:bg-gray-100 transition-colors">
-								WhatsApp para profesionales
-							</a>
-						</div>
-						<div class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-emerald-200">
-							<a href="https://rogansya.com/tratamiento-capilar/" class="hover:underline">Tratamiento capilar →</a>
-							<a href="https://rogansya.com/especialistas/" class="hover:underline">Equipo de Especialistas →</a>
-						</div>
-					</div>
-				</article>
+			<div class="rounded-3xl border border-gray-200 bg-[#111827] text-white p-7 md:p-10 shadow-sm grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+				<div class="space-y-4">
+					<ul class="space-y-2 text-sm md:text-base text-gray-200">
+						<li>• Fórmula lista para aplicar.</li>
+						<li>• Presentación en vial de 5 mL y 10 mL.</li>
+						<li>• Compatible con técnicas tópicas como microneedling cosmético, mesoterapia sin aguja o aplicación asistida.</li>
+					</ul>
+				</div>
+				<div class="flex flex-col gap-3 lg:items-end">
+					<a href="#contacto" class="inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#111827] hover:bg-gray-100 transition-colors">
+						Quiero una muestra gratis
+					</a>
+					<p class="text-xs text-gray-400 lg:text-right">Te contactamos por WhatsApp al +57 320 923 4629.</p>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -622,54 +584,67 @@
 							<span class="pepthair-chevron text-gray-500 text-lg leading-none shrink-0" aria-hidden="true">+</span>
 						</summary>
 						<div class="px-6 pb-5 pt-1 text-sm md:text-base text-gray-600 leading-relaxed border-t border-gray-100">
-							PEPTHAIR llega como una fórmula lista, fácil de incorporar a tu consulta. Escríbenos por WhatsApp al +57 320 923 4629 y te contamos cómo sumarlo a tu portafolio.						</div>
+							PEPTHAIR llega como una fórmula lista, fácil de incorporar a tu consulta. Pide tu muestra gratis desde el formulario de esta página y te escribiremos por WhatsApp al +57 320 923 4629.						</div>
 					</details>
 									<details class="pepthair-details rounded-2xl border border-gray-200 bg-white overflow-hidden">
 						<summary class="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer text-sm md:text-base font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
-							<span>¿Cómo puedo agendar una valoración capilar?</span>
+							<span>¿Cómo pido mi muestra gratis?</span>
 							<span class="pepthair-chevron text-gray-500 text-lg leading-none shrink-0" aria-hidden="true">+</span>
 						</summary>
 						<div class="px-6 pb-5 pt-1 text-sm md:text-base text-gray-600 leading-relaxed border-t border-gray-100">
-							Puedes agendar tu valoración capilar desde los botones de esta página o por WhatsApp al +57 320 923 4629.						</div>
+							Completa el formulario de esta página con tu nombre, especialidad, ciudad y consultorio o clínica. Al enviarlo, se abrirá WhatsApp con tu solicitud para el +57 320 923 4629.						</div>
 					</details>
 							</div>
 		</div>
 	</section>
 
-	<!-- CONTACTO Y AGENDAMIENTO -->
+	<!-- CONTACTO: MUESTRA GRATIS -->
 	<section id="contacto" class="py-14 md:py-20 bg-[#F9FAFB] border-t border-gray-100">
 		<div class="max-w-5xl mx-auto px-4 md:px-6">
 			<div class="text-center max-w-2xl mx-auto mb-8">
-				<span class="inline-block text-xs font-bold uppercase tracking-widest text-primary-700 mb-2">Contacto Directo</span>
+				<span class="inline-block text-xs font-bold uppercase tracking-widest text-primary-700 mb-2">Muestra gratis</span>
 				<h2 class="text-3xl md:text-4xl font-bold text-[#111827] tracking-tight mb-3">
-					Agenda tu valoración capilar
+					Para médicos y clínicas capilares: pide tu muestra gratis
 				</h2>
 				<p class="text-sm md:text-base text-gray-600">
-					Usa el agendador oficial o escríbenos por WhatsApp.
+					Completa tus datos y se abrirá WhatsApp con tu solicitud lista para enviar al +57 320 923 4629.
 				</p>
 			</div>
 
 			<div class="rounded-3xl border border-gray-200 bg-white p-5 md:p-8 shadow-xs">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-					<div class="space-y-3">
-						<h3 class="text-xl font-bold text-[#111827]">Agenda tu valoración capilar</h3>
-						<p class="text-sm text-gray-600 leading-relaxed">
-							Usa nuestro agendador oficial en línea para seleccionar sede, fecha y especialista, o escríbenos directamente por WhatsApp para resolver tus dudas.
-						</p>
-						<p class="text-xs text-gray-500">
-							Sedes en Bogotá, Medellín, Cali y Bucaramanga · Canal oficial WhatsApp +57 320 923 4629.
-						</p>
+				<form id="pepthairMuestraForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<div>
+						<label for="pep_muestra_nombre" class="block text-xs font-semibold text-gray-700 mb-1">Nombre *</label>
+						<input id="pep_muestra_nombre" name="nombre" type="text" required autocomplete="name" placeholder="Tu nombre" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900">
 					</div>
-					<div class="flex flex-col gap-3">
-						<button type="button" class="open-sidebar-appointment-general w-full inline-flex items-center justify-center rounded-full bg-primary-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer">
-							Abrir agendador
+					<div>
+						<label for="pep_muestra_especialidad" class="block text-xs font-semibold text-gray-700 mb-1">Especialidad *</label>
+						<input id="pep_muestra_especialidad" name="especialidad" type="text" required placeholder="Ej. Tricología, dermatología, medicina estética" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900">
+					</div>
+					<div>
+						<label for="pep_muestra_registro" class="block text-xs font-semibold text-gray-700 mb-1">Número de registro médico (opcional)</label>
+						<input id="pep_muestra_registro" name="registro" type="text" placeholder="Si deseas incluirlo" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900">
+					</div>
+					<div>
+						<label for="pep_muestra_ciudad" class="block text-xs font-semibold text-gray-700 mb-1">Ciudad *</label>
+						<input id="pep_muestra_ciudad" name="ciudad" type="text" required placeholder="Ej. Bogotá, Medellín, Cali" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900">
+					</div>
+					<div>
+						<label for="pep_muestra_clinica" class="block text-xs font-semibold text-gray-700 mb-1">Consultorio o clínica *</label>
+						<input id="pep_muestra_clinica" name="clinica" type="text" required placeholder="Nombre de tu consultorio o clínica" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900">
+					</div>
+					<div>
+						<label for="pep_muestra_whatsapp" class="block text-xs font-semibold text-gray-700 mb-1">Tu WhatsApp *</label>
+						<input id="pep_muestra_whatsapp" name="whatsapp" type="tel" required placeholder="+57 300 000 0000" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900">
+					</div>
+					<div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-2">
+						<p class="text-xs text-gray-500">Al enviar, se abrirá WhatsApp con tu solicitud de muestra gratis. No almacenamos estos datos en un servidor propio.</p>
+						<button type="submit" class="inline-flex items-center justify-center rounded-full bg-primary-700 px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity cursor-pointer">
+							Quiero una muestra gratis
 						</button>
-						<a href="https://wa.me/573209234629?text=Hola%2C%20quiero%20agendar%20una%20valoraci%C3%B3n%20capilar%20y%20consultar%20sobre%20PEPTHAIR." target="_blank" rel="noopener noreferrer"
-							class="w-full inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
-							Hablar por WhatsApp (+57 320 923 4629)
-						</a>
 					</div>
-				</div>
+				</form>
+				<div id="pepthairMuestraStatus" class="hidden mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-950" aria-live="polite"></div>
 			</div>
 		</div>
 	</section>
@@ -704,1177 +679,40 @@
 			<div class="text-xs font-bold text-gray-900 truncate">PEPTHAIR</div>
 			<div class="text-[11px] text-gray-500 truncate">Cóctel capilar · Aplicación profesional</div>
 		</div>
-		<button type="button" class="open-sidebar-appointment-general shrink-0 inline-flex items-center justify-center rounded-full bg-primary-700 px-4 py-2.5 text-xs font-semibold text-white shadow-sm cursor-pointer">
-			Agendar valoración
-		</button>
+		<a href="#contacto" class="shrink-0 inline-flex items-center justify-center rounded-full bg-primary-700 px-4 py-2.5 text-xs font-semibold text-white shadow-sm">
+			Quiero una muestra gratis
+		</a>
 	</div>
 </main>
 
-<div class="overlay-appointment-general fixed w-full h-full left-0 top-0 z-[999999] invisible opacity-0 transition-all duration-300 bg-gray-950/50 backdrop-blur"></div>
-
-<div class="sidebar-appointment-general bg-white rounded-t-2xl md:rounded-l-2xl md:!rounded-tr-none fixed w-full md:max-w-[460px] max-h-[90vh] md:max-h-screen md:h-screen bottom-0 right-0 z-[999999] flex flex-col transition-all duration-300">
-  <form action="" id="form-schedule-appointment-general" class="w-full flex flex-auto flex-col items-center justify-center gap-y-4 text-left h-full">
-    <div class="form-data-basic flex-auto flex flex-col h-full w-full transition-opacity duration-300">
-      <div class="flex-none w-full relative z-10 p-6 md:p-7 lg:p-8 pb-3 md:pb-3.5 lg:pb-4 after:absolute after:w-full after:h-4 lg:after:h-6 after:left-0 after:-bottom-4 lg:after:-bottom-6 after:bg-gradient-to-b after:from-white after:to-transparent">
-        <div class="flex items-center justify-between gap-x-1.5 w-full">
-          <h3 class="font-semibold text-lg leading-auto text-gray-600 flex-auto">Agenda una consulta con especialista</h3>
-
-          <button type="button" id="gtm-close-appointment-general-sidebar" class="w-5 h-5 flex-none flex items-center justify-center text-gray-600 text-xl ml-auto close-sidebar-appointment-general">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <p class="mt-2 text-gray-600 text-sm font-normal">Confirma tu diagnóstico y obtén un plan personalizado basado en tu historia clínica, exámenes y estilo de vida.</p>
-      </div>
-
-      <div class="flex-auto w-full relative z-0 overflow-y-auto pt-2 md:pt-3 lg:pt-4 pb-4 md:pb-6 lg:pb-8 px-6 lg:px-7 xl:px-8">
-        <div class="w-full flex flex-col items-center justify-center gap-y-4 text-left">
-          <div class="relative w-full">
-            <label for="nameAppointment" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Nombre completo <small class="text-error-600">*</small></label>
-
-            <input id="nameAppointment" type="text" class="bg-white border border-solid border-gray-200 rounded-md placeholder:text-gray-400 text-base lg:text-sm font-regular !leading-auto py-2.5 px-3.5 text-gray-950 w-full transition-all duration-300 outline-offset-4 focus:outline-2 focus:outline-offset-0 focus:!outline focus:outline-primary-500 focus:border-primary-500" placeholder="Ingresa tu nombre completo" />
-          </div>
-
-          <div class="relative w-full">
-	<label for="emailAppointment" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Correo electrónico <small class="text-gray-400 font-normal">(opcional)</small></label>
-
-	<input id="emailAppointment" name="email" type="email" inputmode="email" autocomplete="email" value="" class="bg-white border border-solid border-gray-200 rounded-md placeholder:text-gray-400 text-base lg:text-sm font-regular !leading-auto py-2.5 px-3.5 text-gray-950 w-full transition-all duration-300 outline-offset-4 focus:outline-2 focus:outline-offset-0 focus:!outline focus:outline-primary-500 focus:border-primary-500" placeholder="Ingresa tu correo electrónico">
-</div>
-
-          <div class="relative w-full">
-            <label for="phoneAppointment" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Teléfono* <small class="text-error-600">*</small></label>
-
-            <div class="custom-select-image relative w-full">
-              <div class="absolute w-18 h-full max-h-5 left-0 top-1/2 -translate-y-1/2 py-2.5 px-3.5 border-r border-solid border-r-gray-300 flex items-center justify-center z-10">
-                <button type="button" id="gtm-select-phone-country-appointment" class="custom-select-image-button relative w-full text-sm leading-auto font-normal flex items-center justify-between cursor-pointer transition-all duration-300" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="custom-select-image-display flex items-center justify-between gap-1 flex-1 min-w-0">
-                    <span class="custom-select-image-placeholder text-gray-500">Selecciona...</span>
-                    <label class="custom-select-image-selected max-w-6 hidden items-center gap-2 cursor-pointer">
-                      <img class="custom-select-image-flag w-5 h-auto object-cover flex-none" src="" alt="">
-                      <span class="custom-select-image-text truncate hidden"></span>
-                    </label>
-                  </span>
-                  <div class="custom-select-image-arrow w-2.5 h-2.5 text-gray-500 flex items-center justify-center flex-none transition-transform duration-300 text-sm">
-                    <i class="fa-solid fa-chevron-down"></i>
-                  </div>
-                </button>
-              </div>
-
-              <input id="phoneAppointment" type="tel" class="bg-white border border-solid border-gray-200 rounded-md placeholder:text-gray-400 text-base lg:text-sm font-regular !leading-auto py-2.5 pl-20 pr-3.5 text-gray-950 w-full transition-all duration-300 outline-offset-4 focus:outline-2 focus:outline-offset-0 focus:!outline focus:outline-primary-500 focus:border-primary-500" placeholder="Ingresa tu teléfono" />
-
-              <div class="custom-select-image-dropdown absolute top-full left-0 w-full mt-2 bg-white rounded-lg border border-gray-200 z-50 max-h-48 lg:max-h-64 overflow-y-auto hidden text-gray-950 text-sm leading-6 font-normal">
-                <div class="custom-select-image-options py-2">
-                  <label for="57" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="CO" data-flag="../assets/theme/images/flags/Flag-Colombia.svg" data-name="Colombia (+57)">
-                    <input type="radio" name="country_flag" value="CO" class="hidden" id="57">
-                    <img src="../assets/theme/images/flags/Flag-Colombia.svg" alt="Colombia" class="w-5 h-auto object-cover flex-none">
-                    Colombia (+57)
-                  </label>
-                  
-                  <label for="52" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="MX" data-flag="../assets/theme/images/flags/Flag-Mexico.svg" data-name="México (+52)">
-                    <input type="radio" name="country_flag" value="MX" class="hidden" id="52">
-                    <img src="../assets/theme/images/flags/Flag-Mexico.svg" alt="México" class="w-5 h-auto object-cover flex-none">
-                    México (+52)
-                  </label>
-
-                  <label for="54" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="AR" data-flag="../assets/theme/images/flags/Flag-Argentina.svg" data-name="Argentina (+54)">
-                    <input type="radio" name="country_flag" value="AR" class="hidden" id="54">
-                    <img src="../assets/theme/images/flags/Flag-Argentina.svg" alt="Argentina" class="w-5 h-auto object-cover flex-none">
-                    Argentina (+54)
-                  </label>
-
-                  <label for="501" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="BZ" data-flag="../assets/theme/images/flags/Flag-Belize.svg" data-name="Belice (+501)">
-                    <input type="radio" name="country_flag" value="BZ" class="hidden" id="501">
-                    <img src="../assets/theme/images/flags/Flag-Belize.svg" alt="Belice" class="w-5 h-auto object-cover flex-none">
-                    Belice (+501)
-                  </label>
-
-                  <label for="591" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="BO" data-flag="../assets/theme/images/flags/Flag-Bolivia.svg" data-name="Bolivia (+591)">
-                    <input type="radio" name="country_flag" value="BO" class="hidden" id="591">
-                    <img src="../assets/theme/images/flags/Flag-Bolivia.svg" alt="Bolivia" class="w-5 h-auto object-cover flex-none">
-                    Bolivia (+591)
-                  </label>
-
-                  <label for="55" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="BR" data-flag="../assets/theme/images/flags/Flag-Brasil.svg" data-name="Brasil (+55)">
-                    <input type="radio" name="country_flag" value="BR" class="hidden" id="55">
-                    <img src="../assets/theme/images/flags/Flag-Brasil.svg" alt="Brasil" class="w-5 h-auto object-cover flex-none">
-                    Brasil (+55)
-                  </label>
-
-                  <label for="1-ca" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="CA" data-flag="../assets/theme/images/flags/Flag-Canada.svg" data-name="Canadá (+1)">
-                    <input type="radio" name="country_flag" value="CA" class="hidden" id="1-ca">
-                    <img src="../assets/theme/images/flags/Flag-Canada.svg" alt="Canadá" class="w-5 h-auto object-cover flex-none">
-                    Canadá (+1)
-                  </label>
-
-                  <label for="56" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="CL" data-flag="../assets/theme/images/flags/Flag-Chile.svg" data-name="Chile (+56)">
-                    <input type="radio" name="country_flag" value="CL" class="hidden" id="56">
-                    <img src="../assets/theme/images/flags/Flag-Chile.svg" alt="Chile" class="w-5 h-auto object-cover flex-none">
-                    Chile (+56)
-                  </label>
-
-                  <label for="506" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="CR" data-flag="../assets/theme/images/flags/Flag-Costa_Rica.svg" data-name="Costa Rica (+506)">
-                    <input type="radio" name="country_flag" value="CR" class="hidden" id="506">
-                    <img src="../assets/theme/images/flags/Flag-Costa_Rica.svg" alt="Costa Rica" class="w-5 h-auto object-cover flex-none">
-                    Costa Rica (+506)
-                  </label>
-
-                  <label for="53" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="CU" data-flag="../assets/theme/images/flags/Flag-Cuba.svg" data-name="Cuba (+53)">
-                    <input type="radio" name="country_flag" value="CU" class="hidden" id="53">
-                    <img src="../assets/theme/images/flags/Flag-Cuba.svg" alt="Cuba" class="w-5 h-auto object-cover flex-none">
-                    Cuba (+53)
-                  </label>
-
-                  <label for="593" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="EC" data-flag="../assets/theme/images/flags/Flag-Ecuador.svg" data-name="Ecuador (+593)">
-                    <input type="radio" name="country_flag" value="EC" class="hidden" id="593">
-                    <img src="../assets/theme/images/flags/Flag-Ecuador.svg" alt="Ecuador" class="w-5 h-auto object-cover flex-none">
-                    Ecuador (+593)
-                  </label>
-
-                  <label for="1-us" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="US" data-flag="../assets/theme/images/flags/Flag-Estados_Unidos.svg" data-name="Estados Unidos (+1)">
-                    <input type="radio" name="country_flag" value="US" class="hidden" id="1-us">
-                    <img src="../assets/theme/images/flags/Flag-Estados_Unidos.svg" alt="Estados Unidos" class="w-5 h-auto object-cover flex-none">
-                    Estados Unidos (+1)
-                  </label>
-
-                  <label for="502" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="GT" data-flag="../assets/theme/images/flags/Flag-Guatemala.svg" data-name="Guatemala (+502)">
-                    <input type="radio" name="country_flag" value="GT" class="hidden" id="502">
-                    <img src="../assets/theme/images/flags/Flag-Guatemala.svg" alt="Guatemala" class="w-5 h-auto object-cover flex-none">
-                    Guatemala (+502)
-                  </label>
-
-                  <label for="509" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="HT" data-flag="../assets/theme/images/flags/Flag-Haiti.svg" data-name="Haití (+509)">
-                    <input type="radio" name="country_flag" value="HT" class="hidden" id="509">
-                    <img src="../assets/theme/images/flags/Flag-Haiti.svg" alt="Haití" class="w-5 h-auto object-cover flex-none">
-                    Haití (+509)
-                  </label>
-
-                  <label for="504" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="HN" data-flag="../assets/theme/images/flags/Flag-Honduras.svg" data-name="Honduras (+504)">
-                    <input type="radio" name="country_flag" value="HN" class="hidden" id="504">
-                    <img src="../assets/theme/images/flags/Flag-Honduras.svg" alt="Honduras" class="w-5 h-auto object-cover flex-none">
-                    Honduras (+504)
-                  </label>
-
-                  <label for="1-jm" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="JM" data-flag="../assets/theme/images/flags/Flag-Jamaica.svg" data-name="Jamaica (+1)">
-                    <input type="radio" name="country_flag" value="JM" class="hidden" id="1-jm">
-                    <img src="../assets/theme/images/flags/Flag-Jamaica.svg" alt="Jamaica" class="w-5 h-auto object-cover flex-none">
-                    Jamaica (+1)
-                  </label>
-
-                  <label for="505" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="NI" data-flag="../assets/theme/images/flags/Flag-Nicaragua.svg" data-name="Nicaragua (+505)">
-                    <input type="radio" name="country_flag" value="NI" class="hidden" id="505">
-                    <img src="../assets/theme/images/flags/Flag-Nicaragua.svg" alt="Nicaragua" class="w-5 h-auto object-cover flex-none">
-                    Nicaragua (+505)
-                  </label>
-
-                  <label for="507" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="PA" data-flag="../assets/theme/images/flags/Flag-Panama.svg" data-name="Panamá (+507)">
-                    <input type="radio" name="country_flag" value="PA" class="hidden" id="507">
-                    <img src="../assets/theme/images/flags/Flag-Panama.svg" alt="Panamá" class="w-5 h-auto object-cover flex-none">
-                    Panamá (+507)
-                  </label>
-
-                  <label for="595" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="PY" data-flag="../assets/theme/images/flags/Flag-Paraguay.svg" data-name="Paraguay (+595)">
-                    <input type="radio" name="country_flag" value="PY" class="hidden" id="595">
-                    <img src="../assets/theme/images/flags/Flag-Paraguay.svg" alt="Paraguay" class="w-5 h-auto object-cover flex-none">
-                    Paraguay (+595)
-                  </label>
-
-                  <label for="51" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="PE" data-flag="../assets/theme/images/flags/Flag-Peru.svg" data-name="Perú (+51)">
-                    <input type="radio" name="country_flag" value="PE" class="hidden" id="51">
-                    <img src="../assets/theme/images/flags/Flag-Peru.svg" alt="Perú" class="w-5 h-auto object-cover flex-none">
-                    Perú (+51)
-                  </label>
-
-                  <label for="503" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="SV" data-flag="../assets/theme/images/flags/Flag-Salvador.svg" data-name="El Salvador (+503)">
-                    <input type="radio" name="country_flag" value="SV" class="hidden" id="503">
-                    <img src="../assets/theme/images/flags/Flag-Salvador.svg" alt="El Salvador" class="w-5 h-auto object-cover flex-none">
-                    El Salvador (+503)
-                  </label>
-
-                  <label for="597" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="SR" data-flag="../assets/theme/images/flags/Flag-Suriname.svg" data-name="Surinam (+597)">
-                    <input type="radio" name="country_flag" value="SR" class="hidden" id="597">
-                    <img src="../assets/theme/images/flags/Flag-Suriname.svg" alt="Surinam" class="w-5 h-auto object-cover flex-none">
-                    Surinam (+597)
-                  </label>
-
-                  <label for="598" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="UY" data-flag="../assets/theme/images/flags/Flag-Uruguay.svg" data-name="Uruguay (+598)">
-                    <input type="radio" name="country_flag" value="UY" class="hidden" id="598">
-                    <img src="../assets/theme/images/flags/Flag-Uruguay.svg" alt="Uruguay" class="w-5 h-auto object-cover flex-none">
-                    Uruguay (+598)
-                  </label>
-
-                  <label for="58" class="custom-select-image-option flex items-center gap-3 px-3.5 py-2 cursor-pointer transition-all duration-200 hover:bg-gray-50" data-value="VE" data-flag="../assets/theme/images/flags/Flag-Venezuela.svg" data-name="Venezuela (+58)">
-                    <input type="radio" name="country_flag" value="VE" class="hidden" id="58">
-                    <img src="../assets/theme/images/flags/Flag-Venezuela.svg" alt="Venezuela" class="w-5 h-auto object-cover flex-none">
-                    Venezuela (+58)
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="relative w-full">
-            <label for="specialtyAppointment" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Especialidad médica<small class="text-error-600">*</small></label>
-
-            <select id="specialtyAppointment" class="custom-nice-select !w-full bg-white !max-w-full border border-solid border-gray-200 rounded-md placeholder:text-gray-400 text-base lg:text-sm font-regular !leading-auto py-2.5 px-3.5 text-gray-950 w-full transition-all duration-300 outline-offset-4 focus:outline-2 focus:outline-offset-0 focus:!outline focus:outline-primary-500 focus:border-primary-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_.75rem_top_55%]">
-              <option value="" class="hidden text-gray-400">Selecciona</option>
-              <option value="Capilar primera vez" data-especialidad-id="1" data-servicio-id="1" selected>Cuidado capilar</option>
-              <option value="Facial primera vez" data-especialidad-id="6" data-servicio-id="48">Cuidado facial</option>
-              <option value="Rendimiento Sexual primera vez" data-especialidad-id="3" data-servicio-id="55">Salud sexual</option>
-              <option value="Nutricion - primera vez" data-especialidad-id="5" data-servicio-id="96">Nutrición</option>
-              <option value="Sesion psicologia" data-especialidad-id="4" data-servicio-id="25">Salud mental</option>
-              <option value="Dermatologia primera vez" data-especialidad-id="11" data-servicio-id="63">Dermatología</option>
-              <option value="Medicina Funcional" data-especialidad-id="8" data-servicio-id="21">Medicina funcional</option>
-              <option value="Medicina Regenerativa" data-especialidad-id="18" data-servicio-id="110">Medicina regenerativa</option>
-              <option value="Valoración Ortopedia" data-especialidad-id="17" data-servicio-id="109">Ortopedia</option>
-                          </select>
-          </div>
-
-          <div class="relative w-full">
-            <label for="dateTimeAppointment" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Modalidad y horario<small class="text-error-600">*</small></label>
-
-            <input id="dateTimeAppointment" type="text" class="bg-white border border-solid border-gray-200 rounded-md placeholder:text-gray-400 text-base lg:text-sm font-regular !leading-auto py-2.5 px-3.5 text-gray-950 w-full transition-all duration-300 outline-offset-4 pr-11 overflow-hidden text-ellipsis appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_.75rem_top_55%] focus:outline-2 focus:outline-offset-0 focus:!outline focus:outline-primary-500 focus:border-primary-500 open-datetime-general" placeholder="Selecciona modalidad y horario" readonly />
-          </div>
-
-          <p class="location-appointment hidden text-gray-600 text-xs leading-4 w-full items-center justify-start gap-x-1 -mt-2">
-            <i class="fa-regular fa-circle-question text-sm flex-none"></i>
-
-            Consulta en Bogotá: Autopista Norte # 106 - 71
-          </p>
-
-          <div class="py-1 w-full">
-            <input id="termsAndConditions" type="checkbox" class="hidden peer" />
-            <label for="termsAndConditions" class="relative text-gray-950 cursor-pointer text-sm leading-auto flex items-center justify-center transition-all duration-300 before:w-5 before:h-5 before:mr-2.5 before:flex before:items-center before:justify-center before:border before:border-solid before:border-gray-200 before:rounded before:transition-all before:duration-300 before:font-family-awesome before:content-['\f00c'] before:font-bold before:text-transparent peer-checked:before:bg-primary-500 peer-checked:before:border-primary-500 peer-checked:before:text-white">Acepto los <a href="https://rogansya.com/terminos-y-condiciones-generales/" title="Términos y condiciones" id="gtm-terms-conditions-link" class="text-primary-500 underline ml-1 block" target="_blank">términos y condiciones</a>
-          </div>
-
-          <button type="submit" class="js-submit-schedule-form bg-primary-500 text-primary-950 rounded-xl w-full py-3 px-5 text-base font-bold leading-5 transition-all duration-300 hover:bg-gray-950 hover:text-white disabled:opacity-50 disabled:!cursor-not-allowed">Agendar consulta</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-datetime flex-auto flex flex-col h-full w-full hidden transition-opacity duration-300">
-      <div class="flex-none w-full relative z-10 p-6 md:p-7 !pb-4 after:absolute after:w-full after:h-4 lg:after:h-6 after:left-0 after:-bottom-4 lg:after:-bottom-6 after:bg-gradient-to-b after:from-white after:to-transparent">
-        <div class="flex items-center justify-between gap-x-1.5">
-          <button type="button" class="flex items-center justify-start gap-x-2 text-gray-600 font-semibold text-xs leading-auto back-datetime-general">
-            <span class="flex-none w-4 h-4 flex items-center justify-center">
-              <i data-lucide="arrow-left"></i>
-            </span>
-            Volver
-          </button>
-
-          <button type="button" id="gtm-close-datetime-sidebar" class="w-5 h-5 flex-none flex items-center justify-center text-gray-600 text-xl ml-auto">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <h3 class="font-semibold text-lg leading-auto text-gray-600 mt-2">Selecciona modalidad y horario</h3>
-      </div>
-
-      <div class="flex-auto w-full relative z-0 overflow-y-auto pt-4 pb-4 md:pb-6 lg:pb-8 px-6 lg:px-7 xl:px-8 max-h-[70vh] md:max-h-max">
-        <div class="relative w-full">
-          <label for="modalityAppointmentPresencialGeneral" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Modalidad <small class="text-error-600">*</small></label>
-
-          <div class="flex items-center justify-between gap-x-3 mt-2.5">
-            <div class="flex-auto">
-              <input type="radio" class="hidden peer" name="modalityAppointmentGeneral" value="presencial" id="modalityAppointmentPresencialGeneral" checked>
-              <label for="modalityAppointmentPresencialGeneral" class="cursor-pointer flex items-center justify-start gap-x-2 py-4.5 px-6 rounded-xl border border-solid border-gray-200 transition-all duration-300 text-gray-600 text-base leading-auto font-semibold outline-0 peer-checked:!text-primary-500 peer-checked:border-primary-500 peer-checked:outline-2 peer-checked:outline-offset-0 peer-checked:outline-primary-500">
-                <span class="flex-none w-6 h-6 flex items-center justify-center">
-                  <i data-lucide="map-pinned"></i>
-                </span>
-                Presencial
-              </label>
-            </div>
-    
-            <div class="flex-auto modality-telemedicina-wrap">
-              <input type="radio" class="hidden peer" name="modalityAppointmentGeneral" value="telemedicina" id="modalityAppointmentTelemedicinaGeneral">
-              <label for="modalityAppointmentTelemedicinaGeneral" class="cursor-pointer flex items-center justify-start gap-x-2 py-4.5 px-6 rounded-xl border border-solid border-gray-200 transition-all duration-300 text-gray-600 text-base leading-auto font-semibold outline-0 peer-checked:text-primary-500 peer-checked:border-primary-500 peer-checked:outline-2 peer-checked:outline-offset-0 peer-checked:outline-primary-500">
-                <span class="flex-none w-6 h-6 flex items-center justify-center">
-                  <i data-lucide="video"></i>
-                </span>
-                Virtual
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <p class="facial-only-presencial-notice hidden mt-2 text-amber-600 text-sm font-medium">
-          Cuidado facial solo se atiende en modalidad presencial.
-        </p>
-
-        <p class="location-appointment-general text-gray-600 text-[13px] leading-4 w-full items-center justify-start gap-x-1 mt-2">
-          Lugar de consulta: Bogotá, Autopista Norte # 106-71
-        </p>
-
-        <div id="calendar-sidebar-diagnosis-general" class="mt-4 md:mt-6 w-[330px] flex-full mx-auto p-3 rounded-xl border border-solid border-gray-200 relative overflow-hidden disabled"></div>
-
-        <input type="hidden" id="dateAppointmentGeneral" name="date_appointment_general" value="" />
-
-        <div class="relative w-full mt-4 md:mt-6">
-          <label for="timeAppointmentGeneral" class="text-xs leading-auto font-medium text-gray-600 block mb-1">Hora <small class="text-error-600">*</small></label>
-
-          <select id="timeAppointmentGeneral" class="bg-white border border-solid border-gray-200 rounded-md placeholder:text-gray-400 text-base lg:text-sm font-regular !leading-auto py-2.5 px-3.5 text-gray-950 w-full transition-all duration-300 outline-offset-4 focus:outline-2 focus:outline-offset-0 focus:!outline focus:outline-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:!cursor-not-allowed appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_.75rem_top_55%]" disabled>
-            <option value="" class="hidden text-gray-400">Selecciona fecha</option>
-          </select>
-        </div>
-
-        <div class="mt-6 w-full hidden value-appointment-presencial-general">
-          <p class="text-sm font-medium text-gray-600">Valor de la consulta</p>
-          <h3 class="text-2xl leading-auto font-semibold text-gray-950 value-amount">Gratis</h3>
-          <p class="value-note text-gray-600 text-sm font-medium hidden"></p>
-        </div>
-
-        <div class="mt-6 w-full hidden value-appointment-telemedicina-general">
-          <p class="text-sm font-medium text-gray-600">Valor de la consulta</p>
-          <h3 class="text-2xl leading-auto font-semibold text-gray-950 value-amount">$50.000</h3>
-          <p class="value-note text-gray-600 text-sm font-medium">Redimibles en productos y tratamientos</p>
-        </div>
-
-        <!-- Aviso cuando la modalidad elegida tiene costo (mismo de sidebar-agendamiento).
-             Lo muestra/oculta updateCostDisplay() según `pagas` de CITAS_CFG. -->
-        <div class="cita-aviso-paga mt-4 hidden items-start justify-between gap-x-2 bg-blue-50 rounded-2xl overflow-hidden border border-solid border-blue-600 p-4 text-blue-950 text-[13px] leading-snug">
-          <span class="flex-none w-5 text-blue-600 text-2xl flex items-center justify-center">
-            <i class="fa-regular fa-circle-question"></i>
-          </span>
-          <p class="flex-auto">La consulta en esta modalidad tiene costo. Por ahora reservamos tu fecha y hora; para confirmar la cita debes realizar el pago primero.</p>
-        </div>
-
-        <div class="appointment-summary-general set-datetime-summary mt-4 md:mt-6 rounded-2xl bg-primary-50 border border-solid border-primary-600 p-4 items-start justify-start gap-x-4 w-full text-primary-950 text-[15px] leading-auto font-regular hidden">
-          <span class="flex-none w-6 h-6 flex items-center justify-center text-primary-600 text-2xl">
-            <i class="fa-regular fa-calendar-days"></i>
-          </span>
-          <p class="flex-auto">Tu consulta será programada para el día <span class="font-semibold appointment-date"></span> a las <span class="font-semibold appointment-time"></span> en <span class="font-semibold appointment-location"></span></p>
-        </div>
-
-        <button type="button" id="confirm-datetime-schedule-diagnosis-general" data-gtm-id="gtm-confirm-datetime-schedule-general" class="set-datetime-summary mt-4 md:mt-6 bg-primary-500 text-primary-950 rounded-xl w-full py-3 px-5 text-base font-bold leading-5 transition-all duration-300 hover:bg-gray-950 hover:text-white disabled:opacity-50 disabled:!cursor-not-allowed" disabled>Confirmar</button>
-      </div>
-    </div>
-  </form>
-</div>
-
-<!-- Modal Confirmación Agenda (general) -->
-<div class="fixed bg-gray-950/60 backdrop-blur-sm w-full h-screen top-0 left-0 transition-all duration-300 hidden items-center justify-center p-6 text-center z-[999999] modal-confirmation-schedule-diagnosis modal-confirmation-general">
-  <div class="mx-auto max-w-xl py-8 px-6 md:px-7 lg:px-8 overflow-x-hidden overflow-y-auto max-h-[95vh] rounded-2xl bg-white">
-    <span class="block mx-auto text-center text-primary-500 text-4xl">
-      <i class="fa-regular fa-circle-check"></i>
-    </span>
-
-    <h3 class="font-bold text-xl leading-auto text-primary-950 mt-2">Tu consulta ha sido agendada</h3>
-
-    <article class="mt-6 flex items-start justify-between gap-x-2 p-4 bg-primary-50 rounded-2xl border border-solid border-primary-600 confirmation-details-general">
-      <span class="flex-none w-5 text-primary-600 text-2xl">
-        <i class="fa-regular fa-calendar-days"></i>
-      </span>
-      <div class="flex-auto text-primary-950 text-base leading-auto text-left">
-        <p>Fecha: <span class="font-semibold confirmation-date-general"></span></p>
-        <p>Hora: <span class="font-semibold confirmation-time-general"></span></p>
-        <p>Lugar: <span class="font-semibold confirmation-location-general"></span></p>
-      </div>
-    </article>
-
-    <a href="#" title="Agregar al calendario" id="gtm-add-to-calendar-general" class="gtm-add-to-calendar w-full mt-6 flex items-center justify-center py-3 px-5 gap-x-2 rounded-xl border border-solid border-gray-600 transition-all duration-300 text-gray-600 text-base leading-5 font-bold hover:bg-gray-600 hover:text-white">
-      Agregar al calendario
-      <span class="flex-none text-xl">
-        <i class="fa-regular fa-calendar-days"></i>
-      </span>
-    </a>
-
-    <p class="mt-6 text-sm leading-auto text-primary-950">Recibirás confirmación de la consulta por WhatsApp al número terminado en <span class="font-semibold confirmation-phone-general"></span> para ultimar detalles y resolver dudas</p>
-
-    <div class="mt-6 md:mt-7 lg:mt-8 hidden flex-col gap-y-3 md:gap-y-4 confirmation-presencial">
-      <button type="button" id="gtm-continue-browsing-general" class="close-confirmation-modal w-full bg-dark-400 text-white rounded-xl text-center py-3 px-5 text-base leading-5 font-bold transition-all duration-300 hover:bg-primary-50 hover:text-dark-400">Continuar navegando</button>
-    </div>
-
-    <div class="mt-6 md:mt-7 lg:mt-8 flex flex-col gap-y-4 md:gap-y-6 confirmation-telemedicina">
-      <p class="text-sm leading-auto text-primary-600">En <span id="countdown-telemedicina-general" class="font-bold">10</span> segundos serás redirigido a nuestro portal de pagos</p>
-
-      <article class="flex items-start justify-between gap-x-2 bg-blue-50 rounded-2xl overflow-hidden border border-solid border-blue-600 p-4">
-        <span class="flex-none w-5 text-blue-600 text-2xl">
-          <i class="fa-regular fa-circle-question"></i>
-        </span>
-        <div class="flex-auto text-blue-950 text-base leading-auto text-left">
-          <p>Recuerda que tienes 24 horas antes de la consulta para realizar el pago</p>
-        </div>
-      </article>
-    </div>
-  </div>
-</div>
-
 <script>
-(function() {
-  'use strict';
-
-  const ANIMATION_DURATION = 300;
-  const utmParams = [];
-
-  function initGeneralAppointmentForm($) {
-    const $sidebar = $('.sidebar-appointment-general');
-    const $form = $('#form-schedule-appointment-general');
-    const $formDataBasic = $sidebar.find('.form-data-basic');
-    const $formDatetime = $sidebar.find('.form-datetime');
-    const $dateTimeInput = $sidebar.find('#dateTimeAppointment');
-    const $dateAppointmentGeneral = $sidebar.find('#dateAppointmentGeneral');
-    const $timeAppointmentGeneral = $sidebar.find('#timeAppointmentGeneral');
-    const $calendarGeneral = $('#calendar-sidebar-diagnosis-general');
-    const $modalityRadios = $sidebar.find('input[name="modalityAppointmentGeneral"]');
-    const $locationGeneral = $sidebar.find('.location-appointment-general');
-    const $valuePresencialGeneral = $sidebar.find('.value-appointment-presencial-general');
-    const $valueTelemedicinaGeneral = $sidebar.find('.value-appointment-telemedicina-general');
-    const $summaryGeneral = $sidebar.find('.appointment-summary-general');
-    const $confirmBtnGeneral = $('#confirm-datetime-schedule-diagnosis-general');
-    const $specialtySelect = $sidebar.find('#specialtyAppointment');
-    const $facialNotice = $sidebar.find('.facial-only-presencial-notice');
-    const $telemedicinaWrap = $sidebar.find('.modality-telemedicina-wrap');
-    const $nameInput = $form.find('#nameAppointment');
-    const $emailInputGeneral = $form.find('#emailAppointment');
-    function correoGeneral() { return $emailInputGeneral.length ? $emailInputGeneral.val().trim() : ''; }
-    function correoGeneralValido() { return correoGeneral() === '' || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correoGeneral()); }
-    const $phoneInput = $form.find('#phoneAppointment');
-    const $phoneFormWrap = $form.find('#phoneAppointment').closest('.custom-select-image');
-    const $termsCheck = $form.find('#termsAndConditions');
-    const $submitBtn = $form.find('.js-submit-schedule-form');
-
-    function isDesktop() {
-      return window.innerWidth >= 992;
-    };
-
-    function openSidebarAppointmentGeneral() {
-      $('.sidebar-appointment-general').addClass('active');
-      $('.overlay-appointment-general').addClass('active');
-      $('body, html').addClass('overflow-hidden');
-      $('.btn-schedule-mobile').addClass('hidden');
-
-      if(!isDesktop()) {
-        $('.main-header').addClass('hidden');
-      }
-    };
-
-    function closeSidebarAppointmentGeneral() {
-      $('.sidebar-appointment-general').removeClass('active');
-      $('.overlay-appointment-general').removeClass('active');
-      $('body, html').removeClass('overflow-hidden');
-
-      if(!isDesktop()) {
-        $('.main-header').removeClass('hidden');
-      }
-    };
-
-    $(document).on('click', '.open-sidebar-appointment-general', function() {
-      openSidebarAppointmentGeneral();
-    });
-
-    $(document).on('click', '.close-sidebar-appointment-general, .overlay-appointment-general', function() {
-      closeSidebarAppointmentGeneral();
-    });
-
-    // Matriz de especialidades del HOME, clave = value del <option>. Fuente de
-    // verdad de: variación de cita (checkout), modalidades disponibles, cuáles
-    // son PAGAS (paga primero -> checkout con bulk-add; la cita se agenda al
-    // confirmarse el pago, mismo contrato de sidebar-agendamiento), precios
-    // mostrados y días agendables por modalidad (0=Dom … 6=Sáb). Las horas las
-    // dicta Odoo vía available-slots con el servicio_id del <option>.
-    var CITAS_CFG = {
-      'Capilar primera vez': {
-        var_id: 12061,
-        modalidades: ['presencial', 'telemedicina'],
-        pagas: ['telemedicina'],
-        precios: { presencial: 'Gratis', telemedicina: '$50.000' },
-        notas:   { presencial: '', telemedicina: 'Redimibles en productos y tratamientos' },
-        dias:    { presencial: [0, 1], telemedicina: [0, 1, 6] } // mar–sáb / mar–vie
-      },
-      'Facial primera vez': {
-        var_id: 0,
-        modalidades: ['presencial'],
-        pagas: [],
-        precios: { presencial: 'Gratis', telemedicina: '' },
-        notas:   { presencial: '', telemedicina: '' },
-        dias:    { presencial: [0, 1, 3, 5, 6], telemedicina: [0, 1, 3, 5, 6] } // mar y jue (7am–1pm vía Odoo)
-      },
-      'Rendimiento Sexual primera vez': {
-        var_id: 12256,
-        modalidades: ['presencial', 'telemedicina'],
-        pagas: ['presencial', 'telemedicina'],
-        // $60.000 desde el 2026-10-07 (la 12256 en WooCommerce); desde el 2026-10-08
-        // es solo la consulta, no se redime en nada.
-        precios: { presencial: '$60.000', telemedicina: '$60.000' },
-        notas:   { presencial: 'No redimible en productos, exámenes ni tratamientos', telemedicina: 'No redimible en productos, exámenes ni tratamientos' },
-        dias:    { presencial: [0, 1, 6], telemedicina: [0, 1, 6] } // mar–vie (2pm–6pm vía Odoo)
-      },
-      'Nutricion - primera vez': {
-        var_id: 12225,
-        modalidades: ['presencial'],
-        pagas: ['presencial'],
-        precios: { presencial: '$50.000', telemedicina: '' },
-        notas:   { presencial: '', telemedicina: '' },
-        dias:    { presencial: [0, 1, 2, 3, 5, 6], telemedicina: [0, 1, 2, 3, 5, 6] } // solo jueves
-      },
-      'Sesion psicologia': {
-        var_id: 12113,
-        modalidades: ['presencial', 'telemedicina'],
-        pagas: ['presencial', 'telemedicina'],
-        precios: { presencial: '', telemedicina: '' }, // los de la 12113 en WooCommerce
-        notas:   { presencial: '', telemedicina: '' },
-        dias:    { presencial: [0, 1, 6], telemedicina: [0, 1, 6] } // mar–vie
-      },
-      'Dermatologia primera vez': {
-        var_id: 12086,
-        modalidades: ['presencial'],
-        pagas: ['presencial'],
-        precios: { presencial: '$130.000', telemedicina: '' },
-        notas:   { presencial: '', telemedicina: '' },
-        dias:    { presencial: [0, 1, 2, 3, 4, 6], telemedicina: [0, 1, 2, 3, 4, 6] } // solo viernes
-      },
-      // Valoración PAGA desde el 2026-08-20 (antes gratis). Servicio 21 en Odoo:
-      // solo jueves, 8am–2pm — el rango de horas lo aplica la agenda de Odoo.
-      'Medicina Funcional': {
-        var_id: 13113,
-        modalidades: ['presencial', 'telemedicina'],
-        pagas: ['presencial', 'telemedicina'],
-        precios: { presencial: '$80.000', telemedicina: '$80.000' },
-        notas:   { presencial: '', telemedicina: '' },
-        dias:    { presencial: [0, 1, 2, 3, 5, 6], telemedicina: [0, 1, 2, 3, 5, 6] } // solo jueves
-      },
-      // Servicio 110 en Odoo (especialidad 18). Los días de aquí son los que
-      // devolvió available-slots al configurarla: martes a viernes en ambas
-      // modalidades. El rango de horas lo sigue mandando Odoo — en telemedicina
-      // solo abre por la tarde, y eso no se declara aquí a propósito.
-      'Medicina Regenerativa': {
-        var_id: 13226,
-        modalidades: ['presencial', 'telemedicina'],
-        pagas: ['presencial', 'telemedicina'],
-        // Solo la consulta, no se redime en nada. De WooCommerce desde el
-        // 2026-11-24 ($150.000; aquí decía $20.000, que es el valor del abono).
-        precios: { presencial: '', telemedicina: '' },
-        notas:   { presencial: 'No redimible en exámenes ni tratamientos', telemedicina: 'No redimible en exámenes ni tratamientos' },
-        dias:    { presencial: [0, 1, 6], telemedicina: [0, 1, 6] } // mar–vie
-      },
-      // Servicio 109 en Odoo (especialidad 17), SOLO presencial: Odoo no ofrece
-      // telemedicina en ese servicio. Sin días fijos: los días y las horas los
-      // da Odoo (al crearla, jueves por la tarde).
-      'Valoración Ortopedia': {
-        var_id: 13634,
-        modalidades: ['presencial'],
-        pagas: ['presencial'],
-        precios: { presencial: '', telemedicina: '' }, // de WooCommerce desde el 2026-11-24 ($150.000; antes $160.000 a mano)
-        notas:   { presencial: 'No redimible en productos, exámenes ni tratamientos', telemedicina: '' },
-        dias:    { presencial: [], telemedicina: [] }
-      }
-    };
-    // Expuesta para main.js (filtros de horas del calendario general).
-    window.ROGANS_HOME_CITAS_CFG = CITAS_CFG;
-
-    function getSpecialtyGeneral() {
-      var val = $specialtySelect.val();
-      return val || 'Capilar primera vez';
-    }
-
-    function getCitaCfg() {
-      return CITAS_CFG[getSpecialtyGeneral()] || CITAS_CFG['Capilar primera vez'];
-    }
-
-    // ¿La especialidad actual ofrece telemedicina?
-    function isTelemedicinaBlocked() {
-      return getCitaCfg().modalidades.indexOf('telemedicina') === -1;
-    }
-
-    // ¿La modalidad actual es paga? (paga -> checkout, no agenda directa)
-    function isCurrentModalityPaid() {
-      var m = getSelectedModalityGeneral() || 'presencial';
-      return getCitaCfg().pagas.indexOf(m) !== -1;
-    }
-
-    function updateCostDisplay() {
-      var cfg = getCitaCfg();
-      var modality = getSelectedModalityGeneral();
-
-      $valuePresencialGeneral.find('.value-amount').text(cfg.precios.presencial || 'Gratis');
-      var $presencialNote = $valuePresencialGeneral.find('.value-note');
-      if (cfg.notas.presencial) {
-        $presencialNote.text(cfg.notas.presencial).removeClass('hidden');
-      } else {
-        $presencialNote.addClass('hidden').text('');
-      }
-
-      if (cfg.modalidades.indexOf('telemedicina') !== -1) {
-        $valueTelemedicinaGeneral.find('.value-amount').text(cfg.precios.telemedicina || 'Gratis');
-        var $teleNote = $valueTelemedicinaGeneral.find('.value-note');
-        if (cfg.notas.telemedicina) {
-          $teleNote.text(cfg.notas.telemedicina).removeClass('hidden');
-        } else {
-          $teleNote.addClass('hidden').text('');
-        }
-      } else {
-        $valueTelemedicinaGeneral.find('.value-amount').text('No disponible');
-        $valueTelemedicinaGeneral.find('.value-note').addClass('hidden').text('');
-      }
-
-      // Especialidades solo-presencial: bloquear el radio de telemedicina y,
-      // si estaba seleccionado, volver a presencial (con su calendario).
-      if (isTelemedicinaBlocked()) {
-        var nombreVisible = $specialtySelect.find('option:selected').text() || 'Esta especialidad';
-        $facialNotice.text(nombreVisible + ' solo se atiende en modalidad presencial.').removeClass('hidden');
-        $telemedicinaWrap.addClass('opacity-50 pointer-events-none');
-        $sidebar.find('#modalityAppointmentTelemedicinaGeneral').prop('disabled', true);
-        if (modality === 'telemedicina') {
-          $sidebar.find('#modalityAppointmentPresencialGeneral').prop('checked', true).trigger('change');
-          modality = 'presencial';
-        }
-      } else {
-        $facialNotice.addClass('hidden');
-        $telemedicinaWrap.removeClass('opacity-50 pointer-events-none');
-        $sidebar.find('#modalityAppointmentTelemedicinaGeneral').prop('disabled', false);
-      }
-
-      // Aviso de "tiene costo": solo si la modalidad elegida es paga. Va después
-      // del bloque anterior porque ahí la modalidad puede caer a presencial.
-      var $avisoPaga = $sidebar.find('.cita-aviso-paga');
-      if (isCurrentModalityPaid()) {
-        $avisoPaga.removeClass('hidden').addClass('flex');
-      } else {
-        $avisoPaga.removeClass('flex').addClass('hidden');
-      }
-
-      if (typeof window.updateConfirmButtonGeneral === 'function') window.updateConfirmButtonGeneral();
-    }
-
-    function showFormDataBasic() {
-      $formDatetime.addClass('opacity-0');
-      setTimeout(function() {
-        $formDatetime.addClass('hidden').removeClass('flex opacity-0');
-        $formDataBasic.removeClass('hidden').addClass('flex opacity-0');
-        requestAnimationFrame(function() {
-          $formDataBasic.addClass('opacity-100');
-        });
-        setTimeout(function() {
-          $formDataBasic.removeClass('opacity-0');
-        }, 50);
-      }, ANIMATION_DURATION);
-    }
-
-    function showFormDatetime() {
-      $formDataBasic.addClass('opacity-0');
-      setTimeout(function() {
-        $formDataBasic.addClass('hidden').removeClass('flex opacity-0');
-        $formDatetime.removeClass('hidden').addClass('flex opacity-0');
-        requestAnimationFrame(function() {
-          $formDatetime.addClass('opacity-100');
-        });
-        setTimeout(function() {
-          $formDatetime.removeClass('opacity-0');
-        }, 50);
-        tryInitCalendarGeneral();
-        updateCostDisplay();
-        var modality = getSelectedModalityGeneral();
-        if (modality === 'presencial') {
-          $valuePresencialGeneral.removeClass('hidden');
-          $valueTelemedicinaGeneral.addClass('hidden');
-          $locationGeneral.removeClass('hidden').addClass('flex').html('Lugar de consulta: Bogotá, Autopista Norte # 106-71');
-        } else if (modality === 'telemedicina') {
-          $valueTelemedicinaGeneral.removeClass('hidden');
-          $valuePresencialGeneral.addClass('hidden');
-          $locationGeneral.removeClass('hidden').addClass('flex').html('Consulta médica por medio de la App Rogans');
-        }
-      }, ANIMATION_DURATION);
-    }
-
-    function formatModality(modality) {
-      if (!modality) return '';
-      if (modality === 'telemedicina') return 'Telemedicina';
-      if (modality === 'presencial') return 'Presencial';
-      return modality.charAt(0).toUpperCase() + modality.slice(1);
-    }
-
-    function formatFullDateSpanish(dateString) {
-      if (!dateString) return '';
-      const date = new Date(dateString + 'T00:00:00');
-      const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-      const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-      const dayOfWeekFull = days[date.getDay()];
-      const dayOfWeekShort = dayOfWeekFull.substring(0, 3);
-      const dayOfWeekFormatted = dayOfWeekShort.charAt(0).toUpperCase() + dayOfWeekShort.slice(1);
-      const day = date.getDate();
-      const month = months[date.getMonth()];
-      const year = date.getFullYear();
-      const monthShort = month.substring(0, 3);
-      const monthFormatted = monthShort.charAt(0).toUpperCase() + monthShort.slice(1);
-      return dayOfWeekFormatted + ' ' + day + ' de ' + monthFormatted + ' de ' + year;
-    }
-
-    function formatTime12hLocal(time24h) {
-      if (!time24h) return '';
-      var parts = time24h.split(':');
-      var hour = parseInt(parts[0], 10);
-      var ampm = hour >= 12 ? 'pm' : 'am';
-      var hour12 = hour % 12 || 12;
-      return hour12 + ':' + (parts[1] || '00') + ' ' + ampm;
-    }
-
-    function getSelectedModalityGeneral() {
-      var $checked = $sidebar.find('input[name="modalityAppointmentGeneral"]:checked');
-      return $checked.length ? $checked.val() : '';
-    }
-
-    function updateConfirmButtonGeneral() {
-      if (typeof window.updateConfirmButtonGeneral === 'function') window.updateConfirmButtonGeneral();
-    }
-
-    function updateSummaryGeneral() {
-      if (typeof window.updateAppointmentSummaryGeneral === 'function') window.updateAppointmentSummaryGeneral();
-    }
-
-    function tryInitCalendarGeneral() {
-      if (typeof window.tryInitCalendarDiagnosisGeneral === 'function') {
-        window.tryInitCalendarDiagnosisGeneral();
-      }
-    }
-
-    function getPhoneCodeFromFormGeneral() {
-      var $radio = $phoneFormWrap.find('input[name="country_flag"]:checked');
-      if ($radio.length) {
-        var name = $radio.closest('.custom-select-image-option').data('name') || '';
-        var m = name.match(/\((\+?\d+)\)/);
-        return m ? m[1].replace('+', '') : '';
-      }
-      return '';
-    }
-
-    function capitalizeName(name) {
-      if (!name) return '';
-      return name.trim().split(' ').map(function(w) {
-        return w.length ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w;
-      }).join(' ');
-    }
-
-    function formatDateDDMMYYYY(dateString) {
-      if (!dateString) return '';
-      var d = new Date(dateString + 'T00:00:00');
-      var day = String(d.getDate()).padStart(2, '0');
-      var month = String(d.getMonth() + 1).padStart(2, '0');
-      return day + '/' + month + '/' + d.getFullYear();
-    }
-
-    function validateScheduleFormGeneral() {
-      var name = $nameInput.val().trim();
-      var phoneVal = $phoneInput.val().trim();
-      var phoneCode = getPhoneCodeFromFormGeneral();
-      var specialty = $specialtySelect.val();
-      var dateTimeText = $dateTimeInput.val().trim();
-      var terms = $termsCheck.is(':checked');
-      var nameOk = name.length >= 2;
-      var phoneOk = phoneCode && phoneVal && /^\d{8,12}$/.test(phoneVal);
-      var dateTimeOk = dateTimeText.length > 0;
-      return nameOk && phoneOk && specialty && dateTimeOk && terms && correoGeneralValido();
-    }
-
-    function updateSubmitButtonTextGeneral() {
-      // Paga → 'Pagar y agendar' (va al checkout); gratis → agenda directa.
-      $submitBtn.text(isCurrentModalityPaid() ? 'Pagar y agendar' : 'Agendar consulta');
-    }
-
-    function updateSubmitScheduleButtonGeneral() {
-      var ok = validateScheduleFormGeneral();
-      $submitBtn.prop('disabled', !ok);
-      updateSubmitButtonTextGeneral();
-    }
-
-    $termsCheck.prop('checked', true);
-    $phoneInput.on('input', function() {
-      $phoneInput.val($phoneInput.val().replace(/\D/g, ''));
-    });
-    $nameInput.on('input blur', function() { updateSubmitScheduleButtonGeneral(); });
-    $emailInputGeneral.on('input blur', function() { updateSubmitScheduleButtonGeneral(); });
-    $phoneInput.on('input blur', function() { updateSubmitScheduleButtonGeneral(); });
-    $phoneFormWrap.on('customSelectImageSelected', function() { updateSubmitScheduleButtonGeneral(); });
-    $specialtySelect.on('change', function() { updateSubmitScheduleButtonGeneral(); });
-    $termsCheck.on('change', function() { updateSubmitScheduleButtonGeneral(); });
-
-    $sidebar.find('.open-datetime-general').on('click', function(e) {
-      e.preventDefault();
-      showFormDatetime();
-    });
-
-    $sidebar.find('.back-datetime-general').on('click', function(e) {
-      e.preventDefault();
-      showFormDataBasic();
-    });
-
-    $sidebar.find('#gtm-close-datetime-sidebar').on('click', function(e) {
-      e.preventDefault();
-      showFormDataBasic();
-    });
-
-    $confirmBtnGeneral.on('click', function(e) {
-      e.preventDefault();
-      var modality = getSelectedModalityGeneral();
-      var date = $dateAppointmentGeneral.val();
-      var time = $timeAppointmentGeneral.val();
-      if (modality && date && time) {
-        var fullText = formatModality(modality) + ', ' + formatFullDateSpanish(date) + ' - ' + formatTime12hLocal(time);
-        $dateTimeInput.val(fullText);
-        showFormDataBasic();
-        updateSubmitScheduleButtonGeneral();
-      }
-    });
-
-    $summaryGeneral.on('click', function(e) {
-      e.preventDefault();
-      showFormDataBasic();
-    });
-
-    $modalityRadios.on('change', function() {
-      var val = getSelectedModalityGeneral();
-      if (val) {
-        $calendarGeneral.removeClass('disabled');
-        $locationGeneral.removeClass('hidden').addClass('flex');
-        if (val === 'telemedicina') {
-          $valueTelemedicinaGeneral.removeClass('hidden');
-          $valuePresencialGeneral.addClass('hidden');
-          $locationGeneral.html('Consulta médica por medio de la App Rogans');
-        } else {
-          $valuePresencialGeneral.removeClass('hidden');
-          $valueTelemedicinaGeneral.addClass('hidden');
-          $locationGeneral.html('Lugar de consulta: Bogotá, Autopista Norte # 106-71');
-        }
-        $dateAppointmentGeneral.val('');
-        $timeAppointmentGeneral.html('<option value="" class="hidden text-gray-400">Selecciona fecha</option>').prop('disabled', true);
-        // Días agendables según la ESPECIALIDAD seleccionada (y su modalidad).
-        var days = (getCitaCfg().dias || {})[val] || [0, 1];
-        if (typeof window.initCalendarDiagnosisGeneral === 'function') {
-          window.initCalendarDiagnosisGeneral(days);
-        }
-        updateCostDisplay();
-        updateSummaryGeneral();
-        updateConfirmButtonGeneral();
-      } else {
-        $calendarGeneral.addClass('disabled');
-        $locationGeneral.addClass('hidden').removeClass('flex');
-        $valuePresencialGeneral.addClass('hidden');
-        $valueTelemedicinaGeneral.addClass('hidden');
-        updateConfirmButtonGeneral();
-      }
-    });
-
-    $specialtySelect.on('change', function() {
-      // Cambió la especialidad: aplican otros días/precios/modalidades →
-      // resetear fecha/hora ya elegidas y re-montar el calendario con los
-      // días de la nueva especialidad (en la modalidad vigente).
-      if (isTelemedicinaBlocked() && getSelectedModalityGeneral() === 'telemedicina') {
-        $sidebar.find('#modalityAppointmentPresencialGeneral').prop('checked', true);
-        $valuePresencialGeneral.removeClass('hidden');
-        $valueTelemedicinaGeneral.addClass('hidden');
-        $locationGeneral.removeClass('hidden').addClass('flex').html('Lugar de consulta: Bogotá, Autopista Norte # 106-71');
-      }
-      $dateAppointmentGeneral.val('');
-      $timeAppointmentGeneral.html('<option value="" class="hidden text-gray-400">Selecciona fecha</option>').prop('disabled', true);
-      $dateTimeInput.val('');
-      var modActual = getSelectedModalityGeneral() || 'presencial';
-      var diasEsp = (getCitaCfg().dias || {})[modActual] || [0, 1];
-      if (typeof window.initCalendarDiagnosisGeneral === 'function') {
-        window.initCalendarDiagnosisGeneral(diasEsp);
-      }
-      updateCostDisplay();
-      if ($formDatetime.is(':visible') && !$formDatetime.hasClass('hidden')) {
-        updateSummaryGeneral();
-        updateConfirmButtonGeneral();
-      }
-      updateSubmitScheduleButtonGeneral();
-    });
-
-    $dateAppointmentGeneral.on('change', function() {
-      if (typeof window.updateConfirmButtonGeneral === 'function') window.updateConfirmButtonGeneral();
-      updateSummaryGeneral();
-    });
-
-    $timeAppointmentGeneral.on('change', function() {
-      if (typeof window.updateConfirmButtonGeneral === 'function') window.updateConfirmButtonGeneral();
-      updateSummaryGeneral();
-    });
-
-    $(document).on('click', '.open-sidebar-appointment-general', function() {
-      $formDataBasic.removeClass('hidden').addClass('flex');
-      $formDatetime.addClass('hidden').removeClass('flex');
-    });
-
-    function formatDateForModal(dateString) {
-      if (!dateString) return '';
-      var d = new Date(dateString + 'T00:00:00');
-      var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-      var day = d.getDate();
-      var month = months[d.getMonth()];
-      var year = d.getFullYear();
-      return day + ' de ' + month.charAt(0).toUpperCase() + month.slice(1) + ', ' + year;
-    }
-
-    function getLast4Digits(phone) {
-      return phone ? phone.slice(-4) : '';
-    }
-
-    function generateGoogleCalendarUrlGeneral(dateString, time24h, modality, specialtyLabel) {
-      if (!dateString || !time24h) return '#';
-      var parts = time24h.split(':');
-      var hour = parseInt(parts[0], 10);
-      var min = parseInt(parts[1] || 0, 10);
-      var dateParts = dateString.split('-');
-      var year = parseInt(dateParts[0], 10);
-      var month = parseInt(dateParts[1], 10) - 1;
-      var day = parseInt(dateParts[2], 10);
-      var startDate = new Date(year, month, day, hour, min, 0);
-      var endDate = new Date(startDate);
-      endDate.setMinutes(startDate.getMinutes() + 30);
-      function toGoogleDate(d) {
-        var y = d.getUTCFullYear();
-        var m = String(d.getUTCMonth() + 1).padStart(2, '0');
-        var da = String(d.getUTCDate()).padStart(2, '0');
-        var h = String(d.getUTCHours()).padStart(2, '0');
-        var mi = String(d.getUTCMinutes()).padStart(2, '0');
-        var s = String(d.getUTCSeconds()).padStart(2, '0');
-        return y + m + da + 'T' + h + mi + s + 'Z';
-      }
-      var modalityText = modality === 'presencial' ? 'Presencial' : 'Telemedicina';
-      var title = encodeURIComponent('Consulta ' + (specialtyLabel || '') + ' en Rogans - ' + modalityText);
-      var details = encodeURIComponent('Consulta ' + (specialtyLabel || '') + ', modalidad ' + modalityText);
-      var loc = modality === 'presencial' ? 'Bogotá (Autopista Norte # 106 - 71)' : 'Teleconsulta a través de App Rogans';
-      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + toGoogleDate(startDate) + '/' + toGoogleDate(endDate) + '&details=' + details + '&location=' + encodeURIComponent(loc);
-    }
-
-    function showConfirmationModalGeneral(modalDate, modalTime, modalLocation, last4Digits, googleCalendarUrl, modality) {
-      var $modal = $('.modal-confirmation-general');
-      if (!$modal.length) return;
-      $modal.find('.confirmation-date-general').text(modalDate);
-      $modal.find('.confirmation-time-general').text(modalTime);
-      $modal.find('.confirmation-location-general').text(modalLocation);
-      $modal.find('.confirmation-phone-general').text(last4Digits);
-      var $link = $modal.find('#gtm-add-to-calendar-general');
-      if ($link.length) $link.attr('href', googleCalendarUrl).attr('target', '_blank');
-      var $presencial = $modal.find('.confirmation-presencial');
-      var $telemedicina = $modal.find('.confirmation-telemedicina');
-      // El modal de confirmación solo aplica a agendas GRATIS (las modalidades
-      // pagas van al checkout ANTES de agendar). Se eliminó el flujo legacy de
-      // telemedicina que agendaba gratis y redirigía con countdown a pagar el
-      // producto 843 con cupón telerog.
-      if (modality === 'telemedicina') {
-        $presencial.addClass('hidden').removeClass('flex');
-        $telemedicina.removeClass('hidden').addClass('flex');
-      } else {
-        $presencial.removeClass('hidden').addClass('flex');
-        $telemedicina.addClass('hidden').removeClass('flex');
-      }
-      $('body').addClass('overflow-hidden');
-      $modal.removeClass('hidden').addClass('flex opacity-0');
-      setTimeout(function() {
-        $modal.removeClass('opacity-0').addClass('opacity-100 transition-all duration-300');
-      }, 50);
-    }
-
-    function closeConfirmationModalGeneral() {
-      var $modal = $('.modal-confirmation-general');
-      var tid = $modal.data('countdownTimeout');
-      if (tid) {
-        clearTimeout(tid);
-        $modal.data('countdownTimeout', null);
-      }
-      $('body').removeClass('overflow-hidden');
-      $modal.removeClass('opacity-100').addClass('opacity-0 transition-all duration-300');
-      setTimeout(function() {
-        $modal.removeClass('flex').addClass('hidden');
-      }, 300);
-    }
-
-    $(document).on('click', '.modal-confirmation-general .confirmation-presencial button, .modal-confirmation-general .close-confirmation-modal', function() {
-      closeConfirmationModalGeneral();
-    });
-
-    function resetPhoneToColombiaGeneral() {
-      $phoneFormWrap.find('input[name="country_flag"]').prop('checked', false);
-      var $opt = $phoneFormWrap.find('input[name="country_flag"][value="CO"]');
-      if ($opt.length) {
-        var $label = $opt.closest('.custom-select-image-option');
-        var flag = $label.data('flag');
-        var name = $label.data('name');
-        $opt.prop('checked', true);
-        $label.addClass('bg-blue-50');
-        $phoneFormWrap.find('.custom-select-image-flag').attr('src', flag).attr('alt', name);
-        $phoneFormWrap.find('.custom-select-image-text').text(name);
-        $phoneFormWrap.find('.custom-select-image-placeholder').addClass('hidden');
-        $phoneFormWrap.find('.custom-select-image-selected').removeClass('hidden').addClass('flex');
-        $phoneFormWrap.trigger('customSelectImageSelected', ['CO', flag, name]);
-      }
-    }
-
-    $form.on('submit', function(e) {
-      e.preventDefault();
-      if (!validateScheduleFormGeneral()) {
-        alert('Por favor, completa todos los campos requeridos y acepta los términos y condiciones');
-        return;
-      }
-      var specialty = getSpecialtyGeneral();
-      var modality = getSelectedModalityGeneral();
-      var dateString = $dateAppointmentGeneral.val();
-      var time24h = $timeAppointmentGeneral.val();
-      var name = capitalizeName($nameInput.val().trim());
-      var phoneVal = $phoneInput.val().trim();
-      var phoneCode = getPhoneCodeFromFormGeneral();
-      var phone = phoneCode + phoneVal;
-      var date = formatDateDDMMYYYY(dateString);
-      var time = formatTime12hLocal(time24h);
-      var fechaInicio = date + ' | ' + time;
-
-      // --- Modalidad PAGA → NO se agenda aquí: se envía al checkout para pagar
-      //     primero con la variación de la cita de esta especialidad. El
-      //     checkout cobra por modalidad, pre-marca fecha/hora y agenda en Odoo
-      //     al confirmarse el pago (mismo contrato que sidebar-agendamiento).
-      if (isCurrentModalityPaid()) {
-        var cfgPago = getCitaCfg();
-        if (!cfgPago.var_id) {
-          alert('No se pudo iniciar el pago de esta especialidad. Intenta más tarde.');
-          return;
-        }
-        $submitBtn.prop('disabled', true).html('<span class="inline-flex items-center gap-2"><span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span> Redirigiendo...</span>');
-        var checkoutUrl = 'https://rogansya.com/finalizar-compra/';
-        var sepPago = (checkoutUrl.indexOf('?') === -1) ? '?' : '&';
-        try { if (correoGeneral()) { sessionStorage.setItem('rogans_cita_email', correoGeneral()); } } catch (eCorreo) {}
-        // Nombre y teléfono, igual que el correo (2026-11-24): el checkout los pone
-        // en sus campos vacíos (rogans_cita_correo_en_checkout en functions.php).
-        try {
-          sessionStorage.setItem('rogans_cita_nombre', name);
-          sessionStorage.setItem('rogans_cita_tel', JSON.stringify({ codigo: phoneCode, numero: phoneVal }));
-        } catch (eDatos) {}
-        window.location.href = checkoutUrl + sepPago
-          + 'bulk-add=' + encodeURIComponent(cfgPago.var_id)
-          + '&quantity[' + encodeURIComponent(cfgPago.var_id) + ']=1'
-          + '&modality=' + encodeURIComponent(modality)
-          + '&fecha=' + encodeURIComponent(dateString)
-          + '&hora=' + encodeURIComponent(time24h);
-        return;
-      }
-
-      var originalBtn = $submitBtn.html();
-      $submitBtn.prop('disabled', true).html('<span class="inline-flex items-center gap-2"><span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span> Enviando...</span>');
-      var $selOptGeneral = $specialtySelect.find('option:selected');
-      var agendamientoData = {
-        tipo: 'agendamiento',
-        telefono: phone,
-        nombre: name,
-        email: correoGeneral(),
-        fecha_inicio: fechaInicio,
-        modalidad: modality,
-        tipo_cita: specialty,
-        rogans_especialidad_id: (parseInt($selOptGeneral.attr('data-especialidad-id'), 10) || 0),
-        rogans_servicio_id: (parseInt($selOptGeneral.attr('data-servicio-id'), 10) || 0),
-        fuente_pagina: "PEPTHAIR \u2014 Soluci\u00f3n Capilar Cosm\u00e9tica | Rogans",
-        comentario: 'Origen: ' + (window.location.pathname || '/'),
-        utm: typeof utmParams !== 'undefined' ? utmParams : ''
-      };
-      fetch('https://external.rogansya.com/externals-api.php?action=send-data-hook-odoo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(agendamientoData)
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var isError = data && typeof data.status === 'number' && (data.status >= 400 || data.status < 200);
-        var isSuccess = data && !isError && data.response && data.response.status === 'ok' && data.response.message === 'Cita creada exitosamente';
-        if (isSuccess) {
-          $nameInput.val('');
-          $emailInputGeneral.val('');
-          $phoneInput.val('');
-          $dateAppointmentGeneral.val('');
-          $timeAppointmentGeneral.html('<option value="" class="hidden text-gray-400">Selecciona fecha</option>').prop('disabled', true);
-          $dateTimeInput.val('');
-          $termsCheck.prop('checked', true);
-          $sidebar.find('#modalityAppointmentPresencialGeneral').prop('checked', true);
-          resetPhoneToColombiaGeneral();
-          $submitBtn.text('Agendar consulta');
-          updateSubmitScheduleButtonGeneral();
-          var modalDate = formatDateForModal(dateString);
-          var modalTime = time;
-          var modalLocation = modality === 'presencial' ? 'Bogotá (Autopista Norte # 106 - 71)' : 'Telemedicina a través App de Rogans';
-          var last4 = getLast4Digits(phone);
-          var calUrl = generateGoogleCalendarUrlGeneral(dateString, time24h, modality, specialty);
-          showConfirmationModalGeneral(modalDate, modalTime, modalLocation, last4, calUrl, modality);
-          closeSidebarAppointmentGeneral();
-        } else {
-          var phoneWithPlus = '+' + phone;
-          var modalityText = modality === 'presencial' ? 'Presencial' : 'Telemedicina';
-          var now = new Date();
-          var nowDate = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-          var nowTime = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
-          var eventoAgendado = 'Agendamiento general (' + nowDate + ' a las ' + nowTime + ')';
-          var fallbackData = {
-            nombre: name,
-            telefono: phoneWithPlus,
-            correo: correoGeneral(),
-            evento_agendado: eventoAgendado,
-            fecha: fechaInicio + ' | ' + modalityText,
-            notas: modalityText + ' / Agenda general',
-            documento: '',
-            utm: typeof utmParams !== 'undefined' ? utmParams : '',
-            referidor: ''
-          };
-          fetch('https://rogansya.com/rogans-app/agendamiento-web.php?accion=agendar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(fallbackData)
-          })
-          .then(function(fr) {
-            var status = fr.status;
-            return fr.json().then(function(fd) {
-              fd.httpStatus = status;
-              return fd;
-            }).catch(function() {
-              return { httpStatus: status };
-            });
-          })
-          .then(function(fd) {
-            var ok = fd && (fd.httpStatus === 200 || fd.status === 200 || fd.success === true || (fd.mensaje && fd.mensaje === 'Cita agendada'));
-            if (ok) {
-              $nameInput.val('');
-              $emailInputGeneral.val('');
-              $phoneInput.val('');
-              $dateAppointmentGeneral.val('');
-              $timeAppointmentGeneral.html('<option value="" class="hidden text-gray-400">Selecciona fecha</option>').prop('disabled', true);
-              $dateTimeInput.val('');
-              $termsCheck.prop('checked', true);
-              $sidebar.find('#modalityAppointmentPresencialGeneral').prop('checked', true);
-              resetPhoneToColombiaGeneral();
-              $submitBtn.text('Agendar consulta');
-              updateSubmitScheduleButtonGeneral();
-              var modalDate = formatDateForModal(dateString);
-              var modalTime = time;
-              var modalLocation = modality === 'presencial' ? 'Bogotá (Autopista Norte # 106 - 71)' : 'Telemedicina a través App de Rogans';
-              var last4 = getLast4Digits(phone);
-              var calUrl = generateGoogleCalendarUrlGeneral(dateString, time24h, modality, specialty);
-              showConfirmationModalGeneral(modalDate, modalTime, modalLocation, last4, calUrl, modality);
-              closeSidebarAppointmentGeneral();
-            } else {
-              $submitBtn.prop('disabled', false).html(originalBtn);
-              alert('Ocurrió un problema al agendar. Intenta nuevamente.');
-            }
-          })
-          .catch(function() {
-            $submitBtn.prop('disabled', false).html(originalBtn);
-            alert('Ocurrió un problema al agendar. Intenta nuevamente.');
-          });
-        }
-      })
-      .catch(function() {
-        $submitBtn.prop('disabled', false).html(originalBtn);
-        alert('Ocurrió un problema al agendar. Intenta nuevamente.');
-      });
-    });
-
-    updateSubmitScheduleButtonGeneral();
-  }
-
-  function initWhenjQueryReady() {
-    if (typeof jQuery === 'undefined' || !jQuery.fn) {
-      setTimeout(initWhenjQueryReady, 50);
-      return;
-    }
-    jQuery(document).ready(function($) {
-      if ($('.sidebar-appointment-general').length) {
-        initGeneralAppointmentForm($);
-      }
-    });
-  }
-
-  initWhenjQueryReady();
+(function () {
+	var form = document.getElementById('pepthairMuestraForm');
+	var status = document.getElementById('pepthairMuestraStatus');
+	if (!form) return;
+	form.addEventListener('submit', function (e) {
+		e.preventDefault();
+		var data = new FormData(form);
+		var nombre = (data.get('nombre') || '').toString().trim();
+		var especialidad = (data.get('especialidad') || '').toString().trim();
+		var registro = (data.get('registro') || '').toString().trim();
+		var ciudad = (data.get('ciudad') || '').toString().trim();
+		var clinica = (data.get('clinica') || '').toString().trim();
+		var whatsapp = (data.get('whatsapp') || '').toString().trim();
+		var texto = 'Hola, soy médico y quiero una muestra gratis de PEPTHAIR.\n'
+			+ 'Nombre: ' + nombre + '\n'
+			+ 'Especialidad: ' + especialidad + '\n'
+			+ 'Ciudad: ' + ciudad + '\n'
+			+ 'Consultorio o clínica: ' + clinica;
+		if (registro) texto += '\nRegistro médico: ' + registro;
+		if (whatsapp) texto += '\nWhatsApp: ' + whatsapp;
+		var waUrl = 'https://wa.me/573209234629?text=' + encodeURIComponent(texto);
+		if (status) {
+			status.classList.remove('hidden');
+			status.textContent = 'Solicitud lista. Abriendo WhatsApp al +57 320 923 4629...';
+		}
+		window.open(waUrl, '_blank', 'noopener,noreferrer');
+	});
 })();
 </script>
 </div>
