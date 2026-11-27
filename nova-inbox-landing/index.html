@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Novainbox | Plataforma de WhatsApp Business para equipos: bandeja, masivos y flujos</title>
+<meta name="description" content="Novainbox es una plataforma web de WhatsApp Business: bandeja compartida para tu equipo, difusiones masivas con plantillas aprobadas, flujos automáticos y métricas de cada envío. Agenda una demo.">
+<!-- canonical y og:url: [PENDIENTE] definir dominio final antes de publicar -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CO">
+<meta property="og:site_name" content="Novainbox">
+<meta property="og:title" content="Novainbox | WhatsApp Business para equipos: bandeja, masivos y flujos">
+<meta property="og:description" content="Atiende, haz seguimiento y envía masivos por WhatsApp desde un solo lugar, con plantillas aprobadas, flujos y métricas.">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#3e6bf7">
+<link rel="icon" href="./assets/novainbox-icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./assets/styles.css">
+<script>
+/* VISTA PREVIA: sin tracking y con todos los envios bloqueados. */
+(function(){
+  var f=window.fetch; if(f){window.fetch=function(u,o){if(o&&o.method&&o.method.toUpperCase()!=='GET'){return Promise.reject(new Error('Vista previa: envios desactivados'));}return f.apply(this,arguments);};}
+  var s=XMLHttpRequest.prototype.send; XMLHttpRequest.prototype.send=function(){throw new Error('Vista previa: envios desactivados');};
+  if(navigator.sendBeacon){navigator.sendBeacon=function(){return false;};}
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Novainbox",
+      "alternateName": "Nova Inbox",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Plataforma de mensajería WhatsApp Business",
+      "operatingSystem": "Web (navegador) e instalable como app (PWA)",
+      "inLanguage": "es",
+      "description": "Plataforma web de WhatsApp Business para equipos: bandeja de conversaciones compartida, contactos con etiquetas, plantillas aprobadas, difusiones masivas programadas, flujos y automatizaciones por palabra clave, llamadas desde el chat y métricas de cada envío.",
+      "featureList": [
+        "Bandeja compartida de conversaciones de WhatsApp Business",
+        "Difusiones masivas programadas desde CSV",
+        "Plantillas de WhatsApp aprobadas con variables, imagen o video y botones",
+        "Flujos y automatizaciones por palabra clave",
+        "Contactos con etiquetas, lista negra y registro de consentimiento",
+        "Ventana de horario de envío, festivos y velocidad de envío configurable",
+        "Métricas de envío: enviados, entregados, leídos, clics, omitidos y errores",
+        "Llamadas telefónicas desde el chat"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://PENDIENTE-dominio/"},
+        {"@type": "ListItem", "position": 2, "name": "Novainbox", "item": "https://PENDIENTE-dominio/novainbox/"}
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type": "Question", "name": "¿Qué es Novainbox?", "acceptedAnswer": {"@type": "Answer", "text": "Novainbox es una plataforma web de WhatsApp Business para equipos. Reúne en una sola bandeja las conversaciones del número de la empresa, permite enviar difusiones masivas con plantillas aprobadas, automatizar respuestas con flujos y medir cada envío."}},
+        {"@type": "Question", "name": "¿Puedo enviar mensajes masivos por WhatsApp con Novainbox?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Subes un CSV con teléfono y nombre, eliges la plantilla aprobada, programas la fecha y hora, y Novainbox envía respetando una ventana de horario, los festivos, una velocidad configurable y las exclusiones por etiqueta o por mensajes recientes."}},
+        {"@type": "Question", "name": "¿Por qué hay que usar plantillas aprobadas?", "acceptedAnswer": {"@type": "Answer", "text": "Es una regla de WhatsApp Business: si el cliente no ha escrito en las últimas 24 horas, la conversación solo se puede abrir con una plantilla aprobada por Meta. Dentro de esas 24 horas el equipo puede responder con mensajes libres."}},
+        {"@type": "Question", "name": "¿Varias personas pueden atender el mismo WhatsApp?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. La bandeja es compartida: cada conversación puede tener un asesor asignado, y el equipo ve qué chats están sin responder, cuáles están activos y cuáles cerrados."}},
+        {"@type": "Question", "name": "¿Qué métricas muestra una difusión?", "acceptedAnswer": {"@type": "Answer", "text": "Cada difusión muestra cuántos mensajes se enviaron, entregaron y leyeron, los clics en cada botón, los contactos omitidos (por ejemplo, por lista negra) y los errores con su motivo."}},
+        {"@type": "Question", "name": "¿Se puede usar desde el celular?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Novainbox funciona en el navegador y se puede instalar en el celular como aplicación web (PWA)."}}
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body class="bg-white font-sans text-ink antialiased">
+
+<div class="bg-amber-100 px-4 py-2 text-center text-xs font-medium text-amber-900">Vista previa sin publicar · noindex · sin tracking · el formulario no envía datos. Los textos en <span class="pend">[PENDIENTE]</span> faltan por confirmar.</div>
+
+<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="#inicio" class="flex items-center gap-2 font-bold" aria-label="Novainbox, inicio">
+      <img src="./assets/novainbox-icon.svg" alt="" width="32" height="32" class="h-8 w-8">
+      <span class="text-lg tracking-tight">Novainbox</span>
+    </a>
+    <nav aria-label="Principal" class="hidden items-center gap-6 text-sm font-medium text-slate-600 lg:flex">
+      <a href="#funciones" class="hover:text-brand-600">Funciones</a>
+      <a href="#como-funciona" class="hover:text-brand-600">Cómo funciona</a>
+      <a href="#casos" class="hover:text-brand-600">Casos de uso</a>
+      <a href="#integraciones" class="hover:text-brand-600">Integraciones</a>
+      <a href="#precios" class="hover:text-brand-600">Precios</a>
+      <a href="#faq" class="hover:text-brand-600">Preguntas</a>
+    </nav>
+    <a href="#demo" class="rounded-full bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-600">Agenda una demo</a>
+  </div>
+</header>
+
+<main id="inicio">
+<!-- HERO -->
+<section class="relative overflow-hidden bg-gradient-to-b from-brand-50 to-white">
+  <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-2 lg:pb-24 lg:pt-20">
+    <div>
+      <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-teal-brand ring-1 ring-teal-brand/30">
+        <span class="h-2 w-2 rounded-full bg-teal-brand"></span> Plataforma WhatsApp Business
+      </p>
+      <h1 class="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Todo el WhatsApp de tu empresa, atendido y medido desde una sola bandeja</h1>
+      <p class="mt-5 max-w-xl text-lg text-slate-600">Novainbox reúne las conversaciones de tu número de WhatsApp Business para que todo el equipo atienda, haga seguimiento y envíe masivos con plantillas aprobadas, flujos automáticos y métricas de cada envío.</p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href="#demo" class="rounded-full bg-brand-500 px-6 py-3 text-center font-semibold text-white shadow hover:bg-brand-600">Agenda una demo</a>
+        <a href="#funciones" class="rounded-full bg-white px-6 py-3 text-center font-semibold text-ink ring-1 ring-slate-300 hover:ring-brand-500">Ver funciones</a>
+      </div>
+      <ul class="mt-8 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+        <li class="flex gap-2"><span class="text-teal-brand">✔</span> Bandeja compartida por asesor</li>
+        <li class="flex gap-2"><span class="text-teal-brand">✔</span> Masivos programados desde CSV</li>
+        <li class="flex gap-2"><span class="text-teal-brand">✔</span> Flujos y respuestas por palabra clave</li>
+        <li class="flex gap-2"><span class="text-teal-brand">✔</span> Web y app instalable en el celular</li>
+      </ul>
+    </div>
+    <!-- Mock de bandeja (ilustrativo) -->
+    <div class="relative" aria-label="Ejemplo ilustrativo de la bandeja de Novainbox">
+      <div class="overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+        <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3 text-xs">
+          <span class="font-semibold">Conversaciones</span>
+          <span class="rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-700">Salud del número: alta</span>
+        </div>
+        <div class="grid grid-cols-5">
+          <ul class="col-span-2 divide-y divide-slate-100 border-r border-slate-100 text-xs">
+            <li class="bg-brand-50 p-3"><p class="font-semibold">Laura M.</p><p class="truncate text-slate-500">¿Tienen cita el sábado?</p><span class="mt-1 inline-block rounded bg-rose-100 px-1.5 text-[10px] font-semibold text-rose-700">Sin responder</span></li>
+            <li class="p-3"><p class="font-semibold">Carlos R.</p><p class="truncate text-slate-500">Me interesa</p><span class="mt-1 inline-block rounded bg-slate-100 px-1.5 text-[10px] text-slate-600">Asesor: Ana</span></li>
+            <li class="p-3"><p class="font-semibold">Diana P.</p><p class="truncate text-slate-500">Gracias, confirmado</p><span class="mt-1 inline-block rounded bg-emerald-100 px-1.5 text-[10px] text-emerald-700">Cerrada</span></li>
+            <li class="hidden p-3 sm:block"><p class="font-semibold">Jorge T.</p><p class="truncate text-slate-500">Plantilla: recordatorio</p><span class="mt-1 inline-block rounded bg-slate-100 px-1.5 text-[10px] text-slate-600">Difusión</span></li>
+          </ul>
+          <div class="col-span-3 flex flex-col gap-2 bg-[#efeae2] p-3 text-xs">
+            <div class="max-w-[85%] self-start rounded-lg bg-white p-2 shadow-sm">Hola, ¿tienen cita disponible el sábado en la mañana?</div>
+            <div class="max-w-[85%] self-end rounded-lg bg-chat-out p-2 shadow-sm">¡Hola Laura! Sí, tenemos espacio. ¿Te queda bien a las 9:00 a. m.?</div>
+            <div class="max-w-[85%] self-start rounded-lg bg-white p-2 shadow-sm">Perfecto 🙌</div>
+            <div class="mt-1 grid grid-cols-2 gap-1">
+              <span class="rounded-md bg-white py-1.5 text-center font-semibold text-brand-600 shadow-sm">Agendar</span>
+              <span class="rounded-md bg-white py-1.5 text-center font-semibold text-brand-600 shadow-sm">No me interesa</span>
+            </div>
+            <p class="mt-auto text-center text-[10px] text-slate-500">Ejemplo ilustrativo con datos ficticios</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESPUESTA DIRECTA (GEO) -->
+<section aria-labelledby="que-es" class="border-y border-slate-100 bg-white">
+  <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+    <h2 id="que-es" class="text-2xl font-bold">¿Qué es Novainbox?</h2>
+    <p class="mt-3 text-lg text-slate-700"><strong>Novainbox es una plataforma web de WhatsApp Business para equipos de atención y ventas.</strong> Conecta el número de WhatsApp de la empresa y concentra todas sus conversaciones en una bandeja compartida, donde cada chat tiene un asesor asignado. Además permite enviar difusiones masivas con plantillas aprobadas por Meta, automatizar respuestas con flujos y palabras clave, llamar desde el chat y medir qué pasó con cada mensaje.</p>
+    <p class="mt-3 text-sm text-slate-500">Logos de empresas que lo usan: <span class="pend">[PENDIENTE]</span></p>
+  </div>
+</section>
+
+<!-- FUNCIONES -->
+<section id="funciones" aria-labelledby="funciones-h" class="bg-white">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Funciones</p>
+    <h2 id="funciones-h" class="mt-2 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl">Tu operación de WhatsApp completa, en un solo lugar</h2>
+    <p class="mt-4 max-w-2xl text-slate-600">Conversaciones, contactos, plantillas, masivos, flujos y llamadas. Sin saltar entre el celular de cada asesor y hojas de cálculo.</p>
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="rounded-2xl border border-slate-200 p-6 hover:border-brand-500 hover:shadow-lg">
+        <p class="text-xs font-bold text-brand-500">01 · Bandeja</p>
+        <h3 class="mt-2 text-lg font-bold">Bandeja compartida</h3>
+        <p class="mt-2 text-sm text-slate-600">Todo el equipo atiende el mismo número. Cada chat tiene un asesor, y se ve de un vistazo cuáles están sin responder, cuáles activos y cuáles cerrados. Una conversación cerrada se puede reabrir.</p>
+      </article>
+      <article class="rounded-2xl border border-slate-200 p-6 hover:border-brand-500 hover:shadow-lg">
+        <p class="text-xs font-bold text-brand-500">02 · Masivos</p>
+        <h3 class="mt-2 text-lg font-bold">Difusiones masivas programadas</h3>
+        <p class="mt-2 text-sm text-slate-600">Sube un CSV con teléfono y nombre, elige el mensaje y programa la fecha y hora. Si un contacto no existe, se crea automáticamente.</p>
+      </article>
+      <article class="rounded-2xl border border-slate-200 p-6 hover:border-brand-500 hover:shadow-lg">
+        <p class="text-xs font-bold text-brand-500">03 · Plantillas</p>
+        <h3 class="mt-2 text-lg font-bold">Plantillas aprobadas</h3>
+        <p class="mt-2 text-sm text-slate-600">Gestiona las plantillas de marketing y de utilidad de tu número, con variables como el nombre del cliente, imagen o video de encabezado y botones de respuesta.</p>
+      </article>
+      <article class="rounded-2xl border border-slate-200 p-6 hover:border-brand-500 hover:shadow-lg">
+        <p class="text-xs font-bold text-brand-500">04 · Automatización</p>
+        <h3 class="mt-2 text-lg font-bold">Flujos y palabras clave</h3>
+        <p class="mt-2 text-sm text-slate-600">Arma flujos que responden solos y conecta cada botón de una plantilla con el siguiente paso. Las automatizaciones por palabra clave disparan la respuesta correcta.</p>
+      </article>
+      <article class="rounded-2xl border border-slate-200 p-6 hover:border-brand-500 hover:shadow-lg">
+        <p class="text-xs font-bold text-brand-500">05 · Contactos</p>
+        <h3 class="mt-2 text-lg font-bold">Contactos y segmentos</h3>
+        <p class="mt-2 text-sm text-slate-600">Base de contactos con teléfono, última interacción, variables propias y etiquetas. La lista negra y el registro de consentimiento evitan escribirle a quien no debes.</p>
+      </article>
+      <article class="rounded-2xl border border-slate-200 p-6 hover:border-brand-500 hover:shadow-lg">
+        <p class="text-xs font-bold text-brand-500">06 · Llamadas</p>
+        <h3 class="mt-2 text-lg font-bold">Llamadas desde el chat</h3>
+        <p class="mt-2 text-sm text-slate-600">El asesor llama al cliente por la línea telefónica de la empresa sin salir de la conversación. Las llamadas de voz por WhatsApp llegan en una próxima fase <span class="pend">[PENDIENTE fecha]</span>.</p>
+      </article>
+    </div>
+
+    <!-- Showcase de métricas -->
+    <div class="mt-16 grid items-center gap-10 rounded-3xl bg-ink p-8 text-white sm:p-12 lg:grid-cols-2">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wider text-teal-300">07 · Métricas</p>
+        <h3 class="mt-2 text-2xl font-extrabold sm:text-3xl">Sabe qué pasó con cada mensaje</h3>
+        <p class="mt-3 text-slate-300">Cada difusión muestra su avance y su resultado: enviados, entregados, leídos, clics en cada botón, omitidos y errores con su motivo. Así decides el siguiente lote con datos y no a ciegas.</p>
+      </div>
+      <dl class="grid grid-cols-2 gap-3 text-center sm:grid-cols-3" aria-label="Métricas que muestra una difusión">
+        <div class="rounded-xl bg-white/10 p-4"><dt class="text-xs text-slate-300">Enviados</dt><dd class="mt-1 text-lg font-bold">✓</dd></div>
+        <div class="rounded-xl bg-white/10 p-4"><dt class="text-xs text-slate-300">Entregados</dt><dd class="mt-1 text-lg font-bold">✓✓</dd></div>
+        <div class="rounded-xl bg-white/10 p-4"><dt class="text-xs text-slate-300">Leídos</dt><dd class="mt-1 text-lg font-bold text-sky-300">✓✓</dd></div>
+        <div class="rounded-xl bg-white/10 p-4"><dt class="text-xs text-slate-300">Clics por botón</dt><dd class="mt-1 text-lg font-bold">👆</dd></div>
+        <div class="rounded-xl bg-white/10 p-4"><dt class="text-xs text-slate-300">Omitidos</dt><dd class="mt-1 text-lg font-bold">⏭</dd></div>
+        <div class="rounded-xl bg-white/10 p-4"><dt class="text-xs text-slate-300">Errores y motivo</dt><dd class="mt-1 text-lg font-bold">⚠</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section id="como-funciona" aria-labelledby="como-h" class="bg-slate-50">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Cómo funciona</p>
+    <h2 id="como-h" class="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">De la conversación al resultado en 4 pasos</h2>
+    <ol class="mt-12 grid gap-6 md:grid-cols-4">
+      <li class="rounded-2xl bg-white p-6 shadow-sm"><span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 font-bold text-white">1</span><h3 class="mt-4 font-bold">Conecta tu número</h3><p class="mt-2 text-sm text-slate-600">Vinculas el número de WhatsApp Business de tu empresa y das acceso a tu equipo. Tiempo de puesta en marcha: <span class="pend">[PENDIENTE]</span></p></li>
+      <li class="rounded-2xl bg-white p-6 shadow-sm"><span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 font-bold text-white">2</span><h3 class="mt-4 font-bold">Carga tus contactos</h3><p class="mt-2 text-sm text-slate-600">Importa un CSV con teléfono, nombre y segmento, y organiza tus contactos con etiquetas.</p></li>
+      <li class="rounded-2xl bg-white p-6 shadow-sm"><span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 font-bold text-white">3</span><h3 class="mt-4 font-bold">Arma plantillas y flujos</h3><p class="mt-2 text-sm text-slate-600">Elige plantillas aprobadas, conecta sus botones a flujos y define respuestas por palabra clave.</p></li>
+      <li class="rounded-2xl bg-white p-6 shadow-sm"><span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 font-bold text-white">4</span><h3 class="mt-4 font-bold">Atiende y mide</h3><p class="mt-2 text-sm text-slate-600">Tu equipo responde desde la bandeja y tú ves el resultado de cada difusión para decidir el siguiente paso.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- MASIVOS RESPONSABLES -->
+<section aria-labelledby="masivos-h" class="bg-white">
+  <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Masivos sin quemar tu número</p>
+      <h2 id="masivos-h" class="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Envía a miles de contactos con control</h2>
+      <p class="mt-4 text-slate-600">WhatsApp limita los mensajes de marketing y castiga los números que molestan. Novainbox trae los controles para enviar por lotes y cuidar la salud de tu número.</p>
+    </div>
+    <ul class="grid gap-4 sm:grid-cols-2">
+      <li class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Ventana de horario y festivos</h3><p class="mt-1 text-sm text-slate-600">Los envíos solo salen en el horario que definas y se saltan los festivos.</p></li>
+      <li class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Velocidad configurable</h3><p class="mt-1 text-sm text-slate-600">Por defecto 15 mensajes por minuto, ajustable según tu operación.</p></li>
+      <li class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Exclusiones inteligentes</h3><p class="mt-1 text-sm text-slate-600">Excluye por etiqueta, lista negra o a quien recibió un mensaje en las últimas horas.</p></li>
+      <li class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Salud del número</h3><p class="mt-1 text-sm text-slate-600">Ves el estado de tu número y si está apto para masivos antes de enviar.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- CASOS DE USO -->
+<section id="casos" aria-labelledby="casos-h" class="bg-slate-50">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Casos de uso</p>
+    <h2 id="casos-h" class="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Hecho para equipos que venden y atienden por WhatsApp</h2>
+    <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <article class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-2xl" aria-hidden="true">🩺</p><h3 class="mt-3 font-bold">Clínicas y salud</h3><p class="mt-2 text-sm text-slate-600">Confirmaciones, reagendamiento de pacientes que no asistieron y seguimiento después del tratamiento.</p></article>
+      <article class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-2xl" aria-hidden="true">🔁</p><h3 class="mt-3 font-bold">Reactivar leads fríos</h3><p class="mt-2 text-sm text-slate-600">Vuelve a contactar por segmentos a quien cotizó, se valoró y no compró, o dejó de responder.</p></article>
+      <article class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-2xl" aria-hidden="true">🛒</p><h3 class="mt-3 font-bold">Recompra</h3><p class="mt-2 text-sm text-slate-600">Recuérdale a tus clientes cuándo les toca volver o reponer su producto, con un botón para agendar.</p></article>
+      <article class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-2xl" aria-hidden="true">🔔</p><h3 class="mt-3 font-bold">Avisos automáticos</h3><p class="mt-2 text-sm text-slate-600">Mensajes que salen solos desde otros sistemas, como el aviso al cliente y al equipo cuando se aprueba un pago.</p></article>
+    </div>
+
+    <figure class="mt-12 rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200 sm:p-10">
+      <p class="text-xs font-bold uppercase tracking-wider text-teal-brand">Caso real · Rogans</p>
+      <blockquote class="mt-3 text-xl font-semibold">Una difusión de reactivación a 5.727 contactos, programada por lotes en dos días respetando horario y festivo.</blockquote>
+      <dl class="mt-6 grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
+        <div><dt class="text-xs text-slate-500">Entregados</dt><dd class="text-3xl font-extrabold text-brand-500">98%</dd></div>
+        <div><dt class="text-xs text-slate-500">Leídos</dt><dd class="text-3xl font-extrabold text-brand-500">59%</dd></div>
+        <div><dt class="text-xs text-slate-500">Clics en botones</dt><dd class="text-3xl font-extrabold text-brand-500">482</dd></div>
+        <div><dt class="text-xs text-slate-500">Omitidos por lista negra</dt><dd class="text-3xl font-extrabold text-brand-500">95</dd></div>
+      </dl>
+      <figcaption class="mt-4 text-xs text-slate-500">Difusión de noviembre de 2026. <span class="pend">[PENDIENTE] aprobación de Rogans para publicar estas cifras</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- INTEGRACIONES -->
+<section id="integraciones" aria-labelledby="int-h" class="bg-white">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Integraciones</p>
+    <h2 id="int-h" class="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Se conecta con lo que ya usas</h2>
+    <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">WhatsApp Business</h3><p class="mt-1 text-sm text-slate-600">Plantillas aprobadas por Meta, botones y medios.</p></div>
+      <div class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Clinova</h3><p class="mt-1 text-sm text-slate-600">El software médico Clinova envía avisos por Novainbox, por ejemplo cuando se aprueba un pago en datáfono.</p></div>
+      <div class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Telefonía</h3><p class="mt-1 text-sm text-slate-600">Llamadas salientes desde el chat por la línea de la empresa.</p></div>
+      <div class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Odoo</h3><p class="mt-1 text-sm text-slate-600"><span class="pend">[PENDIENTE]</span> confirmar si hay integración nativa o por CSV.</p></div>
+      <div class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Archivos CSV</h3><p class="mt-1 text-sm text-slate-600">Importa listas de contactos con sus variables para tus difusiones.</p></div>
+      <div class="rounded-xl border border-slate-200 p-5"><h3 class="font-bold">Webhooks y API</h3><p class="mt-1 text-sm text-slate-600"><span class="pend">[PENDIENTE]</span> confirmar si se ofrece a clientes.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRUEBA SOCIAL + PRECIOS -->
+<section id="precios" aria-labelledby="precios-h" class="bg-slate-50">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <div class="grid gap-8 lg:grid-cols-2">
+      <div class="rounded-3xl bg-white p-8 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Lo que dicen</p>
+        <h2 class="mt-2 text-2xl font-extrabold">Testimonios de clientes</h2>
+        <p class="mt-4 text-slate-600"><span class="pend">[PENDIENTE]</span> testimonios reales con nombre, cargo y empresa, y su autorización para publicarlos.</p>
+      </div>
+      <div class="rounded-3xl bg-white p-8 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Precios</p>
+        <h2 id="precios-h" class="mt-2 text-2xl font-extrabold">Planes a la medida de tu equipo</h2>
+        <p class="mt-4 text-slate-600">Planes, precio y qué incluye cada uno: <span class="pend">[PENDIENTE]</span>. Costo de los mensajes de WhatsApp (cobro de Meta): <span class="pend">[PENDIENTE] cómo se factura</span>.</p>
+        <a href="#demo" class="mt-6 inline-block rounded-full bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600">Pide una cotización</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" aria-labelledby="faq-h" class="bg-white">
+  <div class="mx-auto max-w-3xl px-4 py-20 sm:px-6">
+    <h2 id="faq-h" class="text-3xl font-extrabold tracking-tight sm:text-4xl">Preguntas frecuentes</h2>
+    <div class="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+      <details class="group py-5" open><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Qué es Novainbox?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600">Novainbox es una plataforma web de WhatsApp Business para equipos. Reúne en una sola bandeja las conversaciones del número de la empresa, permite enviar difusiones masivas con plantillas aprobadas, automatizar respuestas con flujos y medir cada envío.</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Puedo enviar mensajes masivos por WhatsApp con Novainbox?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600">Sí. Subes un CSV con teléfono y nombre, eliges la plantilla aprobada, programas la fecha y hora, y Novainbox envía respetando una ventana de horario, los festivos, una velocidad configurable y las exclusiones por etiqueta o por mensajes recientes.</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Por qué hay que usar plantillas aprobadas?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600">Es una regla de WhatsApp Business: si el cliente no ha escrito en las últimas 24 horas, la conversación solo se puede abrir con una plantilla aprobada por Meta. Dentro de esas 24 horas el equipo puede responder con mensajes libres.</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Varias personas pueden atender el mismo WhatsApp?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600">Sí. La bandeja es compartida: cada conversación puede tener un asesor asignado, y el equipo ve qué chats están sin responder, cuáles están activos y cuáles cerrados.</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Qué métricas muestra una difusión?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600">Cada difusión muestra cuántos mensajes se enviaron, entregaron y leyeron, los clics en cada botón, los contactos omitidos (por ejemplo, por lista negra) y los errores con su motivo.</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Se puede usar desde el celular?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600">Sí. Novainbox funciona en el navegador y se puede instalar en el celular como aplicación web (PWA).</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Novainbox usa inteligencia artificial?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600"><span class="pend">[PENDIENTE]</span> confirmar qué funciones de IA tiene o tendrá.</p></details>
+      <details class="group py-5"><summary class="flex cursor-pointer items-center justify-between font-semibold"><h3>¿Cuánto cuesta?</h3><span class="text-brand-500 group-open:rotate-45">+</span></summary><p class="mt-3 text-slate-600"><span class="pend">[PENDIENTE]</span> planes y precios. Mientras tanto, agenda una demo y te cotizamos según tu equipo y tu volumen de mensajes.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA + FORM -->
+<section id="demo" aria-labelledby="demo-h" class="bg-gradient-to-br from-brand-600 to-teal-brand">
+  <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-20 text-white sm:px-6 lg:grid-cols-2">
+    <div>
+      <h2 id="demo-h" class="text-3xl font-extrabold tracking-tight sm:text-4xl">Mira Novainbox funcionando con tu caso</h2>
+      <p class="mt-4 text-lg text-white/85">En una demo te mostramos la bandeja, una difusión y un flujo armados para tu negocio, y resolvemos tus dudas.</p>
+      <p class="mt-4 text-sm text-white/80">¿Prefieres WhatsApp? <span class="pend">[PENDIENTE número de ventas]</span></p>
+    </div>
+    <form id="form-demo" class="rounded-2xl bg-white p-6 text-ink shadow-xl sm:p-8" novalidate>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="text-sm font-medium">Nombre<input name="nombre" required autocomplete="name" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"></label>
+        <label class="text-sm font-medium">Empresa<input name="empresa" required autocomplete="organization" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"></label>
+        <label class="text-sm font-medium">WhatsApp<input name="whatsapp" type="tel" required autocomplete="tel" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"></label>
+        <label class="text-sm font-medium">Correo<input name="correo" type="email" autocomplete="email" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"></label>
+        <label class="text-sm font-medium sm:col-span-2">¿Cuántas personas atienden tu WhatsApp?
+          <select name="equipo" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option>1 a 3</option><option>4 a 10</option><option>11 a 30</option><option>Más de 30</option></select>
+        </label>
+      </div>
+      <label class="mt-4 flex gap-2 text-xs text-slate-600"><input type="checkbox" required class="mt-0.5"> Autorizo el tratamiento de mis datos según la política de privacidad <span class="pend">[PENDIENTE enlace]</span>.</label>
+      <button type="submit" class="mt-5 w-full rounded-full bg-brand-500 py-3 font-semibold text-white hover:bg-brand-600">Agendar demo</button>
+      <p id="form-aviso" class="mt-3 hidden rounded-lg bg-amber-50 p-3 text-center text-sm text-amber-900" role="status">Vista previa: el formulario está desactivado y no se envió ningún dato.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer class="bg-ink text-slate-400">
+  <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <div class="flex items-center gap-2 text-white"><img src="./assets/novainbox-icon.svg" alt="" width="24" height="24" class="h-6 w-6"> <span class="font-bold">Novainbox</span></div>
+    <p>© 2026 Novainbox · Titular: <span class="pend">[PENDIENTE]</span> · <a href="#" class="underline">Privacidad <span class="pend">[PENDIENTE]</span></a></p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('form-demo').addEventListener('submit',function(e){e.preventDefault();document.getElementById('form-aviso').classList.remove('hidden');});
+</script>
+</body>
+</html>
