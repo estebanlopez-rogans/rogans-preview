@@ -91,6 +91,24 @@
    "telephone": "+584120858015",
    "description": "Consulta de psicología clínica online y presencial: acompañamiento psicológico humano y confidencial.",
    "medicalSpecialty": "Psychiatric",
+   "availableService": [
+    {
+     "@type": "Service",
+     "name": "Consulta psicológica online",
+     "serviceType": "Psicología clínica",
+     "availableChannel": {
+      "@type": "ServiceChannel",
+      "serviceUrl": "https://rogansya.com/psicologia/stephanie-borjas/",
+      "availableLanguage": "es"
+     }
+    },
+    {
+     "@type": "Service",
+     "name": "Consulta psicológica presencial",
+     "serviceType": "Psicología clínica",
+     "availableLanguage": "es"
+    }
+   ],
    "employee": {
     "@id": "https://rogansya.com/psicologia/stephanie-borjas/#persona"
    },
@@ -184,7 +202,7 @@
      "name": "¿La atención es online o presencial?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Se ofrece atención psicológica online y presencial."
+      "text": "Sí, atiendo de forma online y presencial. Las sesiones online son por videollamada, con la misma confidencialidad que en el consultorio. La cita presencial se realiza en un espacio reservado."
      }
     },
     {
@@ -256,7 +274,7 @@
 <section id="inicio" class="relative overflow-hidden bg-gradient-to-b from-brand-tint to-white"><img src="assets/mariposa.svg" alt="" aria-hidden="true" width="640" height="640" class="pointer-events-none absolute -right-28 top-0 h-[30rem] w-[30rem] max-w-none opacity-25 lg:-right-16 lg:top-0 lg:h-[42rem] lg:w-[42rem]">
   <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:px-6 lg:grid-cols-[1.1fr_.9fr] lg:py-20">
     <div>
-      <p class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-semibold text-brand-dark ring-1 ring-brand-soft">Psicología clínica integral · Online y presencial <span class="pend">[POR CONFIRMAR]</span></p>
+      <p class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-semibold text-brand-dark ring-1 ring-brand-soft">Psicología clínica integral · Online y presencial</p>
       <h1 class="mt-5 text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">Stephanie Borjas, psicóloga clínica en Bogotá y online</h1>
       <p class="mt-5 max-w-xl text-lg text-slate-700">Un espacio profesional, humano y confidencial para cuidar tu salud mental, con un enfoque integral. Más de 5 años de experiencia en clínicas e IPS de Bogotá y a nivel internacional.</p>
       <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"><a id="cta-hero" href="https://wa.me/584120858015?text=Hola%20Stephanie%2C%20quiero%20agendar%20una%20cita" target="_blank" rel="noopener" class="btn "><svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5 fill-current"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.8 14.2c-.2.7-1.4 1.3-1.9 1.3-.5.1-1.1.1-1.8-.1a16 16 0 0 1-5.8-4.4c-1.2-1.5-1.9-3-2-3.5-.1-.6.4-1.7 1.2-2.2.3-.2.6-.1.8.3l.8 1.8c.1.3 0 .5-.2.8l-.5.6c-.1.2-.2.4 0 .6a8 8 0 0 0 3.6 3c.3.1.5.1.7-.1l.7-.9c.2-.3.5-.3.8-.2l1.8.9c.3.1.5.3.5.5 0 .3 0 .9-.2 1.1Z"/></svg>Agenda tu cita por WhatsApp</a><a href="https://wa.me/584120858015?text=Hola%20Stephanie%2C%20quiero%20agendar%20una%20cita" class="text-sm text-slate-600 sm:ml-2" target="_blank" rel="noopener">o escribe al <strong class="text-ink">+58 412-085-8015</strong></a></div>
@@ -317,7 +335,7 @@
 
 <section id="modalidad" aria-labelledby="mod-h" class="bg-white">
   <div class="mx-auto max-w-6xl px-4 py-16 md:px-6">
-    <h2 id="mod-h" class="text-3xl font-medium tracking-tight text-ink md:text-4xl">Psicóloga online y presencial <span class="pend">[POR CONFIRMAR]</span></h2>
+    <h2 id="mod-h" class="text-3xl font-medium tracking-tight text-ink md:text-4xl">Psicóloga online y presencial</h2>
     <div class="mt-8 grid gap-6 md:grid-cols-2">
       <article class="rounded-2xl border border-slate-200 p-6"><h3 class="text-lg font-medium text-ink">Atención online</h3><p class="mt-2 text-slate-700">Sesiones por videollamada desde donde estés, con la misma calidad y confidencialidad que en consulta. Ideal si vives fuera de Bogotá o en el exterior.</p></article>
       <article class="rounded-2xl border border-slate-200 p-6"><h3 class="text-lg font-medium text-ink">Atención presencial</h3><p class="mt-2 text-slate-700">Consulta presencial en un espacio tranquilo y reservado. <span class="pend">[POR CONFIRMAR: ciudad, dirección y horarios]</span></p></article>
@@ -340,7 +358,7 @@
     <p class="text-sm font-semibold uppercase tracking-wider text-brand-dark">Preguntas frecuentes</p>
     <h2 id="faq-h" class="mt-2 text-3xl font-medium tracking-tight text-ink md:text-4xl">Resolvemos tus dudas antes de empezar</h2>
     <div class="mt-8 space-y-3"><details class="group rounded-2xl border border-slate-200 bg-white p-5 open:shadow-md"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink"><h3 class="text-base font-semibold">¿Cómo agendo mi primera cita?</h3><span aria-hidden="true" class="text-brand transition group-open:rotate-45 text-2xl leading-none">+</span></summary><p class="mt-3 text-slate-700">Escríbeme por WhatsApp al +58 412-085-8015 con el botón de esta página. Te respondo para coordinar un horario que se ajuste a ti y resolver tus dudas antes de empezar.</p></details>
-<details class="group rounded-2xl border border-slate-200 bg-white p-5 open:shadow-md"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink"><h3 class="text-base font-semibold">¿La atención es online o presencial?</h3><span aria-hidden="true" class="text-brand transition group-open:rotate-45 text-2xl leading-none">+</span></summary><p class="mt-3 text-slate-700">Se ofrece atención psicológica online y presencial. <span class="pend">[POR CONFIRMAR: modalidades, ciudad y dirección del consultorio, y si la atención online está disponible para pacientes fuera de Bogotá]</span>.</p></details>
+<details class="group rounded-2xl border border-slate-200 bg-white p-5 open:shadow-md"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink"><h3 class="text-base font-semibold">¿La atención es online o presencial?</h3><span aria-hidden="true" class="text-brand transition group-open:rotate-45 text-2xl leading-none">+</span></summary><p class="mt-3 text-slate-700">Sí, atiendo de forma online y presencial. Las sesiones online son por videollamada, con la misma confidencialidad que en el consultorio. La cita presencial se realiza en un espacio reservado. <span class="pend">[POR CONFIRMAR: ciudad, dirección del consultorio y horarios]</span>.</p></details>
 <details class="group rounded-2xl border border-slate-200 bg-white p-5 open:shadow-md"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink"><h3 class="text-base font-semibold">¿Qué pasa en la primera sesión?</h3><span aria-hidden="true" class="text-brand transition group-open:rotate-45 text-2xl leading-none">+</span></summary><p class="mt-3 text-slate-700">Es un espacio para conocernos: conversamos sobre qué te trae a consulta, cómo te sientes hoy y qué te gustaría trabajar. Con esa información definimos juntos cómo seguir. No tienes que llegar con todo claro.</p></details>
 <details class="group rounded-2xl border border-slate-200 bg-white p-5 open:shadow-md"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink"><h3 class="text-base font-semibold">¿Lo que hablo en consulta es confidencial?</h3><span aria-hidden="true" class="text-brand transition group-open:rotate-45 text-2xl leading-none">+</span></summary><p class="mt-3 text-slate-700">Sí. La confidencialidad es parte esencial del trabajo psicológico: lo que conversas en sesión se maneja con reserva profesional, dentro de los límites que establece la ética profesional y la ley.</p></details>
 <details class="group rounded-2xl border border-slate-200 bg-white p-5 open:shadow-md"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink"><h3 class="text-base font-semibold">¿Con qué temas puedes acompañarme?</h3><span aria-hidden="true" class="text-brand transition group-open:rotate-45 text-2xl leading-none">+</span></summary><p class="mt-3 text-slate-700">Acompaña procesos relacionados con ansiedad, estrés, autoestima, relaciones y duelo. <span class="pend">[POR CONFIRMAR: lista final de áreas y poblaciones que atiende]</span>. Si tu motivo es otro, escríbeme y te oriento.</p></details>
